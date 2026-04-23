@@ -384,6 +384,7 @@ export const MAX_FILE_SIZE_MB = 10;
 export const EMBEDDING_DIMS = 768; // google text-embedding-004
 export const IP_RATE_LIMIT_RPM = 60;
 export const SUPPORTED_FILE_TYPES = ['pdf', 'txt', 'docx'] as const;
+export const MAX_HISTORY_MESSAGES = 10; // cap chat history fed to prompt to prevent context overflow
 ```
 
 - [ ] **Step 2: Create DTOs**
@@ -750,8 +751,15 @@ export class GoogleEmbeddingClient {
 
 	async embedBatch(texts: string[]): Promise<number[][]> {
 		const model = this.genAI.getGenerativeModel({ model: this.model });
-		const results = await Promise.all(texts.map(t => model.embedContent(t)));
-		return results.map(r => r.embedding.values);
+		// batchEmbedContents sends all texts in a single API request — much faster than
+		// Promise.all(texts.map(embedContent)) which fires N concurrent round-trips
+		const response = await model.batchEmbedContents({
+			requests: texts.map(content => ({
+				content: { parts: [{ text: content }], role: 'user' },
+				taskType: 'RETRIEVAL_DOCUMENT' as const,
+			})),
+		});
+		return response.embeddings.map(e => e.values);
 	}
 }
 ```
@@ -848,6 +856,7 @@ export interface CreateDocumentData {
 export interface IDocumentRepository {
 	create(data: CreateDocumentData): Promise<Document>;
 	findById(id: string): Promise<Document | null>;
+	deleteById(id: string): Promise<void>;
 }
 ```
 
@@ -1171,6 +1180,10 @@ export class PrismaDocumentRepository implements IDocumentRepository {
 			sessionId: doc.sessionId,
 		};
 	}
+
+	async deleteById(id: string): Promise<void> {
+		await prisma.document.delete({ where: { id } }).catch(() => {});
+	}
 }
 ```
 
@@ -1184,18 +1197,22 @@ import { TOP_K_CHUNKS } from '../../../shared/config/constants';
 
 export class PrismaChunkRepository implements IChunkRepository {
 	async saveMany(chunks: CreateChunkData[]): Promise<void> {
-		// pgvector requires raw SQL for vector insertion
-		for (const chunk of chunks) {
-			await prisma.$executeRaw`
-        INSERT INTO chunks (id, content, embedding, "documentId")
-        VALUES (
-          gen_random_uuid(),
-          ${chunk.content},
-          ${`[${chunk.embedding.join(',')}]`}::vector,
-          ${chunk.documentId}
-        )
-      `;
-		}
+		if (chunks.length === 0) return;
+		// Wrap all inserts in a single transaction — eliminates N network round-trips
+		// (pgvector requires raw SQL; $createMany cannot handle the vector cast)
+		await prisma.$transaction(async tx => {
+			for (const chunk of chunks) {
+				await tx.$executeRaw`
+          INSERT INTO chunks (id, content, embedding, "documentId")
+          VALUES (
+            gen_random_uuid(),
+            ${chunk.content},
+            ${`[${chunk.embedding.join(',')}]`}::vector,
+            ${chunk.documentId}
+          )
+        `;
+			}
+		});
 	}
 
 	async similaritySearch(params: {
@@ -1203,20 +1220,28 @@ export class PrismaChunkRepository implements IChunkRepository {
 		documentId: string;
 		topK: number;
 	}): Promise<Chunk[]> {
-		const vectorStr = `[${params.queryVector.join(',')}]`;
+		// Validate vector to prevent malformed casts — all elements must be finite numbers
+		if (params.queryVector.some(v => !Number.isFinite(v))) {
+			throw new Error('Invalid query vector: contains non-finite values');
+		}
+		// Use Prisma.raw only after validation — the vector literal cannot be parameterized
+		// because PostgreSQL needs to see '[x,y,z]' as a literal, not a bind parameter, for ::vector cast
+		const { Prisma } = await import('@prisma/client');
+		const vectorLiteral = Prisma.raw(`'[${params.queryVector.join(',')}]'`);
+		const topK = Prisma.raw(String(Math.max(1, Math.floor(params.topK))));
 		const results = await prisma.$queryRaw<
 			Array<{ id: string; content: string; documentId: string }>
 		>`
       SELECT id, content, "documentId"
       FROM chunks
       WHERE "documentId" = ${params.documentId}
-      ORDER BY embedding <=> ${vectorStr}::vector
-      LIMIT ${params.topK}
+      ORDER BY embedding <=> ${vectorLiteral}::vector
+      LIMIT ${topK}
     `;
 		return results.map(r => ({
 			id: r.id,
 			content: r.content,
-			embedding: [], // not returned from similarity search
+			embedding: [],
 			documentId: r.documentId,
 		}));
 	}
@@ -1464,15 +1489,13 @@ import { IngestionService } from '../IngestionService';
 
 const makeRepo = () => ({
 	documentRepo: {
-		create: vi
-			.fn()
-			.mockResolvedValue({
-				id: 'doc-1',
-				name: 'test.txt',
-				fileType: 'TXT',
-				createdAt: new Date(),
-				sessionId: 'sess-1',
-			}),
+		create: vi.fn().mockResolvedValue({
+			id: 'doc-1',
+			name: 'test.txt',
+			fileType: 'TXT',
+			createdAt: new Date(),
+			sessionId: 'sess-1',
+		}),
 	},
 	chunkRepo: { saveMany: vi.fn().mockResolvedValue(undefined) },
 	txtParser: {
@@ -1582,13 +1605,19 @@ export class IngestionService {
 			sessionId: params.sessionId,
 		});
 
-		await this.chunkRepo.saveMany(
-			chunkTexts.map((content, i) => ({
-				content,
-				embedding: embeddings[i],
-				documentId: document.id,
-			})),
-		);
+		// If chunk save fails, delete the orphaned document record so the user can retry cleanly
+		try {
+			await this.chunkRepo.saveMany(
+				chunkTexts.map((content, i) => ({
+					content,
+					embedding: embeddings[i],
+					documentId: document.id,
+				})),
+			);
+		} catch (err) {
+			await this.documentRepo.deleteById(document.id).catch(() => {});
+			throw err;
+		}
 
 		return { documentId: document.id, chunkCount: chunkTexts.length, name: params.fileName };
 	}
@@ -1692,7 +1721,7 @@ import { IEmbeddingClient } from '../ports/IEmbeddingClient';
 import { ILLMClient } from '../ports/ILLMClient';
 import { SessionService } from '../session/SessionService';
 import { MessageRole } from '../../../domain/entities/Message';
-import { TOP_K_CHUNKS } from '../../../shared/config/constants';
+import { TOP_K_CHUNKS, MAX_HISTORY_MESSAGES } from '../../../shared/config/constants';
 
 interface RetrievalServiceDeps {
 	chunkRepo: IChunkRepository;
@@ -1760,8 +1789,11 @@ Current question: ${userMessage}`;
 			topK: TOP_K_CHUNKS,
 		});
 
-		const history = await this.messageRepo.findBySessionId(params.sessionId);
-		const historyForPrompt = history.map(m => ({ role: m.role, content: m.content }));
+		const allHistory = await this.messageRepo.findBySessionId(params.sessionId);
+		// Cap history to avoid prompt context overflow on long conversations
+		const historyForPrompt = allHistory
+			.slice(-MAX_HISTORY_MESSAGES)
+			.map(m => ({ role: m.role, content: m.content }));
 
 		const prompt = this.buildAugmentedPrompt({
 			contextChunks: chunks.map(c => c.content),
@@ -1770,16 +1802,19 @@ Current question: ${userMessage}`;
 		});
 
 		let fullResponse = '';
-		for await (const text of this.llmClient.streamMessage(prompt)) {
-			fullResponse += text;
-			yield text;
+		try {
+			for await (const text of this.llmClient.streamMessage(prompt)) {
+				fullResponse += text;
+				yield text;
+			}
+		} finally {
+			// Guarantee counter and message save even if stream throws midway
+			await this.sessionService.increment(params.sessionId);
+			await this.messageRepo.saveMany([
+				{ role: 'USER', content: params.message, sessionId: params.sessionId },
+				{ role: 'ASSISTANT', content: fullResponse, sessionId: params.sessionId },
+			]);
 		}
-
-		await this.sessionService.increment(params.sessionId);
-		await this.messageRepo.saveMany([
-			{ role: 'USER', content: params.message, sessionId: params.sessionId },
-			{ role: 'ASSISTANT', content: fullResponse, sessionId: params.sessionId },
-		]);
 	}
 }
 ```
@@ -4469,7 +4504,7 @@ import { ILLMClient } from '../ports/ILLMClient';
 import { IRerankClient } from '../ports/IRerankClient';
 import { SessionService } from '../session/SessionService';
 import { MessageRole } from '../../../domain/entities/Message';
-import { TOP_K_CHUNKS } from '../../../shared/config/constants';
+import { TOP_K_CHUNKS, MAX_HISTORY_MESSAGES } from '../../../shared/config/constants';
 
 interface RetrievalServiceDeps {
 	chunkRepo: IChunkRepository;
@@ -4546,8 +4581,10 @@ Current question: ${userMessage}`;
 			topN: TOP_K_CHUNKS,
 		});
 
-		const history = await this.messageRepo.findBySessionId(params.sessionId);
-		const historyForPrompt = history.map(m => ({ role: m.role, content: m.content }));
+		const allHistory = await this.messageRepo.findBySessionId(params.sessionId);
+		const historyForPrompt = allHistory
+			.slice(-MAX_HISTORY_MESSAGES)
+			.map(m => ({ role: m.role, content: m.content }));
 
 		const prompt = this.buildAugmentedPrompt({
 			contextChunks: reranked.map(r => r.content),
@@ -4556,16 +4593,18 @@ Current question: ${userMessage}`;
 		});
 
 		let fullResponse = '';
-		for await (const text of this.llmClient.streamMessage(prompt)) {
-			fullResponse += text;
-			yield text;
+		try {
+			for await (const text of this.llmClient.streamMessage(prompt)) {
+				fullResponse += text;
+				yield text;
+			}
+		} finally {
+			await this.sessionService.increment(params.sessionId);
+			await this.messageRepo.saveMany([
+				{ role: 'USER', content: params.message, sessionId: params.sessionId },
+				{ role: 'ASSISTANT', content: fullResponse, sessionId: params.sessionId },
+			]);
 		}
-
-		await this.sessionService.increment(params.sessionId);
-		await this.messageRepo.saveMany([
-			{ role: 'USER', content: params.message, sessionId: params.sessionId },
-			{ role: 'ASSISTANT', content: fullResponse, sessionId: params.sessionId },
-		]);
 	}
 }
 ```
@@ -4626,9 +4665,10 @@ Add after the `Message` model:
 
 ```prisma
 model LLMLog {
-  id                String   @id @default(uuid())
-  sessionId         String
-  documentId        String
+  id                String           @id @default(uuid())
+  userId            String           // intentionally no FK — survives user deletion for analytics
+  sessionId         String           // intentionally no FK — survives session deletion
+  documentId        String           // intentionally no FK — survives document deletion
   query             String
   response          String
   latencyMs         Int
@@ -4636,10 +4676,12 @@ model LLMLog {
   completionTokens  Int
   estimatedCostUsd  Float
   hasCitation       Boolean
-  rerankingUsed     Boolean  @default(true)
-  chunkingStrategy  String   @default("RECURSIVE")
-  createdAt         DateTime @default(now())
+  rerankingUsed     Boolean          @default(true)
+  chunkingStrategy  ChunkingStrategy @default(RECURSIVE)
+  createdAt         DateTime         @default(now())
 
+  @@index([createdAt])
+  @@index([userId, createdAt])
   @@map("llm_logs")
 }
 ```
@@ -4655,6 +4697,7 @@ npx prisma migrate dev --name add_llm_logs
 ```ts
 export interface LLMLog {
 	id: string;
+	userId: string;
 	sessionId: string;
 	documentId: string;
 	query: string;
@@ -4738,6 +4781,7 @@ Expected: FAIL — module not found.
 import { LLMLog } from '../../../domain/entities/LLMLog';
 
 export interface CreateLLMLogData {
+	userId: string;
 	sessionId: string;
 	documentId: string;
 	query: string;
@@ -4977,8 +5021,10 @@ async *stream(params: {
   }))
   yield { sources }
 
-  const history = await this.messageRepo.findBySessionId(params.sessionId)
-  const historyForPrompt = history.map(m => ({ role: m.role, content: m.content }))
+  const allHistory = await this.messageRepo.findBySessionId(params.sessionId)
+  const historyForPrompt = allHistory
+    .slice(-MAX_HISTORY_MESSAGES)
+    .map(m => ({ role: m.role, content: m.content }))
 
   const prompt = this.buildAugmentedPrompt({
     contextChunks,
@@ -4987,34 +5033,36 @@ async *stream(params: {
   })
 
   let fullResponse = ''
-  for await (const text of this.llmClient.streamMessage(prompt)) {
-    fullResponse += text
-    yield text
+  try {
+    for await (const text of this.llmClient.streamMessage(prompt)) {
+      fullResponse += text
+      yield text
+    }
+  } finally {
+    // Guarantee persistence even if LLM stream throws midway through
+    const latencyMs = Date.now() - startTime
+    await this.sessionService.increment(params.sessionId)
+    await this.messageRepo.saveMany([
+      { role: 'USER', content: params.message, sessionId: params.sessionId },
+      { role: 'ASSISTANT', content: fullResponse, sessionId: params.sessionId },
+    ])
+    const promptTokens = this.llmOpsService.approximateTokenCount(prompt)
+    const completionTokens = this.llmOpsService.approximateTokenCount(fullResponse)
+    void this.llmOpsService.log({
+      userId: params.userId,
+      sessionId: params.sessionId,
+      documentId: params.documentId,
+      query: params.message,
+      response: fullResponse,
+      latencyMs,
+      promptTokens,
+      completionTokens,
+      estimatedCostUsd: this.llmOpsService.estimateCost(promptTokens, completionTokens),
+      hasCitation: this.llmOpsService.detectCitation(fullResponse),
+      rerankingUsed: rerankingEnabled,
+      chunkingStrategy: params.chunkingStrategy ?? 'RECURSIVE',
+    })
   }
-
-  const latencyMs = Date.now() - startTime
-
-  await this.sessionService.increment(params.sessionId)
-  await this.messageRepo.saveMany([
-    { role: 'USER', content: params.message, sessionId: params.sessionId },
-    { role: 'ASSISTANT', content: fullResponse, sessionId: params.sessionId },
-  ])
-
-  const promptTokens = this.llmOpsService.approximateTokenCount(prompt)
-  const completionTokens = this.llmOpsService.approximateTokenCount(fullResponse)
-  void this.llmOpsService.log({
-    sessionId: params.sessionId,
-    documentId: params.documentId,
-    query: params.message,
-    response: fullResponse,
-    latencyMs,
-    promptTokens,
-    completionTokens,
-    estimatedCostUsd: this.llmOpsService.estimateCost(promptTokens, completionTokens),
-    hasCitation: this.llmOpsService.detectCitation(fullResponse),
-    rerankingUsed: rerankingEnabled,
-    chunkingStrategy: params.chunkingStrategy ?? 'RECURSIVE',
-  })
 }
 ```
 
@@ -5153,7 +5201,7 @@ git commit -m "feat: add LLMOps dashboard page at /stats"
 
 ---
 
-## Task 24: Verification (Updated)
+## Task 27: Final Verification
 
 - [ ] **Step 1: Run all unit tests**
 

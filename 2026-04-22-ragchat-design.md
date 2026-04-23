@@ -313,13 +313,6 @@ CREATE INDEX ON chunks USING ivfflat (embedding vector_cosine_ops) WITH (lists =
 Rule of thumb: `lists ≈ sqrt(total_rows)`; pick higher once chunk count grows.
 For very small datasets or if ordering quality matters more than speed, consider `HNSW` instead of `ivfflat`.
 
-pgvector setup:
-
-```sql
-CREATE EXTENSION IF NOT EXISTS vector;
-CREATE INDEX ON chunks USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
-```
-
 ---
 
 ## Data Flow
@@ -331,7 +324,7 @@ POST /api/ingest (multipart/form-data: file, sessionId)
   → validate file type and size (max 10MB)
   → PdfParser | TxtParser | DocxParser  → raw text
   → ChunkingService.chunk(text, { size: 512, overlap: 50 })
-  → VoyageEmbeddingClient.embedBatch(chunks)
+  → GoogleEmbeddingClient.embedBatch(chunks)
   → PrismaDocumentRepository.create(document)
   → PrismaChunkRepository.saveMany(chunks + vectors)
   → return IngestResponseDto { documentId, chunkCount }
@@ -342,11 +335,12 @@ POST /api/ingest (multipart/form-data: file, sessionId)
 ```
 POST /api/chat { message, sessionId, documentId }
   → SessionService.validateLimit(sessionId)   ← 403 if queryCount >= 20
-  → VoyageEmbeddingClient.embed(message)
-  → PrismaChunkRepository.similaritySearch(vector, { topK: 5, documentId })
+  → GoogleEmbeddingClient.embed(message)
+  → PrismaChunkRepository.similaritySearch(vector, { topK: 20, documentId }) ← wide net
+  → CohereRerankClient.rerank(query, candidates, topN=5)
   → buildAugmentedPrompt(contextChunks, message, chatHistory)
-  → ClaudeClient.streamMessage(augmentedPrompt)  ← SSE
-  → SessionService.incrementCounter(sessionId)
+  → GeminiClient.streamMessage(augmentedPrompt)  ← SSE
+  → SessionService.incrementUsage(userId)
   → PrismaMessageRepository.saveExchange(userMsg, assistantMsg)
   → stream chunks to client via SSE
 ```

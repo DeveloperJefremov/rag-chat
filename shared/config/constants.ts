@@ -1,0 +1,9 @@
+export const SESSION_TTL_HOURS = 24;
+export const CHUNK_SIZE = 512;
+export const CHUNK_OVERLAP = 50;
+export const TOP_K_CHUNKS = 5;
+export const MAX_FILE_SIZE_MB = 10;
+export const EMBEDDING_DIMS = 768;
+export const IP_RATE_LIMIT_RPM = 60;
+export const SUPPORTED_FILE_TYPES = ['pdf', 'txt', 'docx'] as const;
+export const MAX_HISTORY_MESSAGES = 10;
