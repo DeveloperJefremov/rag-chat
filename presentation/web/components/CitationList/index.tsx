@@ -8,18 +8,50 @@ export function CitationList({ citations }: CitationListProps) {
 	if (citations.length === 0) return null;
 
 	return (
-		<div className='border-t border-white/20 pt-2'>
-			<p className='mb-1 text-xs font-medium opacity-70'>Sources</p>
-			<ol className='space-y-0.5'>
+		<div
+			style={{
+				marginTop: 8,
+				padding: '10px 14px',
+				background: 'var(--sand)',
+				borderLeft: '2px solid var(--terracotta-500)',
+			}}
+		>
+			<span
+				style={{
+					display: 'block',
+					fontFamily: 'var(--font-jetbrains-mono), monospace',
+					fontSize: 9,
+					letterSpacing: '0.2em',
+					textTransform: 'uppercase',
+					color: 'var(--terracotta-700)',
+					marginBottom: 6,
+				}}
+			>
+				→ Retrieved from
+			</span>
+			<div>
 				{citations.map(c => (
-					<li key={c.index} className='text-xs opacity-80'>
-						<span className='font-mono opacity-60'>[{c.index}]</span>{' '}
-						<span className='font-medium'>{c.documentName}</span>
-						{' — '}
-						<span className='line-clamp-2'>{c.content}</span>
-					</li>
+					<span
+						key={c.index}
+						title={c.content}
+						style={{
+							display: 'inline-block',
+							padding: '2px 8px',
+							background: 'var(--paper)',
+							border: '1px solid var(--powder-300)',
+							borderRadius: 3,
+							fontFamily: 'var(--font-jetbrains-mono), monospace',
+							fontSize: 10,
+							color: 'var(--cobalt-700)',
+							marginRight: 4,
+							marginTop: 4,
+							cursor: 'pointer',
+						}}
+					>
+						{c.documentName} · §{c.index + 1}
+					</span>
 				))}
-			</ol>
+			</div>
 		</div>
 	);
 }

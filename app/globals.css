@@ -49,6 +49,26 @@
 }
 
 :root {
+	/* ── Design palette ─────────────────────────────────────── */
+	--cobalt-950: #0a1428;
+	--cobalt-900: #12203f;
+	--cobalt-800: #1a2e5c;
+	--cobalt-700: #284685;
+	--cobalt-500: #4b6cb7;
+	--powder-600: #6b8cae;
+	--powder-400: #9db5cc;
+	--powder-300: #b8cbdd;
+	--powder-200: #d4e0ec;
+	--powder-100: #e8eff6;
+	--terracotta-700: #a84a1f;
+	--terracotta-600: #c85a2c;
+	--terracotta-500: #e06b38;
+	--terracotta-300: #f2b090;
+	--sand: #f4ede0;
+	--paper: #faf6ed;
+	--ink: #0f1419;
+	--smoke: #6b7280;
+	/* ── Base theme ─────────────────────────────────────────── */
 	--background: oklch(1 0 0);
 	--foreground: oklch(0.145 0 0);
 	--card: oklch(1 0 0);
@@ -115,6 +135,84 @@
 	--sidebar-accent-foreground: oklch(0.985 0 0);
 	--sidebar-border: oklch(1 0 0 / 10%);
 	--sidebar-ring: oklch(0.556 0 0);
+}
+
+@keyframes pulse-dot {
+	0%,
+	100% {
+		box-shadow: 0 0 0 3px rgba(224, 107, 56, 0.2);
+	}
+	50% {
+		box-shadow: 0 0 0 6px rgba(224, 107, 56, 0.08);
+	}
+}
+
+@keyframes fade-up {
+	from {
+		transform: translateY(8px);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+
+@keyframes slide-in {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes blink {
+	0%,
+	80%,
+	100% {
+		opacity: 0;
+		transform: translateY(0);
+	}
+	40% {
+		opacity: 1;
+		transform: translateY(-4px);
+	}
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.dot-1 {
+	animation: blink 1.2s ease-in-out infinite 0s;
+}
+.dot-2 {
+	animation: blink 1.2s ease-in-out infinite 0.2s;
+}
+.dot-3 {
+	animation: blink 1.2s ease-in-out infinite 0.4s;
+}
+
+.msg-animated {
+	animation: slide-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+::-webkit-scrollbar {
+	width: 4px;
+}
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+::-webkit-scrollbar-thumb {
+	background: var(--powder-300);
+	border-radius: 2px;
+}
+
+.stat-card {
+	animation: fade-up 0.35s ease both;
 }
 
 @layer base {

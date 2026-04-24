@@ -1,7 +1,5 @@
 'use client';
-import { useRef, useState, DragEvent, ChangeEvent } from 'react';
-import { Upload } from 'lucide-react';
-import { Button } from '@/presentation/components/ui/button';
+import { ChangeEvent, DragEvent, useRef, useState } from 'react';
 
 const ACCEPTED = '.pdf,.txt,.docx';
 const MAX_MB = 10;
@@ -9,11 +7,20 @@ const MAX_MB = 10;
 interface FileDropzoneProps {
 	onFile: (file: File) => void;
 	disabled?: boolean;
+	uploading?: boolean;
+	progress?: number;
 }
 
-export function FileDropzone({ onFile, disabled = false }: FileDropzoneProps) {
+const MONO: React.CSSProperties = { fontFamily: 'var(--font-jetbrains-mono), monospace' };
+
+export function FileDropzone({
+	onFile,
+	disabled = false,
+	uploading = false,
+	progress = 0,
+}: FileDropzoneProps) {
 	const inputRef = useRef<HTMLInputElement>(null);
-	const [isDragging, setIsDragging] = useState(false);
+	const [dragging, setDragging] = useState(false);
 	const [validationError, setValidationError] = useState<string | null>(null);
 
 	const validate = (file: File): string | null => {
@@ -39,7 +46,7 @@ export function FileDropzone({ onFile, disabled = false }: FileDropzoneProps) {
 
 	const handleDrop = (e: DragEvent<HTMLDivElement>) => {
 		e.preventDefault();
-		setIsDragging(false);
+		setDragging(false);
 		const file = e.dataTransfer.files[0];
 		if (file) handleFile(file);
 	};
@@ -54,34 +61,131 @@ export function FileDropzone({ onFile, disabled = false }: FileDropzoneProps) {
 		<div
 			onDragOver={e => {
 				e.preventDefault();
-				setIsDragging(true);
+				setDragging(true);
 			}}
-			onDragLeave={() => setIsDragging(false)}
+			onDragLeave={() => setDragging(false)}
 			onDrop={handleDrop}
-			className={`flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
-				isDragging
-					? 'border-primary bg-primary/5'
-					: 'border-border hover:border-primary/50 hover:bg-muted/20'
-			} ${disabled ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`}
-			onClick={() => !disabled && inputRef.current?.click()}
+			onClick={() => !disabled && !uploading && inputRef.current?.click()}
+			style={{
+				border: `2px dashed ${dragging ? 'var(--cobalt-500)' : 'var(--powder-300)'}`,
+				borderRadius: 10,
+				background: dragging ? 'var(--powder-100)' : 'var(--paper)',
+				padding: '36px 24px',
+				display: 'flex',
+				flexDirection: 'column',
+				alignItems: 'center',
+				justifyContent: 'center',
+				gap: 12,
+				cursor: disabled || uploading ? 'default' : 'pointer',
+				transition: 'border-color 0.15s, background 0.15s',
+				minHeight: 160,
+				opacity: disabled ? 0.5 : 1,
+			}}
 		>
-			<Upload className='text-muted-foreground mb-3 h-8 w-8' />
-			<p className='text-sm font-medium'>Drop a file here or click to upload</p>
-			<p className='text-muted-foreground mt-1 text-xs'>PDF, TXT, DOCX — up to {MAX_MB} MB</p>
-
-			{validationError && <p className='mt-2 text-xs text-red-500'>{validationError}</p>}
-
-			<Button variant='outline' size='sm' className='pointer-events-none mt-4' tabIndex={-1}>
-				Choose file
-			</Button>
-
 			<input
 				ref={inputRef}
 				type='file'
 				accept={ACCEPTED}
 				onChange={handleChange}
-				className='hidden'
+				style={{ display: 'none' }}
 			/>
+			{uploading ? (
+				<>
+					<div
+						style={{
+							width: 36,
+							height: 36,
+							border: '3px solid var(--powder-200)',
+							borderTopColor: 'var(--cobalt-700)',
+							borderRadius: '50%',
+							animation: 'spin 0.8s linear infinite',
+						}}
+					/>
+					<div
+						style={{
+							fontFamily: 'inherit',
+							fontSize: 13,
+							color: 'var(--cobalt-800)',
+							fontWeight: 500,
+						}}
+					>
+						Indexing…
+					</div>
+					<div
+						style={{
+							width: 180,
+							height: 4,
+							background: 'var(--powder-200)',
+							borderRadius: 2,
+							overflow: 'hidden',
+						}}
+					>
+						<div
+							style={{
+								height: '100%',
+								background: 'var(--terracotta-500)',
+								borderRadius: 2,
+								width: `${progress}%`,
+								transition: 'width 0.2s',
+							}}
+						/>
+					</div>
+					<div style={{ ...MONO, fontSize: 10, color: 'var(--smoke)', letterSpacing: '0.1em' }}>
+						{progress}% · chunking · embedding
+					</div>
+				</>
+			) : (
+				<>
+					<svg
+						width='32'
+						height='32'
+						viewBox='0 0 24 24'
+						fill='none'
+						stroke='var(--powder-400)'
+						strokeWidth='1.5'
+					>
+						<path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4' />
+						<polyline points='17 8 12 3 7 8' />
+						<line x1='12' y1='3' x2='12' y2='15' />
+					</svg>
+					<div style={{ textAlign: 'center' }}>
+						<div
+							style={{
+								fontFamily: 'inherit',
+								fontSize: 14,
+								color: 'var(--cobalt-800)',
+								fontWeight: 500,
+								marginBottom: 4,
+							}}
+						>
+							Drop files here, or click to browse
+						</div>
+						<div
+							style={{
+								...MONO,
+								fontSize: 10,
+								color: 'var(--smoke)',
+								letterSpacing: '0.1em',
+								textTransform: 'uppercase',
+							}}
+						>
+							PDF · TXT · DOCX — up to {MAX_MB} MB
+						</div>
+					</div>
+					{validationError && (
+						<div
+							style={{
+								...MONO,
+								fontSize: 10,
+								color: 'var(--terracotta-600)',
+								letterSpacing: '0.08em',
+							}}
+						>
+							{validationError}
+						</div>
+					)}
+				</>
+			)}
 		</div>
 	);
 }
