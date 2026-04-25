@@ -12,4 +12,4 @@ const llmOpsApi = new LLMOpsApi();
 
 export const ingestionClientService = new IngestionClientService(ingestionApi);
 export const chatSessionService = new ChatSessionService(chatApi);
-export { sessionApi, llmOpsApi };
+export { sessionApi, llmOpsApi, ingestionApi };

@@ -88,18 +88,28 @@ Current question: ${userMessage}`;
 		const topK = params.topK ?? TOP_K_CHUNKS;
 		const rerankingEnabled = params.rerankingEnabled ?? true;
 
+		// eslint-disable-next-line no-console
+		console.log('[chat] embed query');
 		const queryVector = await this.embeddingClient.embed(params.message);
 
-		// Fetch wide net for reranking (topK*4), then rerank down to topK
+		// eslint-disable-next-line no-console
+		console.log('[chat] similarity search', {
+			documentId: params.documentId,
+			topK: rerankingEnabled ? topK * 4 : topK,
+		});
 		const candidates = await this.chunkRepo.similaritySearch({
 			queryVector,
 			documentId: params.documentId,
 			userId: params.userId,
 			topK: rerankingEnabled ? topK * 4 : topK,
 		});
+		// eslint-disable-next-line no-console
+		console.log('[chat] candidates:', candidates.length);
 
 		let reranked = candidates;
 		if (rerankingEnabled && candidates.length > 0) {
+			// eslint-disable-next-line no-console
+			console.log('[chat] reranking');
 			reranked = await this.rerankClient
 				.rerank({
 					query: params.message,
@@ -107,6 +117,8 @@ Current question: ${userMessage}`;
 					topN: topK,
 				})
 				.then(results => results.map(r => candidates[r.originalIndex] ?? candidates[0]));
+			// eslint-disable-next-line no-console
+			console.log('[chat] reranked:', reranked.length);
 		}
 
 		const sources: CitationDto[] = reranked.map((chunk, i) => ({
@@ -134,11 +146,17 @@ Current question: ${userMessage}`;
 		let completionTokens = 0;
 
 		try {
+			// eslint-disable-next-line no-console
+			console.log('[chat] starting LLM stream, prompt chars:', prompt.length);
+			let chunkCount = 0;
 			for await (const text of this.llmClient.streamMessage(prompt)) {
+				chunkCount++;
 				fullResponse += text;
 				completionTokens += text.split(/\s+/).length;
 				yield text;
 			}
+			// eslint-disable-next-line no-console
+			console.log('[chat] LLM stream done, chunks:', chunkCount, 'chars:', fullResponse.length);
 		} finally {
 			await this.sessionService.incrementUsage(params.userId);
 			await this.messageRepo.saveMany([

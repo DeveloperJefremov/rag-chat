@@ -2,10 +2,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSidebarStore } from '@/client/stores/sidebarStore';
 import { useSessionStore } from '@/client/stores/sessionStore';
 import { useUploadStore } from '@/client/stores/uploadStore';
+import { ConfirmDialog } from '@/presentation/web/components/ConfirmDialog';
 
 const NAV = [
 	{
@@ -91,14 +92,23 @@ function ChatSection() {
 		deleteSession,
 	} = useSessionStore();
 
+	const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string | null } | null>(
+		null,
+	);
+
 	useEffect(() => {
 		fetchSessions();
 	}, [fetchSessions]);
 
-	const handleDelete = async (e: React.MouseEvent, id: string, title: string | null) => {
+	const requestDelete = (e: React.MouseEvent, id: string, title: string | null) => {
 		e.stopPropagation();
-		const label = title ?? 'this conversation';
-		if (!window.confirm(`Delete ${label}? This cannot be undone.`)) return;
+		setPendingDelete({ id, title });
+	};
+
+	const confirmDelete = async () => {
+		if (!pendingDelete) return;
+		const id = pendingDelete.id;
+		setPendingDelete(null);
 		try {
 			await deleteSession(id);
 		} catch {
@@ -155,6 +165,20 @@ function ChatSection() {
 						No chats yet
 					</div>
 				)}
+				<ConfirmDialog
+					open={pendingDelete !== null}
+					title='Delete chat?'
+					message={
+						pendingDelete
+							? `“${pendingDelete.title ?? 'New conversation'}” and all its messages, documents, and citations will be permanently removed. This cannot be undone.`
+							: ''
+					}
+					confirmLabel='Delete'
+					cancelLabel='Cancel'
+					tone='danger'
+					onConfirm={confirmDelete}
+					onCancel={() => setPendingDelete(null)}
+				/>
 				{sessions.map(s => {
 					const isActive = s.id === activeSessionId;
 					return (
@@ -213,7 +237,7 @@ function ChatSection() {
 									{formatRelative(s.createdAt)}
 								</span>
 								<button
-									onClick={e => handleDelete(e, s.id, s.title)}
+									onClick={e => requestDelete(e, s.id, s.title)}
 									title='Delete chat'
 									aria-label='Delete chat'
 									style={{

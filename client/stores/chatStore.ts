@@ -63,7 +63,16 @@ export const useChatStore = create<ChatState>(set => ({
 					return { messages: msgs };
 				});
 			},
-			onError: error => set({ error, isStreaming: false }),
+			onError: error => {
+				set(state => {
+					const msgs = [...state.messages];
+					const last = msgs[msgs.length - 1];
+					if (last && last.role === 'ASSISTANT' && last.content === '') {
+						msgs[msgs.length - 1] = { ...last, content: `⚠ ${error}` };
+					}
+					return { messages: msgs, error, isStreaming: false };
+				});
+			},
 			onDone: () => set({ isStreaming: false }),
 		});
 	},

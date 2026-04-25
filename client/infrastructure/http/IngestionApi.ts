@@ -15,4 +15,10 @@ export class IngestionApi implements IIngestionApi {
 		}
 		return res.json();
 	}
+
+	async getDocuments(sessionId: string): Promise<IngestResponseDto[]> {
+		const res = await fetch(`/api/documents?sessionId=${encodeURIComponent(sessionId)}`);
+		if (!res.ok) throw new Error('documents_fetch_failed');
+		return res.json();
+	}
 }

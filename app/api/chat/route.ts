@@ -60,8 +60,11 @@ export async function POST(req: NextRequest) {
 							encoder.encode(`data: ${JSON.stringify({ error: 'limit_reached' })}\n\n`),
 						);
 					} else {
+						// eslint-disable-next-line no-console
+						console.error('[chat] stream failed:', err);
+						const message = err instanceof Error ? err.message : String(err);
 						controller.enqueue(
-							encoder.encode(`data: ${JSON.stringify({ error: 'internal_error' })}\n\n`),
+							encoder.encode(`data: ${JSON.stringify({ error: 'internal_error', message })}\n\n`),
 						);
 					}
 				} finally {

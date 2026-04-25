@@ -9,4 +9,5 @@ export interface IngestParams {
 
 export interface IIngestionApi {
 	ingest(params: IngestParams): Promise<IngestResponseDto>;
+	getDocuments(sessionId: string): Promise<IngestResponseDto[]>;
 }

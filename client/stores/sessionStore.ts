@@ -2,6 +2,8 @@
 import { create } from 'zustand';
 import { SessionDto } from '../../shared/dtos/SessionDto';
 import { sessionApi } from '../infrastructure/container';
+import { useChatStore } from './chatStore';
+import { useUploadStore } from './uploadStore';
 
 interface SessionState {
 	sessions: SessionDto[];
@@ -24,7 +26,11 @@ export const useSessionStore = create<SessionState>(set => ({
 		set({ isLoading: true, error: null });
 		try {
 			const sessions = await sessionApi.getSessions();
-			set({ sessions, isLoading: false });
+			set(state => {
+				const activeSessionId = state.activeSessionId ?? sessions[0]?.id ?? null;
+				if (activeSessionId) void useUploadStore.getState().fetchDocuments(activeSessionId);
+				return { sessions, isLoading: false, activeSessionId };
+			});
 		} catch (e: unknown) {
 			set({ error: e instanceof Error ? e.message : 'unknown_error', isLoading: false });
 		}
@@ -32,6 +38,8 @@ export const useSessionStore = create<SessionState>(set => ({
 
 	createSession: async () => {
 		const session = await sessionApi.createSession();
+		useChatStore.getState().reset();
+		useUploadStore.getState().reset();
 		set(state => ({ sessions: [session, ...state.sessions], activeSessionId: session.id }));
 		return session;
 	},
@@ -40,11 +48,23 @@ export const useSessionStore = create<SessionState>(set => ({
 		await sessionApi.deleteSession(id);
 		set(state => {
 			const sessions = state.sessions.filter(s => s.id !== id);
-			const activeSessionId =
-				state.activeSessionId === id ? (sessions[0]?.id ?? null) : state.activeSessionId;
+			const wasActive = state.activeSessionId === id;
+			const activeSessionId = wasActive ? (sessions[0]?.id ?? null) : state.activeSessionId;
+			if (wasActive) {
+				useChatStore.getState().reset();
+				useUploadStore.getState().reset();
+				if (activeSessionId) void useUploadStore.getState().fetchDocuments(activeSessionId);
+			}
 			return { sessions, activeSessionId };
 		});
 	},
 
-	setActiveSession: (id: string) => set({ activeSessionId: id }),
+	setActiveSession: (id: string) =>
+		set(state => {
+			if (state.activeSessionId === id) return state;
+			useChatStore.getState().reset();
+			useUploadStore.getState().reset();
+			void useUploadStore.getState().fetchDocuments(id);
+			return { activeSessionId: id };
+		}),
 }));
