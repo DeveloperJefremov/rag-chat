@@ -391,7 +391,7 @@ export function Sidebar() {
 
 			<div style={{ borderTop: '1px solid var(--cobalt-800)', padding: '14px 20px' }}>
 				{session?.user && (
-					<div style={{ marginBottom: 10 }}>
+					<div style={{ marginBottom: 12 }}>
 						<div
 							style={{
 								...MONO,
@@ -419,42 +419,79 @@ export function Sidebar() {
 						</div>
 					</div>
 				)}
-				<button
-					onClick={() => signOut({ callbackUrl: '/signin' })}
-					style={{
-						display: 'flex',
-						alignItems: 'center',
-						gap: 10,
-						background: 'none',
-						border: 'none',
-						cursor: 'pointer',
-						padding: 0,
-						width: '100%',
-					}}
-				>
-					<svg
-						width='14'
-						height='14'
-						viewBox='0 0 24 24'
-						fill='none'
-						stroke='var(--powder-400)'
-						strokeWidth='1.8'
-					>
-						<circle cx='12' cy='12' r='3' />
-						<path d='M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42' />
-					</svg>
-					<span
+				<div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+					<Link
+						href='/settings'
 						style={{
-							...MONO,
-							fontSize: 11,
-							color: 'var(--powder-400)',
-							letterSpacing: '0.12em',
-							textTransform: 'uppercase',
+							display: 'flex',
+							alignItems: 'center',
+							gap: 10,
+							textDecoration: 'none',
+							padding: 0,
+							width: '100%',
 						}}
 					>
-						Settings
-					</span>
-				</button>
+						<svg
+							width='14'
+							height='14'
+							viewBox='0 0 24 24'
+							fill='none'
+							stroke='var(--powder-400)'
+							strokeWidth='1.8'
+						>
+							<circle cx='12' cy='12' r='3' />
+							<path d='M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42' />
+						</svg>
+						<span
+							style={{
+								...MONO,
+								fontSize: 11,
+								color: 'var(--powder-400)',
+								letterSpacing: '0.12em',
+								textTransform: 'uppercase',
+							}}
+						>
+							Settings
+						</span>
+					</Link>
+					<button
+						onClick={() => signOut({ callbackUrl: '/signin' })}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: 10,
+							background: 'none',
+							border: 'none',
+							cursor: 'pointer',
+							padding: 0,
+							width: '100%',
+						}}
+					>
+						<svg
+							width='14'
+							height='14'
+							viewBox='0 0 24 24'
+							fill='none'
+							stroke='var(--terracotta-500)'
+							strokeWidth='1.8'
+						>
+							<path d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4' />
+							<polyline points='16 17 21 12 16 7' />
+							<line x1='21' y1='12' x2='9' y2='12' />
+						</svg>
+						<span
+							style={{
+								...MONO,
+								fontSize: 11,
+								color: 'var(--terracotta-500)',
+								letterSpacing: '0.12em',
+								textTransform: 'uppercase',
+							}}
+						>
+							Sign out
+						</span>
+					</button>
+				</div>
 			</div>
 		</aside>
 	);
