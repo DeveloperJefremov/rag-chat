@@ -71,6 +71,9 @@ export async function POST(req: NextRequest) {
 		if (err instanceof Error && err.message === 'unauthenticated') {
 			return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
 		}
-		return NextResponse.json({ error: 'internal_error' }, { status: 500 });
+		// eslint-disable-next-line no-console
+		console.error('[ingest] failed:', err);
+		const message = err instanceof Error ? err.message : String(err);
+		return NextResponse.json({ error: 'internal_error', message }, { status: 500 });
 	}
 }

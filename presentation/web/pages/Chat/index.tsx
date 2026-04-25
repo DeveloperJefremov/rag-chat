@@ -12,10 +12,17 @@ const MONO: React.CSSProperties = { fontFamily: 'var(--font-jetbrains-mono), mon
 
 export function ChatPage() {
 	const { sessions, activeSessionId, fetchSessions, createSession } = useSessionStore();
-	const { messages, citationsByMessageId, isStreaming, sendMessage } = useChatStore();
+	const { messages, citationsByMessageId, isStreaming, sendMessage, reset } = useChatStore();
 	const { chunkingStrategy, topK, rerankingEnabled } = useControlsStore();
 	const { documents } = useUploadStore();
 	const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+	const [prevSessionId, setPrevSessionId] = useState<string | null>(activeSessionId ?? null);
+
+	if (activeSessionId !== prevSessionId) {
+		setPrevSessionId(activeSessionId ?? null);
+		setSelectedDocumentId(null);
+		reset();
+	}
 
 	useEffect(() => {
 		fetchSessions();

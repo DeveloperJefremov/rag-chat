@@ -1,4 +1,3 @@
-import { Prisma } from '../../../prisma/generated/prisma';
 import { prisma } from './prismaClient';
 import { Chunk } from '../../../domain/entities/Chunk';
 import { CreateChunkData, IChunkRepository } from '../../application/repositories/IChunkRepository';
@@ -30,8 +29,8 @@ export class PrismaChunkRepository implements IChunkRepository {
 		if (params.queryVector.some(v => !Number.isFinite(v))) {
 			throw new Error('Invalid query vector: contains non-finite values');
 		}
-		const vectorLiteral = Prisma.raw(`'[${params.queryVector.join(',')}]'`);
-		const topK = Prisma.raw(String(Math.max(1, Math.floor(params.topK))));
+		const vectorLiteral = `[${params.queryVector.join(',')}]`;
+		const topK = Math.max(1, Math.floor(params.topK));
 
 		const results = await prisma.$queryRaw<
 			Array<{ id: string; content: string; documentId: string }>

@@ -1,31 +1,40 @@
 import { IEmbeddingClient } from '../../application/ports/IEmbeddingClient';
-import { GoogleGenerativeAI, TaskType } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
+
+const EMBEDDING_DIM = 768;
 
 export class GoogleEmbeddingClient implements IEmbeddingClient {
-	private genAI: GoogleGenerativeAI;
-	private model = 'text-embedding-004';
+	private genAI: GoogleGenAI;
+	private model = 'gemini-embedding-001';
 
 	constructor() {
 		if (!process.env.GOOGLE_AI_KEY) {
 			throw new Error('GOOGLE_AI_KEY is not set');
 		}
-		this.genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY);
+		this.genAI = new GoogleGenAI({ apiKey: process.env.GOOGLE_AI_KEY });
 	}
 
 	async embed(text: string): Promise<number[]> {
-		const model = this.genAI.getGenerativeModel({ model: this.model });
-		const result = await model.embedContent(text);
-		return result.embedding.values;
+		const response = await this.genAI.models.embedContent({
+			model: this.model,
+			contents: [text],
+			config: { taskType: 'RETRIEVAL_QUERY', outputDimensionality: EMBEDDING_DIM },
+		});
+		const values = response.embeddings?.[0]?.values;
+		if (!values) throw new Error('embedding_missing');
+		return values;
 	}
 
 	async embedBatch(texts: string[]): Promise<number[][]> {
-		const model = this.genAI.getGenerativeModel({ model: this.model });
-		const response = await model.batchEmbedContents({
-			requests: texts.map(content => ({
-				content: { parts: [{ text: content }], role: 'user' },
-				taskType: TaskType.RETRIEVAL_DOCUMENT,
-			})),
+		const response = await this.genAI.models.embedContent({
+			model: this.model,
+			contents: texts,
+			config: { taskType: 'RETRIEVAL_DOCUMENT', outputDimensionality: EMBEDDING_DIM },
 		});
-		return response.embeddings.map(e => e.values);
+		if (!response.embeddings) throw new Error('embeddings_missing');
+		return response.embeddings.map(e => {
+			if (!e.values) throw new Error('embedding_values_missing');
+			return e.values;
+		});
 	}
 }
