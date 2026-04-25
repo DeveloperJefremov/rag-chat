@@ -10,4 +10,5 @@ export interface IChatSessionRepository {
 	findById(id: string, userId: string): Promise<ChatSession | null>;
 	findByUserId(userId: string): Promise<ChatSession[]>;
 	create(data: CreateChatSessionData): Promise<ChatSession>;
+	delete(id: string, userId: string): Promise<boolean>;
 }

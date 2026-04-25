@@ -32,6 +32,11 @@ export class PrismaChatSessionRepository implements IChatSessionRepository {
 		}));
 	}
 
+	async delete(id: string, userId: string): Promise<boolean> {
+		const result = await prisma.chatSession.deleteMany({ where: { id, userId } });
+		return result.count > 0;
+	}
+
 	async create(data: CreateChatSessionData): Promise<ChatSession> {
 		const session = await prisma.chatSession.create({
 			data: {

@@ -10,6 +10,7 @@ interface SessionState {
 	error: string | null;
 	fetchSessions: () => Promise<void>;
 	createSession: () => Promise<SessionDto>;
+	deleteSession: (id: string) => Promise<void>;
 	setActiveSession: (id: string) => void;
 }
 
@@ -33,6 +34,16 @@ export const useSessionStore = create<SessionState>(set => ({
 		const session = await sessionApi.createSession();
 		set(state => ({ sessions: [session, ...state.sessions], activeSessionId: session.id }));
 		return session;
+	},
+
+	deleteSession: async (id: string) => {
+		await sessionApi.deleteSession(id);
+		set(state => {
+			const sessions = state.sessions.filter(s => s.id !== id);
+			const activeSessionId =
+				state.activeSessionId === id ? (sessions[0]?.id ?? null) : state.activeSessionId;
+			return { sessions, activeSessionId };
+		});
 	},
 
 	setActiveSession: (id: string) => set({ activeSessionId: id }),

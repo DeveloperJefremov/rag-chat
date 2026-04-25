@@ -82,12 +82,29 @@ function formatRelative(iso: string): string {
 }
 
 function ChatSection() {
-	const { sessions, activeSessionId, setActiveSession, createSession, fetchSessions } =
-		useSessionStore();
+	const {
+		sessions,
+		activeSessionId,
+		setActiveSession,
+		createSession,
+		fetchSessions,
+		deleteSession,
+	} = useSessionStore();
 
 	useEffect(() => {
 		fetchSessions();
 	}, [fetchSessions]);
+
+	const handleDelete = async (e: React.MouseEvent, id: string, title: string | null) => {
+		e.stopPropagation();
+		const label = title ?? 'this conversation';
+		if (!window.confirm(`Delete ${label}? This cannot be undone.`)) return;
+		try {
+			await deleteSession(id);
+		} catch {
+			// ignore — user can retry
+		}
+	};
 
 	return (
 		<>
@@ -177,17 +194,63 @@ function ChatSection() {
 							>
 								{s.title ?? 'New conversation'}
 							</span>
-							<span
+							<div
 								style={{
-									...MONO,
-									fontSize: 10,
-									color: 'var(--smoke)',
+									display: 'flex',
+									alignItems: 'center',
+									gap: 6,
 									flexShrink: 0,
 									marginTop: 1,
 								}}
 							>
-								{formatRelative(s.createdAt)}
-							</span>
+								<span
+									style={{
+										...MONO,
+										fontSize: 10,
+										color: 'var(--smoke)',
+									}}
+								>
+									{formatRelative(s.createdAt)}
+								</span>
+								<button
+									onClick={e => handleDelete(e, s.id, s.title)}
+									title='Delete chat'
+									aria-label='Delete chat'
+									style={{
+										background: 'none',
+										border: 'none',
+										padding: 2,
+										cursor: 'pointer',
+										color: 'var(--powder-600)',
+										display: 'flex',
+										alignItems: 'center',
+										opacity: 0.6,
+										transition: 'opacity 0.15s, color 0.15s',
+									}}
+									onMouseEnter={e => {
+										e.currentTarget.style.opacity = '1';
+										e.currentTarget.style.color = 'var(--terracotta-500)';
+									}}
+									onMouseLeave={e => {
+										e.currentTarget.style.opacity = '0.6';
+										e.currentTarget.style.color = 'var(--powder-600)';
+									}}
+								>
+									<svg
+										width='12'
+										height='12'
+										viewBox='0 0 24 24'
+										fill='none'
+										stroke='currentColor'
+										strokeWidth='1.8'
+									>
+										<polyline points='3 6 5 6 21 6' />
+										<path d='M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6' />
+										<path d='M10 11v6M14 11v6' />
+										<path d='M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2' />
+									</svg>
+								</button>
+							</div>
 						</div>
 					);
 				})}

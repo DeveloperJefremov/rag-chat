@@ -35,4 +35,9 @@ export class SessionService {
 	async incrementUsage(userId: string): Promise<void> {
 		await this.userUsageRepo.increment(userId);
 	}
+
+	async delete(userId: string, sessionId: string): Promise<void> {
+		const ok = await this.chatSessionRepo.delete(sessionId, userId);
+		if (!ok) throw new Error('session_not_found');
+	}
 }

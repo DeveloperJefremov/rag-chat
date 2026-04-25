@@ -13,4 +13,9 @@ export class SessionApi implements ISessionApi {
 		if (!res.ok) throw new Error('session_create_failed');
 		return res.json();
 	}
+
+	async deleteSession(id: string): Promise<void> {
+		const res = await fetch(`/api/session/${encodeURIComponent(id)}`, { method: 'DELETE' });
+		if (!res.ok) throw new Error('session_delete_failed');
+	}
 }

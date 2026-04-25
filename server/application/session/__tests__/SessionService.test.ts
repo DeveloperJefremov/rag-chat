@@ -18,6 +18,7 @@ const makeSessionRepo = (
 	findById: vi.fn(),
 	findByUserId: vi.fn(),
 	create: vi.fn(),
+	delete: vi.fn(),
 	...overrides,
 });
 
