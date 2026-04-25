@@ -1,4 +1,5 @@
 import { IChatApi, StreamChatParams, ChatStreamEvent } from '../../application/api/IChatApi';
+import { MessageDto } from '../../../shared/dtos/MessageDto';
 
 export class ChatApi implements IChatApi {
 	async *streamChat(params: StreamChatParams): AsyncGenerator<ChatStreamEvent> {
@@ -36,11 +37,19 @@ export class ChatApi implements IChatApi {
 					if (parsed.error) yield { type: 'error', error: parsed.error };
 					else if (parsed.type === 'sources') yield { type: 'sources', sources: parsed.sources };
 					else if (parsed.type === 'chunk') yield { type: 'chunk', text: parsed.text };
+					else if (parsed.type === 'title')
+						yield { type: 'title', sessionId: parsed.sessionId, title: parsed.title };
 				} catch {
 					// ignore malformed SSE frames
 				}
 			}
 		}
 		yield { type: 'done' };
+	}
+
+	async getHistory(sessionId: string): Promise<MessageDto[]> {
+		const res = await fetch(`/api/session/${sessionId}/messages`);
+		if (!res.ok) throw new Error('history_fetch_failed');
+		return (await res.json()) as MessageDto[];
 	}
 }

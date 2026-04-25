@@ -46,6 +46,12 @@ export async function POST(req: NextRequest) {
 									`data: ${JSON.stringify({ type: 'sources', sources: event.sources })}\n\n`,
 								),
 							);
+						} else if (typeof event === 'object' && 'title' in event) {
+							controller.enqueue(
+								encoder.encode(
+									`data: ${JSON.stringify({ type: 'title', sessionId: event.sessionId, title: event.title })}\n\n`,
+								),
+							);
 						} else if (typeof event === 'string') {
 							controller.enqueue(
 								encoder.encode(`data: ${JSON.stringify({ type: 'chunk', text: event })}\n\n`),

@@ -4,6 +4,7 @@ import type { IChunkRepository } from '../../repositories/IChunkRepository';
 import type { IEmbeddingClient } from '../../ports/IEmbeddingClient';
 import type { ILLMClient } from '../../ports/ILLMClient';
 import type { IMessageRepository } from '../../repositories/IMessageRepository';
+import type { IChatSessionRepository } from '../../repositories/IChatSessionRepository';
 import type { SessionService } from '../../session/SessionService';
 import type { IRerankClient } from '../../ports/IRerankClient';
 import type { LLMOpsService } from '../../llmops/LLMOpsService';
@@ -11,11 +12,21 @@ import type { LLMOpsService } from '../../llmops/LLMOpsService';
 const makeDeps = (overrides = {}) => ({
 	chunkRepo: { similaritySearch: vi.fn().mockResolvedValue([]) } as unknown as IChunkRepository,
 	embeddingClient: { embed: vi.fn().mockResolvedValue([0.1, 0.2]) } as unknown as IEmbeddingClient,
-	llmClient: { streamMessage: vi.fn() } as unknown as ILLMClient,
+	llmClient: {
+		streamMessage: vi.fn(),
+		generateText: vi.fn().mockResolvedValue(''),
+	} as unknown as ILLMClient,
 	messageRepo: {
 		findBySessionId: vi.fn().mockResolvedValue([]),
 		saveMany: vi.fn().mockResolvedValue([]),
 	} as unknown as IMessageRepository,
+	chatSessionRepo: {
+		findById: vi.fn().mockResolvedValue(null),
+		findByUserId: vi.fn().mockResolvedValue([]),
+		create: vi.fn(),
+		update: vi.fn().mockResolvedValue(null),
+		delete: vi.fn().mockResolvedValue(false),
+	} as unknown as IChatSessionRepository,
 	sessionService: {
 		validateLimit: vi.fn().mockResolvedValue(undefined),
 		incrementUsage: vi.fn().mockResolvedValue(undefined),

@@ -6,9 +6,14 @@ export interface CreateChatSessionData {
 	expiresAt: Date;
 }
 
+export interface UpdateChatSessionData {
+	title?: string;
+}
+
 export interface IChatSessionRepository {
 	findById(id: string, userId: string): Promise<ChatSession | null>;
 	findByUserId(userId: string): Promise<ChatSession[]>;
 	create(data: CreateChatSessionData): Promise<ChatSession>;
+	update(id: string, userId: string, data: UpdateChatSessionData): Promise<ChatSession | null>;
 	delete(id: string, userId: string): Promise<boolean>;
 }

@@ -14,6 +14,7 @@ interface SessionState {
 	createSession: () => Promise<SessionDto>;
 	deleteSession: (id: string) => Promise<void>;
 	setActiveSession: (id: string) => void;
+	updateSessionTitle: (id: string, title: string) => void;
 }
 
 export const useSessionStore = create<SessionState>(set => ({
@@ -28,7 +29,10 @@ export const useSessionStore = create<SessionState>(set => ({
 			const sessions = await sessionApi.getSessions();
 			set(state => {
 				const activeSessionId = state.activeSessionId ?? sessions[0]?.id ?? null;
-				if (activeSessionId) void useUploadStore.getState().fetchDocuments(activeSessionId);
+				if (activeSessionId) {
+					void useUploadStore.getState().fetchDocuments(activeSessionId);
+					void useChatStore.getState().loadHistory(activeSessionId);
+				}
 				return { sessions, isLoading: false, activeSessionId };
 			});
 		} catch (e: unknown) {
@@ -65,6 +69,12 @@ export const useSessionStore = create<SessionState>(set => ({
 			useChatStore.getState().reset();
 			useUploadStore.getState().reset();
 			void useUploadStore.getState().fetchDocuments(id);
+			void useChatStore.getState().loadHistory(id);
 			return { activeSessionId: id };
 		}),
+
+	updateSessionTitle: (id: string, title: string) =>
+		set(state => ({
+			sessions: state.sessions.map(s => (s.id === id ? { ...s, title } : s)),
+		})),
 }));

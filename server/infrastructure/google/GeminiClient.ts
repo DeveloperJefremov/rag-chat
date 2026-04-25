@@ -22,4 +22,12 @@ export class GeminiClient implements ILLMClient {
 			if (text) yield text;
 		}
 	}
+
+	async generateText(prompt: string): Promise<string> {
+		const response = await this.genAI.models.generateContent({
+			model: this.model,
+			contents: prompt,
+		});
+		return response.text ?? '';
+	}
 }

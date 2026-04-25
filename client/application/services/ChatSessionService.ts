@@ -7,6 +7,7 @@ export interface StreamCallbacks {
 	onAssistantStart: (msg: MessageDto) => void;
 	onSources: (sources: CitationDto[]) => void;
 	onChunk: (text: string) => void;
+	onTitle: (sessionId: string, title: string) => void;
 	onError: (error: string) => void;
 	onDone: () => void;
 }
@@ -34,6 +35,7 @@ export class ChatSessionService {
 		for await (const event of this.api.streamChat(params)) {
 			if (event.type === 'sources') cb.onSources(event.sources);
 			else if (event.type === 'chunk') cb.onChunk(event.text);
+			else if (event.type === 'title') cb.onTitle(event.sessionId, event.title);
 			else if (event.type === 'error') {
 				cb.onError(event.error);
 				break;
@@ -42,5 +44,9 @@ export class ChatSessionService {
 				break;
 			}
 		}
+	}
+
+	async loadHistory(sessionId: string): Promise<MessageDto[]> {
+		return this.api.getHistory(sessionId);
 	}
 }

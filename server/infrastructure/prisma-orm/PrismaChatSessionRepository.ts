@@ -3,6 +3,7 @@ import { ChatSession } from '../../../domain/entities/ChatSession';
 import {
 	CreateChatSessionData,
 	IChatSessionRepository,
+	UpdateChatSessionData,
 } from '../../application/repositories/IChatSessionRepository';
 
 export class PrismaChatSessionRepository implements IChatSessionRepository {
@@ -52,5 +53,18 @@ export class PrismaChatSessionRepository implements IChatSessionRepository {
 			createdAt: session.createdAt,
 			expiresAt: session.expiresAt,
 		};
+	}
+
+	async update(
+		id: string,
+		userId: string,
+		data: UpdateChatSessionData,
+	): Promise<ChatSession | null> {
+		const result = await prisma.chatSession.updateMany({
+			where: { id, userId },
+			data: { title: data.title },
+		});
+		if (result.count === 0) return null;
+		return this.findById(id, userId);
 	}
 }

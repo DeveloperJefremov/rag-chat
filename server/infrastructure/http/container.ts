@@ -47,11 +47,12 @@ export const retrievalService = new RetrievalService({
 	embeddingClient,
 	llmClient,
 	messageRepo,
+	chatSessionRepo,
 	sessionService,
 	rerankClient,
 	llmOpsService,
 });
 
-export { documentRepo, chatSessionRepo };
+export { documentRepo, chatSessionRepo, messageRepo };
 
 export const authContext = new NextAuthContext();

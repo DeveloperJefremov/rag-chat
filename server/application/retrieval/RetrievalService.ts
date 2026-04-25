@@ -1,5 +1,6 @@
 import { IChunkRepository } from '../repositories/IChunkRepository';
 import { IMessageRepository } from '../repositories/IMessageRepository';
+import { IChatSessionRepository } from '../repositories/IChatSessionRepository';
 import { IEmbeddingClient } from '../ports/IEmbeddingClient';
 import { ILLMClient } from '../ports/ILLMClient';
 import { IRerankClient } from '../ports/IRerankClient';
@@ -15,6 +16,7 @@ interface RetrievalServiceDeps {
 	embeddingClient: IEmbeddingClient;
 	llmClient: ILLMClient;
 	messageRepo: IMessageRepository;
+	chatSessionRepo: IChatSessionRepository;
 	sessionService: SessionService;
 	rerankClient: IRerankClient;
 	llmOpsService: LLMOpsService;
@@ -38,13 +40,19 @@ interface BuildPromptParams {
 	history: Array<{ role: MessageRole; content: string }>;
 }
 
-type StreamYield = { sources: CitationDto[] } | string;
+type StreamYield = { sources: CitationDto[] } | { title: string; sessionId: string } | string;
+
+const TITLE_PROMPT = `Generate a concise chat title in 3-5 words for the following user question.
+Reply ONLY with the title text, in the SAME language as the question, no quotes, no punctuation at the end, no prefixes like "Title:".
+
+Question: `;
 
 export class RetrievalService {
 	private chunkRepo: IChunkRepository;
 	private embeddingClient: IEmbeddingClient;
 	private llmClient: ILLMClient;
 	private messageRepo: IMessageRepository;
+	private chatSessionRepo: IChatSessionRepository;
 	private sessionService: SessionService;
 	private rerankClient: IRerankClient;
 	private llmOpsService: LLMOpsService;
@@ -54,6 +62,7 @@ export class RetrievalService {
 		this.embeddingClient = deps.embeddingClient;
 		this.llmClient = deps.llmClient;
 		this.messageRepo = deps.messageRepo;
+		this.chatSessionRepo = deps.chatSessionRepo;
 		this.sessionService = deps.sessionService;
 		this.rerankClient = deps.rerankClient;
 		this.llmOpsService = deps.llmOpsService;
@@ -144,6 +153,7 @@ Current question: ${userMessage}`;
 		let fullResponse = '';
 		let promptTokens = 0;
 		let completionTokens = 0;
+		const isFirstExchange = allHistory.length === 0;
 
 		try {
 			// eslint-disable-next-line no-console
@@ -161,7 +171,12 @@ Current question: ${userMessage}`;
 			await this.sessionService.incrementUsage(params.userId);
 			await this.messageRepo.saveMany([
 				{ role: 'USER', content: params.message, sessionId: params.sessionId },
-				{ role: 'ASSISTANT', content: fullResponse, sessionId: params.sessionId },
+				{
+					role: 'ASSISTANT',
+					content: fullResponse,
+					sessionId: params.sessionId,
+					citations: sources,
+				},
 			]);
 
 			promptTokens = prompt.split(/\s+/).length;
@@ -182,6 +197,39 @@ Current question: ${userMessage}`;
 				rerankingUsed: rerankingEnabled,
 				chunkingStrategy: params.chunkingStrategy ?? 'RECURSIVE',
 			});
+		}
+
+		if (isFirstExchange) {
+			const generated = await this.generateTitle(params.sessionId, params.userId, params.message);
+			if (generated) {
+				yield { title: generated, sessionId: params.sessionId };
+			}
+		}
+	}
+
+	private async generateTitle(
+		sessionId: string,
+		userId: string,
+		question: string,
+	): Promise<string | null> {
+		try {
+			const session = await this.chatSessionRepo.findById(sessionId, userId);
+			if (!session || session.title) return null;
+
+			const raw = await this.llmClient.generateText(TITLE_PROMPT + question);
+			const cleaned = raw
+				.trim()
+				.replace(/^["'«»`]+|["'«»`]+$/g, '')
+				.replace(/[.!?…]+$/g, '')
+				.slice(0, 80);
+			if (!cleaned) return null;
+
+			await this.chatSessionRepo.update(sessionId, userId, { title: cleaned });
+			return cleaned;
+		} catch (err: unknown) {
+			// eslint-disable-next-line no-console
+			console.warn('[chat] title generation failed:', err);
+			return null;
 		}
 	}
 }
