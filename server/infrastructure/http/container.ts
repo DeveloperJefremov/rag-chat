@@ -7,7 +7,7 @@ import { PrismaUserUsageRepository } from '../prisma-orm/PrismaUserUsageReposito
 import { PrismaLLMLogRepository } from '../prisma-orm/PrismaLLMLogRepository';
 import { GoogleEmbeddingClient } from '../google/GoogleEmbeddingClient';
 import { GeminiClient } from '../google/GeminiClient';
-import { CohereRerankClient } from '../cohere/CohereRerankClient';
+import { LocalRerankClient } from '../local/LocalRerankClient';
 import { PdfParser } from '../parsers/PdfParser';
 import { TxtParser } from '../parsers/TxtParser';
 import { DocxParser } from '../parsers/DocxParser';
@@ -27,7 +27,7 @@ const llmLogRepo = new PrismaLLMLogRepository();
 
 const embeddingClient = new GoogleEmbeddingClient();
 const llmClient = new GeminiClient();
-const rerankClient = new CohereRerankClient();
+const rerankClient = new LocalRerankClient();
 const chunkingService = new ChunkingService({ chunkSize: CHUNK_SIZE, overlap: CHUNK_OVERLAP });
 
 export const llmOpsService = new LLMOpsService(llmLogRepo);
