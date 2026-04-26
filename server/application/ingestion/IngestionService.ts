@@ -11,9 +11,9 @@ interface IngestParams {
 	buffer: Buffer;
 	fileName: string;
 	fileType: FileType;
-	sessionId: string;
 	userId: string;
 	chunkingStrategy?: ChunkingStrategy;
+	attachToSession?: string;
 }
 
 interface IngestionServiceDeps {
@@ -52,7 +52,6 @@ export class IngestionService {
 			fileType: params.fileType,
 			chunkingStrategy: strategy,
 			userId: params.userId,
-			sessionId: params.sessionId,
 		});
 
 		try {
@@ -64,8 +63,12 @@ export class IngestionService {
 				})),
 			);
 		} catch (err) {
-			await this.documentRepo.deleteById(document.id).catch(() => {});
+			await this.documentRepo.deleteById(document.id, params.userId).catch(() => {});
 			throw err;
+		}
+
+		if (params.attachToSession) {
+			await this.documentRepo.attachToSession(params.attachToSession, document.id);
 		}
 
 		return { documentId: document.id, chunkCount: chunkTexts.length, name: params.fileName };

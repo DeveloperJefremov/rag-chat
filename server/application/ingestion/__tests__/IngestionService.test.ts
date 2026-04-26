@@ -15,9 +15,9 @@ const makeRepo = () => ({
 			chunkingStrategy: 'RECURSIVE',
 			userId: 'user-1',
 			createdAt: new Date(),
-			sessionId: 'sess-1',
 		}),
 		deleteById: vi.fn().mockResolvedValue(undefined),
+		attachToSession: vi.fn().mockResolvedValue(undefined),
 	},
 	chunkRepo: { saveMany: vi.fn().mockResolvedValue(undefined) },
 	txtParser: {
@@ -49,7 +49,6 @@ describe('IngestionService', () => {
 			buffer,
 			fileName: 'test.txt',
 			fileType: 'TXT',
-			sessionId: 'sess-1',
 			userId: 'user-1',
 		});
 
@@ -57,6 +56,7 @@ describe('IngestionService', () => {
 		expect(mocks.chunkingService.chunk).toHaveBeenCalled();
 		expect(mocks.embeddingClient.embedBatch).toHaveBeenCalledWith(['chunk one']);
 		expect(mocks.chunkRepo.saveMany).toHaveBeenCalled();
+		expect(mocks.documentRepo.attachToSession).not.toHaveBeenCalled();
 		expect(result.documentId).toBe('doc-1');
 		expect(result.chunkCount).toBe(1);
 	});
@@ -81,11 +81,35 @@ describe('IngestionService', () => {
 				buffer: Buffer.from('x'),
 				fileName: 'x.txt',
 				fileType: 'TXT',
-				sessionId: 'sess-1',
 				userId: 'user-1',
 			}),
 		).rejects.toThrow('db error');
 
-		expect(mocks.documentRepo.deleteById).toHaveBeenCalledWith('doc-1');
+		expect(mocks.documentRepo.deleteById).toHaveBeenCalledWith('doc-1', 'user-1');
+	});
+
+	it('attaches the new document to the given session when attachToSession is provided', async () => {
+		const mocks = makeRepo();
+		const service = new IngestionService({
+			documentRepo: mocks.documentRepo as unknown as IDocumentRepository,
+			chunkRepo: mocks.chunkRepo as unknown as IChunkRepository,
+			parsers: {
+				TXT: mocks.txtParser as unknown as IFileParser,
+				PDF: {} as unknown as IFileParser,
+				DOCX: {} as unknown as IFileParser,
+			},
+			embeddingClient: mocks.embeddingClient as unknown as IEmbeddingClient,
+			chunkingService: mocks.chunkingService as unknown as ChunkingService,
+		});
+
+		await service.ingest({
+			buffer: Buffer.from('x'),
+			fileName: 'x.txt',
+			fileType: 'TXT',
+			userId: 'user-1',
+			attachToSession: 'sess-1',
+		});
+
+		expect(mocks.documentRepo.attachToSession).toHaveBeenCalledWith('sess-1', 'doc-1');
 	});
 });
