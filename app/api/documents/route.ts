@@ -1,23 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { authContext, chatSessionRepo } from '@/server/infrastructure/http/container';
+import { NextResponse } from 'next/server';
+import { authContext } from '@/server/infrastructure/http/container';
 import { prisma } from '@/server/infrastructure/prisma-orm/prismaClient';
 import { IngestResponseDto } from '@/shared/dtos/IngestResponseDto';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
 	try {
 		const user = await authContext.requireUser();
-		const sessionId = req.nextUrl.searchParams.get('sessionId');
-		if (!sessionId) {
-			return NextResponse.json({ error: 'missing_session_id' }, { status: 400 });
-		}
-
-		const session = await chatSessionRepo.findById(sessionId, user.id);
-		if (!session) {
-			return NextResponse.json({ error: 'session_not_found' }, { status: 404 });
-		}
 
 		const docs = await prisma.document.findMany({
-			where: { sessionId, userId: user.id },
+			where: { userId: user.id },
 			orderBy: { createdAt: 'desc' },
 			include: { _count: { select: { chunks: true } } },
 		});
