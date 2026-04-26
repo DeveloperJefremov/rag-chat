@@ -3,7 +3,6 @@ import { create } from 'zustand';
 import { SessionDto } from '../../shared/dtos/SessionDto';
 import { sessionApi } from '../infrastructure/container';
 import { useChatStore } from './chatStore';
-import { useUploadStore } from './uploadStore';
 import { useAttachmentStore } from './attachmentStore';
 
 interface SessionState {

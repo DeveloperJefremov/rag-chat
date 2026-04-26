@@ -101,8 +101,10 @@ export const useAttachmentStore = create<AttachmentState>((set, get) => ({
 
 	clearForSession: (sessionId: string) => {
 		set(state => {
-			const { [sessionId]: _a, ...attached } = state.attachedBySession;
-			const { [sessionId]: _b, ...active } = state.activeBySession;
+			const attached = { ...state.attachedBySession };
+			const active = { ...state.activeBySession };
+			delete attached[sessionId];
+			delete active[sessionId];
 			return { attachedBySession: attached, activeBySession: active };
 		});
 	},
