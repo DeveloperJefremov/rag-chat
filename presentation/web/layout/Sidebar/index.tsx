@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSidebarStore } from '@/client/stores/sidebarStore';
 import { useSessionStore } from '@/client/stores/sessionStore';
 import { useUploadStore } from '@/client/stores/uploadStore';
@@ -382,6 +382,228 @@ function StatsSection() {
 	);
 }
 
+function UserMenu({ name, role }: { name: string; role: string }) {
+	const [open, setOpen] = useState(false);
+	const wrapperRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (!open) return;
+		const onClickOutside = (e: MouseEvent) => {
+			if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+				setOpen(false);
+			}
+		};
+		const onEscape = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') setOpen(false);
+		};
+		document.addEventListener('mousedown', onClickOutside);
+		document.addEventListener('keydown', onEscape);
+		return () => {
+			document.removeEventListener('mousedown', onClickOutside);
+			document.removeEventListener('keydown', onEscape);
+		};
+	}, [open]);
+
+	const initial = (name?.[0] ?? 'U').toUpperCase();
+
+	return (
+		<div ref={wrapperRef} style={{ position: 'relative' }}>
+			{open && (
+				<div
+					style={{
+						position: 'absolute',
+						bottom: 'calc(100% + 8px)',
+						left: 0,
+						right: 0,
+						background: 'var(--cobalt-900)',
+						border: '1px solid var(--cobalt-800)',
+						borderRadius: 8,
+						boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+						padding: 6,
+						display: 'flex',
+						flexDirection: 'column',
+						gap: 2,
+						zIndex: 50,
+					}}
+				>
+					<Link
+						href='/settings'
+						onClick={() => setOpen(false)}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: 10,
+							padding: '8px 10px',
+							borderRadius: 6,
+							textDecoration: 'none',
+							color: 'var(--powder-300)',
+							transition: 'background 0.12s',
+						}}
+						onMouseEnter={e => (e.currentTarget.style.background = 'var(--cobalt-800)')}
+						onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+					>
+						<svg
+							width='14'
+							height='14'
+							viewBox='0 0 24 24'
+							fill='none'
+							stroke='currentColor'
+							strokeWidth='1.8'
+						>
+							<circle cx='12' cy='12' r='3' />
+							<path d='M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42' />
+						</svg>
+						<span
+							style={{
+								...MONO,
+								fontSize: 11,
+								letterSpacing: '0.1em',
+								textTransform: 'uppercase',
+							}}
+						>
+							Settings
+						</span>
+					</Link>
+
+					<div style={{ height: 1, background: 'var(--cobalt-800)', margin: '2px 4px' }} />
+
+					<button
+						onClick={() => {
+							setOpen(false);
+							void signOut({ callbackUrl: '/signin' });
+						}}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: 10,
+							padding: '8px 10px',
+							borderRadius: 6,
+							background: 'transparent',
+							border: 'none',
+							cursor: 'pointer',
+							color: 'var(--terracotta-500)',
+							width: '100%',
+							textAlign: 'left',
+							transition: 'background 0.12s',
+						}}
+						onMouseEnter={e => (e.currentTarget.style.background = 'rgba(214,93,77,0.1)')}
+						onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+					>
+						<svg
+							width='14'
+							height='14'
+							viewBox='0 0 24 24'
+							fill='none'
+							stroke='currentColor'
+							strokeWidth='1.8'
+						>
+							<path d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4' />
+							<polyline points='16 17 21 12 16 7' />
+							<line x1='21' y1='12' x2='9' y2='12' />
+						</svg>
+						<span
+							style={{
+								...MONO,
+								fontSize: 11,
+								letterSpacing: '0.1em',
+								textTransform: 'uppercase',
+							}}
+						>
+							Sign out
+						</span>
+					</button>
+				</div>
+			)}
+
+			<button
+				onClick={() => setOpen(o => !o)}
+				aria-haspopup='menu'
+				aria-expanded={open}
+				style={{
+					display: 'flex',
+					alignItems: 'center',
+					gap: 10,
+					width: '100%',
+					padding: '8px 10px',
+					background: open ? 'var(--cobalt-800)' : 'transparent',
+					border: 'none',
+					borderRadius: 7,
+					cursor: 'pointer',
+					textAlign: 'left',
+					transition: 'background 0.12s',
+				}}
+				onMouseEnter={e => {
+					if (!open) e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+				}}
+				onMouseLeave={e => {
+					if (!open) e.currentTarget.style.background = 'transparent';
+				}}
+			>
+				<div
+					style={{
+						width: 26,
+						height: 26,
+						borderRadius: '50%',
+						background: 'var(--cobalt-700)',
+						color: 'var(--paper)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						fontFamily: 'var(--font-fraunces), serif',
+						fontSize: 13,
+						fontWeight: 400,
+						flexShrink: 0,
+					}}
+				>
+					{initial}
+				</div>
+				<div style={{ flex: 1, minWidth: 0 }}>
+					<div
+						style={{
+							...MONO,
+							fontSize: 11,
+							color: 'var(--paper)',
+							letterSpacing: '0.02em',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							whiteSpace: 'nowrap',
+						}}
+					>
+						{name}
+					</div>
+					<div
+						style={{
+							...MONO,
+							fontSize: 9,
+							color: 'var(--powder-600)',
+							letterSpacing: '0.12em',
+							textTransform: 'uppercase',
+							marginTop: 2,
+						}}
+					>
+						{role}
+					</div>
+				</div>
+				<svg
+					width='12'
+					height='12'
+					viewBox='0 0 24 24'
+					fill='none'
+					stroke='var(--powder-600)'
+					strokeWidth='2'
+					style={{
+						flexShrink: 0,
+						transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+						transition: 'transform 0.15s',
+					}}
+				>
+					<polyline points='6 9 12 15 18 9' />
+				</svg>
+			</button>
+		</div>
+	);
+}
+
 export function Sidebar() {
 	const pathname = usePathname();
 	const { data: session } = useSession();
@@ -476,109 +698,13 @@ export function Sidebar() {
 				</>
 			)}
 
-			<div style={{ borderTop: '1px solid var(--cobalt-800)', padding: '14px 20px' }}>
+			<div style={{ borderTop: '1px solid var(--cobalt-800)', padding: '10px 12px' }}>
 				{session?.user && (
-					<div style={{ marginBottom: 12 }}>
-						<div
-							style={{
-								...MONO,
-								fontSize: 11,
-								color: 'var(--paper)',
-								letterSpacing: '0.02em',
-								overflow: 'hidden',
-								textOverflow: 'ellipsis',
-								whiteSpace: 'nowrap',
-							}}
-						>
-							{session.user.name ?? session.user.email}
-						</div>
-						<div
-							style={{
-								...MONO,
-								fontSize: 9,
-								color: 'var(--powder-600)',
-								letterSpacing: '0.12em',
-								textTransform: 'uppercase',
-								marginTop: 2,
-							}}
-						>
-							{session.user.role?.toLowerCase() ?? 'user'}
-						</div>
-					</div>
+					<UserMenu
+						name={session.user.name ?? session.user.email ?? 'User'}
+						role={session.user.role?.toLowerCase() ?? 'user'}
+					/>
 				)}
-				<div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-					<Link
-						href='/settings'
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: 10,
-							textDecoration: 'none',
-							padding: 0,
-							width: '100%',
-						}}
-					>
-						<svg
-							width='14'
-							height='14'
-							viewBox='0 0 24 24'
-							fill='none'
-							stroke='var(--powder-400)'
-							strokeWidth='1.8'
-						>
-							<circle cx='12' cy='12' r='3' />
-							<path d='M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42' />
-						</svg>
-						<span
-							style={{
-								...MONO,
-								fontSize: 11,
-								color: 'var(--powder-400)',
-								letterSpacing: '0.12em',
-								textTransform: 'uppercase',
-							}}
-						>
-							Settings
-						</span>
-					</Link>
-					<button
-						onClick={() => signOut({ callbackUrl: '/signin' })}
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: 10,
-							background: 'none',
-							border: 'none',
-							cursor: 'pointer',
-							padding: 0,
-							width: '100%',
-						}}
-					>
-						<svg
-							width='14'
-							height='14'
-							viewBox='0 0 24 24'
-							fill='none'
-							stroke='var(--terracotta-500)'
-							strokeWidth='1.8'
-						>
-							<path d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4' />
-							<polyline points='16 17 21 12 16 7' />
-							<line x1='21' y1='12' x2='9' y2='12' />
-						</svg>
-						<span
-							style={{
-								...MONO,
-								fontSize: 11,
-								color: 'var(--terracotta-500)',
-								letterSpacing: '0.12em',
-								textTransform: 'uppercase',
-							}}
-						>
-							Sign out
-						</span>
-					</button>
-				</div>
 			</div>
 		</aside>
 	);

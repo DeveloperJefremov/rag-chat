@@ -44,6 +44,11 @@ export type ChatSession = $Result.DefaultSelection<Prisma.$ChatSessionPayload>
  */
 export type Document = $Result.DefaultSelection<Prisma.$DocumentPayload>
 /**
+ * Model SessionDocument
+ * 
+ */
+export type SessionDocument = $Result.DefaultSelection<Prisma.$SessionDocumentPayload>
+/**
  * Model Chunk
  * 
  */
@@ -300,6 +305,16 @@ export class PrismaClient<
     * ```
     */
   get document(): Prisma.DocumentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.sessionDocument`: Exposes CRUD operations for the **SessionDocument** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SessionDocuments
+    * const sessionDocuments = await prisma.sessionDocument.findMany()
+    * ```
+    */
+  get sessionDocument(): Prisma.SessionDocumentDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.chunk`: Exposes CRUD operations for the **Chunk** model.
@@ -780,6 +795,7 @@ export namespace Prisma {
     VerificationToken: 'VerificationToken',
     ChatSession: 'ChatSession',
     Document: 'Document',
+    SessionDocument: 'SessionDocument',
     Chunk: 'Chunk',
     Message: 'Message',
     UserUsage: 'UserUsage',
@@ -799,7 +815,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "account" | "session" | "verificationToken" | "chatSession" | "document" | "chunk" | "message" | "userUsage" | "lLMLog"
+      modelProps: "user" | "account" | "session" | "verificationToken" | "chatSession" | "document" | "sessionDocument" | "chunk" | "message" | "userUsage" | "lLMLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1247,6 +1263,80 @@ export namespace Prisma {
           }
         }
       }
+      SessionDocument: {
+        payload: Prisma.$SessionDocumentPayload<ExtArgs>
+        fields: Prisma.SessionDocumentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SessionDocumentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionDocumentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SessionDocumentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionDocumentPayload>
+          }
+          findFirst: {
+            args: Prisma.SessionDocumentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionDocumentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SessionDocumentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionDocumentPayload>
+          }
+          findMany: {
+            args: Prisma.SessionDocumentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionDocumentPayload>[]
+          }
+          create: {
+            args: Prisma.SessionDocumentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionDocumentPayload>
+          }
+          createMany: {
+            args: Prisma.SessionDocumentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SessionDocumentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionDocumentPayload>[]
+          }
+          delete: {
+            args: Prisma.SessionDocumentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionDocumentPayload>
+          }
+          update: {
+            args: Prisma.SessionDocumentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionDocumentPayload>
+          }
+          deleteMany: {
+            args: Prisma.SessionDocumentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SessionDocumentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SessionDocumentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionDocumentPayload>[]
+          }
+          upsert: {
+            args: Prisma.SessionDocumentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionDocumentPayload>
+          }
+          aggregate: {
+            args: Prisma.SessionDocumentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSessionDocument>
+          }
+          groupBy: {
+            args: Prisma.SessionDocumentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SessionDocumentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SessionDocumentCountArgs<ExtArgs>
+            result: $Utils.Optional<SessionDocumentCountAggregateOutputType> | number
+          }
+        }
+      }
       Chunk: {
         payload: Prisma.$ChunkPayload<ExtArgs>
         fields: Prisma.ChunkFieldRefs
@@ -1641,6 +1731,7 @@ export namespace Prisma {
     verificationToken?: VerificationTokenOmit
     chatSession?: ChatSessionOmit
     document?: DocumentOmit
+    sessionDocument?: SessionDocumentOmit
     chunk?: ChunkOmit
     message?: MessageOmit
     userUsage?: UserUsageOmit
@@ -1775,12 +1866,12 @@ export namespace Prisma {
 
   export type ChatSessionCountOutputType = {
     messages: number
-    documents: number
+    attachedDocuments: number
   }
 
   export type ChatSessionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     messages?: boolean | ChatSessionCountOutputTypeCountMessagesArgs
-    documents?: boolean | ChatSessionCountOutputTypeCountDocumentsArgs
+    attachedDocuments?: boolean | ChatSessionCountOutputTypeCountAttachedDocumentsArgs
   }
 
   // Custom InputTypes
@@ -1804,8 +1895,8 @@ export namespace Prisma {
   /**
    * ChatSessionCountOutputType without action
    */
-  export type ChatSessionCountOutputTypeCountDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: DocumentWhereInput
+  export type ChatSessionCountOutputTypeCountAttachedDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SessionDocumentWhereInput
   }
 
 
@@ -1815,10 +1906,12 @@ export namespace Prisma {
 
   export type DocumentCountOutputType = {
     chunks: number
+    sessions: number
   }
 
   export type DocumentCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     chunks?: boolean | DocumentCountOutputTypeCountChunksArgs
+    sessions?: boolean | DocumentCountOutputTypeCountSessionsArgs
   }
 
   // Custom InputTypes
@@ -1837,6 +1930,13 @@ export namespace Prisma {
    */
   export type DocumentCountOutputTypeCountChunksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ChunkWhereInput
+  }
+
+  /**
+   * DocumentCountOutputType without action
+   */
+  export type DocumentCountOutputTypeCountSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SessionDocumentWhereInput
   }
 
 
@@ -6379,7 +6479,7 @@ export namespace Prisma {
     expiresAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     messages?: boolean | ChatSession$messagesArgs<ExtArgs>
-    documents?: boolean | ChatSession$documentsArgs<ExtArgs>
+    attachedDocuments?: boolean | ChatSession$attachedDocumentsArgs<ExtArgs>
     _count?: boolean | ChatSessionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["chatSession"]>
 
@@ -6413,7 +6513,7 @@ export namespace Prisma {
   export type ChatSessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     messages?: boolean | ChatSession$messagesArgs<ExtArgs>
-    documents?: boolean | ChatSession$documentsArgs<ExtArgs>
+    attachedDocuments?: boolean | ChatSession$attachedDocumentsArgs<ExtArgs>
     _count?: boolean | ChatSessionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ChatSessionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6428,7 +6528,7 @@ export namespace Prisma {
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
       messages: Prisma.$MessagePayload<ExtArgs>[]
-      documents: Prisma.$DocumentPayload<ExtArgs>[]
+      attachedDocuments: Prisma.$SessionDocumentPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6832,7 +6932,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     messages<T extends ChatSession$messagesArgs<ExtArgs> = {}>(args?: Subset<T, ChatSession$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    documents<T extends ChatSession$documentsArgs<ExtArgs> = {}>(args?: Subset<T, ChatSession$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    attachedDocuments<T extends ChatSession$attachedDocumentsArgs<ExtArgs> = {}>(args?: Subset<T, ChatSession$attachedDocumentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SessionDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7292,27 +7392,27 @@ export namespace Prisma {
   }
 
   /**
-   * ChatSession.documents
+   * ChatSession.attachedDocuments
    */
-  export type ChatSession$documentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ChatSession$attachedDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Document
+     * Select specific fields to fetch from the SessionDocument
      */
-    select?: DocumentSelect<ExtArgs> | null
+    select?: SessionDocumentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Document
+     * Omit specific fields from the SessionDocument
      */
-    omit?: DocumentOmit<ExtArgs> | null
+    omit?: SessionDocumentOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DocumentInclude<ExtArgs> | null
-    where?: DocumentWhereInput
-    orderBy?: DocumentOrderByWithRelationInput | DocumentOrderByWithRelationInput[]
-    cursor?: DocumentWhereUniqueInput
+    include?: SessionDocumentInclude<ExtArgs> | null
+    where?: SessionDocumentWhereInput
+    orderBy?: SessionDocumentOrderByWithRelationInput | SessionDocumentOrderByWithRelationInput[]
+    cursor?: SessionDocumentWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: DocumentScalarFieldEnum | DocumentScalarFieldEnum[]
+    distinct?: SessionDocumentScalarFieldEnum | SessionDocumentScalarFieldEnum[]
   }
 
   /**
@@ -7350,7 +7450,6 @@ export namespace Prisma {
     fileType: $Enums.FileType | null
     chunkingStrategy: $Enums.ChunkingStrategy | null
     userId: string | null
-    sessionId: string | null
     createdAt: Date | null
   }
 
@@ -7360,7 +7459,6 @@ export namespace Prisma {
     fileType: $Enums.FileType | null
     chunkingStrategy: $Enums.ChunkingStrategy | null
     userId: string | null
-    sessionId: string | null
     createdAt: Date | null
   }
 
@@ -7370,7 +7468,6 @@ export namespace Prisma {
     fileType: number
     chunkingStrategy: number
     userId: number
-    sessionId: number
     createdAt: number
     _all: number
   }
@@ -7382,7 +7479,6 @@ export namespace Prisma {
     fileType?: true
     chunkingStrategy?: true
     userId?: true
-    sessionId?: true
     createdAt?: true
   }
 
@@ -7392,7 +7488,6 @@ export namespace Prisma {
     fileType?: true
     chunkingStrategy?: true
     userId?: true
-    sessionId?: true
     createdAt?: true
   }
 
@@ -7402,7 +7497,6 @@ export namespace Prisma {
     fileType?: true
     chunkingStrategy?: true
     userId?: true
-    sessionId?: true
     createdAt?: true
     _all?: true
   }
@@ -7485,7 +7579,6 @@ export namespace Prisma {
     fileType: $Enums.FileType
     chunkingStrategy: $Enums.ChunkingStrategy
     userId: string
-    sessionId: string
     createdAt: Date
     _count: DocumentCountAggregateOutputType | null
     _min: DocumentMinAggregateOutputType | null
@@ -7512,10 +7605,9 @@ export namespace Prisma {
     fileType?: boolean
     chunkingStrategy?: boolean
     userId?: boolean
-    sessionId?: boolean
     createdAt?: boolean
-    session?: boolean | ChatSessionDefaultArgs<ExtArgs>
     chunks?: boolean | Document$chunksArgs<ExtArgs>
+    sessions?: boolean | Document$sessionsArgs<ExtArgs>
     _count?: boolean | DocumentCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["document"]>
 
@@ -7525,9 +7617,7 @@ export namespace Prisma {
     fileType?: boolean
     chunkingStrategy?: boolean
     userId?: boolean
-    sessionId?: boolean
     createdAt?: boolean
-    session?: boolean | ChatSessionDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["document"]>
 
   export type DocumentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -7536,9 +7626,7 @@ export namespace Prisma {
     fileType?: boolean
     chunkingStrategy?: boolean
     userId?: boolean
-    sessionId?: boolean
     createdAt?: boolean
-    session?: boolean | ChatSessionDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["document"]>
 
   export type DocumentSelectScalar = {
@@ -7547,28 +7635,23 @@ export namespace Prisma {
     fileType?: boolean
     chunkingStrategy?: boolean
     userId?: boolean
-    sessionId?: boolean
     createdAt?: boolean
   }
 
-  export type DocumentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "fileType" | "chunkingStrategy" | "userId" | "sessionId" | "createdAt", ExtArgs["result"]["document"]>
+  export type DocumentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "fileType" | "chunkingStrategy" | "userId" | "createdAt", ExtArgs["result"]["document"]>
   export type DocumentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    session?: boolean | ChatSessionDefaultArgs<ExtArgs>
     chunks?: boolean | Document$chunksArgs<ExtArgs>
+    sessions?: boolean | Document$sessionsArgs<ExtArgs>
     _count?: boolean | DocumentCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type DocumentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    session?: boolean | ChatSessionDefaultArgs<ExtArgs>
-  }
-  export type DocumentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    session?: boolean | ChatSessionDefaultArgs<ExtArgs>
-  }
+  export type DocumentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type DocumentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $DocumentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Document"
     objects: {
-      session: Prisma.$ChatSessionPayload<ExtArgs>
       chunks: Prisma.$ChunkPayload<ExtArgs>[]
+      sessions: Prisma.$SessionDocumentPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7576,7 +7659,6 @@ export namespace Prisma {
       fileType: $Enums.FileType
       chunkingStrategy: $Enums.ChunkingStrategy
       userId: string
-      sessionId: string
       createdAt: Date
     }, ExtArgs["result"]["document"]>
     composites: {}
@@ -7972,8 +8054,8 @@ export namespace Prisma {
    */
   export interface Prisma__DocumentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    session<T extends ChatSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ChatSessionDefaultArgs<ExtArgs>>): Prisma__ChatSessionClient<$Result.GetResult<Prisma.$ChatSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     chunks<T extends Document$chunksArgs<ExtArgs> = {}>(args?: Subset<T, Document$chunksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChunkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    sessions<T extends Document$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, Document$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SessionDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8008,7 +8090,6 @@ export namespace Prisma {
     readonly fileType: FieldRef<"Document", 'FileType'>
     readonly chunkingStrategy: FieldRef<"Document", 'ChunkingStrategy'>
     readonly userId: FieldRef<"Document", 'String'>
-    readonly sessionId: FieldRef<"Document", 'String'>
     readonly createdAt: FieldRef<"Document", 'DateTime'>
   }
     
@@ -8264,10 +8345,6 @@ export namespace Prisma {
      */
     data: DocumentCreateManyInput | DocumentCreateManyInput[]
     skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DocumentIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -8338,10 +8415,6 @@ export namespace Prisma {
      * Limit how many Documents to update.
      */
     limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DocumentIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -8435,6 +8508,30 @@ export namespace Prisma {
   }
 
   /**
+   * Document.sessions
+   */
+  export type Document$sessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SessionDocument
+     */
+    select?: SessionDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SessionDocument
+     */
+    omit?: SessionDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SessionDocumentInclude<ExtArgs> | null
+    where?: SessionDocumentWhereInput
+    orderBy?: SessionDocumentOrderByWithRelationInput | SessionDocumentOrderByWithRelationInput[]
+    cursor?: SessionDocumentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SessionDocumentScalarFieldEnum | SessionDocumentScalarFieldEnum[]
+  }
+
+  /**
    * Document without action
    */
   export type DocumentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8450,6 +8547,1051 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: DocumentInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SessionDocument
+   */
+
+  export type AggregateSessionDocument = {
+    _count: SessionDocumentCountAggregateOutputType | null
+    _min: SessionDocumentMinAggregateOutputType | null
+    _max: SessionDocumentMaxAggregateOutputType | null
+  }
+
+  export type SessionDocumentMinAggregateOutputType = {
+    sessionId: string | null
+    documentId: string | null
+    attachedAt: Date | null
+  }
+
+  export type SessionDocumentMaxAggregateOutputType = {
+    sessionId: string | null
+    documentId: string | null
+    attachedAt: Date | null
+  }
+
+  export type SessionDocumentCountAggregateOutputType = {
+    sessionId: number
+    documentId: number
+    attachedAt: number
+    _all: number
+  }
+
+
+  export type SessionDocumentMinAggregateInputType = {
+    sessionId?: true
+    documentId?: true
+    attachedAt?: true
+  }
+
+  export type SessionDocumentMaxAggregateInputType = {
+    sessionId?: true
+    documentId?: true
+    attachedAt?: true
+  }
+
+  export type SessionDocumentCountAggregateInputType = {
+    sessionId?: true
+    documentId?: true
+    attachedAt?: true
+    _all?: true
+  }
+
+  export type SessionDocumentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SessionDocument to aggregate.
+     */
+    where?: SessionDocumentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SessionDocuments to fetch.
+     */
+    orderBy?: SessionDocumentOrderByWithRelationInput | SessionDocumentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SessionDocumentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SessionDocuments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SessionDocuments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SessionDocuments
+    **/
+    _count?: true | SessionDocumentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SessionDocumentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SessionDocumentMaxAggregateInputType
+  }
+
+  export type GetSessionDocumentAggregateType<T extends SessionDocumentAggregateArgs> = {
+        [P in keyof T & keyof AggregateSessionDocument]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSessionDocument[P]>
+      : GetScalarType<T[P], AggregateSessionDocument[P]>
+  }
+
+
+
+
+  export type SessionDocumentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SessionDocumentWhereInput
+    orderBy?: SessionDocumentOrderByWithAggregationInput | SessionDocumentOrderByWithAggregationInput[]
+    by: SessionDocumentScalarFieldEnum[] | SessionDocumentScalarFieldEnum
+    having?: SessionDocumentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SessionDocumentCountAggregateInputType | true
+    _min?: SessionDocumentMinAggregateInputType
+    _max?: SessionDocumentMaxAggregateInputType
+  }
+
+  export type SessionDocumentGroupByOutputType = {
+    sessionId: string
+    documentId: string
+    attachedAt: Date
+    _count: SessionDocumentCountAggregateOutputType | null
+    _min: SessionDocumentMinAggregateOutputType | null
+    _max: SessionDocumentMaxAggregateOutputType | null
+  }
+
+  type GetSessionDocumentGroupByPayload<T extends SessionDocumentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SessionDocumentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SessionDocumentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SessionDocumentGroupByOutputType[P]>
+            : GetScalarType<T[P], SessionDocumentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SessionDocumentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    sessionId?: boolean
+    documentId?: boolean
+    attachedAt?: boolean
+    session?: boolean | ChatSessionDefaultArgs<ExtArgs>
+    document?: boolean | DocumentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["sessionDocument"]>
+
+  export type SessionDocumentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    sessionId?: boolean
+    documentId?: boolean
+    attachedAt?: boolean
+    session?: boolean | ChatSessionDefaultArgs<ExtArgs>
+    document?: boolean | DocumentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["sessionDocument"]>
+
+  export type SessionDocumentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    sessionId?: boolean
+    documentId?: boolean
+    attachedAt?: boolean
+    session?: boolean | ChatSessionDefaultArgs<ExtArgs>
+    document?: boolean | DocumentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["sessionDocument"]>
+
+  export type SessionDocumentSelectScalar = {
+    sessionId?: boolean
+    documentId?: boolean
+    attachedAt?: boolean
+  }
+
+  export type SessionDocumentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"sessionId" | "documentId" | "attachedAt", ExtArgs["result"]["sessionDocument"]>
+  export type SessionDocumentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | ChatSessionDefaultArgs<ExtArgs>
+    document?: boolean | DocumentDefaultArgs<ExtArgs>
+  }
+  export type SessionDocumentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | ChatSessionDefaultArgs<ExtArgs>
+    document?: boolean | DocumentDefaultArgs<ExtArgs>
+  }
+  export type SessionDocumentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | ChatSessionDefaultArgs<ExtArgs>
+    document?: boolean | DocumentDefaultArgs<ExtArgs>
+  }
+
+  export type $SessionDocumentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SessionDocument"
+    objects: {
+      session: Prisma.$ChatSessionPayload<ExtArgs>
+      document: Prisma.$DocumentPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      sessionId: string
+      documentId: string
+      attachedAt: Date
+    }, ExtArgs["result"]["sessionDocument"]>
+    composites: {}
+  }
+
+  type SessionDocumentGetPayload<S extends boolean | null | undefined | SessionDocumentDefaultArgs> = $Result.GetResult<Prisma.$SessionDocumentPayload, S>
+
+  type SessionDocumentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SessionDocumentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SessionDocumentCountAggregateInputType | true
+    }
+
+  export interface SessionDocumentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SessionDocument'], meta: { name: 'SessionDocument' } }
+    /**
+     * Find zero or one SessionDocument that matches the filter.
+     * @param {SessionDocumentFindUniqueArgs} args - Arguments to find a SessionDocument
+     * @example
+     * // Get one SessionDocument
+     * const sessionDocument = await prisma.sessionDocument.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SessionDocumentFindUniqueArgs>(args: SelectSubset<T, SessionDocumentFindUniqueArgs<ExtArgs>>): Prisma__SessionDocumentClient<$Result.GetResult<Prisma.$SessionDocumentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SessionDocument that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SessionDocumentFindUniqueOrThrowArgs} args - Arguments to find a SessionDocument
+     * @example
+     * // Get one SessionDocument
+     * const sessionDocument = await prisma.sessionDocument.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SessionDocumentFindUniqueOrThrowArgs>(args: SelectSubset<T, SessionDocumentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SessionDocumentClient<$Result.GetResult<Prisma.$SessionDocumentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SessionDocument that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SessionDocumentFindFirstArgs} args - Arguments to find a SessionDocument
+     * @example
+     * // Get one SessionDocument
+     * const sessionDocument = await prisma.sessionDocument.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SessionDocumentFindFirstArgs>(args?: SelectSubset<T, SessionDocumentFindFirstArgs<ExtArgs>>): Prisma__SessionDocumentClient<$Result.GetResult<Prisma.$SessionDocumentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SessionDocument that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SessionDocumentFindFirstOrThrowArgs} args - Arguments to find a SessionDocument
+     * @example
+     * // Get one SessionDocument
+     * const sessionDocument = await prisma.sessionDocument.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SessionDocumentFindFirstOrThrowArgs>(args?: SelectSubset<T, SessionDocumentFindFirstOrThrowArgs<ExtArgs>>): Prisma__SessionDocumentClient<$Result.GetResult<Prisma.$SessionDocumentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SessionDocuments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SessionDocumentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SessionDocuments
+     * const sessionDocuments = await prisma.sessionDocument.findMany()
+     * 
+     * // Get first 10 SessionDocuments
+     * const sessionDocuments = await prisma.sessionDocument.findMany({ take: 10 })
+     * 
+     * // Only select the `sessionId`
+     * const sessionDocumentWithSessionIdOnly = await prisma.sessionDocument.findMany({ select: { sessionId: true } })
+     * 
+     */
+    findMany<T extends SessionDocumentFindManyArgs>(args?: SelectSubset<T, SessionDocumentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SessionDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SessionDocument.
+     * @param {SessionDocumentCreateArgs} args - Arguments to create a SessionDocument.
+     * @example
+     * // Create one SessionDocument
+     * const SessionDocument = await prisma.sessionDocument.create({
+     *   data: {
+     *     // ... data to create a SessionDocument
+     *   }
+     * })
+     * 
+     */
+    create<T extends SessionDocumentCreateArgs>(args: SelectSubset<T, SessionDocumentCreateArgs<ExtArgs>>): Prisma__SessionDocumentClient<$Result.GetResult<Prisma.$SessionDocumentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SessionDocuments.
+     * @param {SessionDocumentCreateManyArgs} args - Arguments to create many SessionDocuments.
+     * @example
+     * // Create many SessionDocuments
+     * const sessionDocument = await prisma.sessionDocument.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SessionDocumentCreateManyArgs>(args?: SelectSubset<T, SessionDocumentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SessionDocuments and returns the data saved in the database.
+     * @param {SessionDocumentCreateManyAndReturnArgs} args - Arguments to create many SessionDocuments.
+     * @example
+     * // Create many SessionDocuments
+     * const sessionDocument = await prisma.sessionDocument.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SessionDocuments and only return the `sessionId`
+     * const sessionDocumentWithSessionIdOnly = await prisma.sessionDocument.createManyAndReturn({
+     *   select: { sessionId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SessionDocumentCreateManyAndReturnArgs>(args?: SelectSubset<T, SessionDocumentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SessionDocumentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SessionDocument.
+     * @param {SessionDocumentDeleteArgs} args - Arguments to delete one SessionDocument.
+     * @example
+     * // Delete one SessionDocument
+     * const SessionDocument = await prisma.sessionDocument.delete({
+     *   where: {
+     *     // ... filter to delete one SessionDocument
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SessionDocumentDeleteArgs>(args: SelectSubset<T, SessionDocumentDeleteArgs<ExtArgs>>): Prisma__SessionDocumentClient<$Result.GetResult<Prisma.$SessionDocumentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SessionDocument.
+     * @param {SessionDocumentUpdateArgs} args - Arguments to update one SessionDocument.
+     * @example
+     * // Update one SessionDocument
+     * const sessionDocument = await prisma.sessionDocument.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SessionDocumentUpdateArgs>(args: SelectSubset<T, SessionDocumentUpdateArgs<ExtArgs>>): Prisma__SessionDocumentClient<$Result.GetResult<Prisma.$SessionDocumentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SessionDocuments.
+     * @param {SessionDocumentDeleteManyArgs} args - Arguments to filter SessionDocuments to delete.
+     * @example
+     * // Delete a few SessionDocuments
+     * const { count } = await prisma.sessionDocument.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SessionDocumentDeleteManyArgs>(args?: SelectSubset<T, SessionDocumentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SessionDocuments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SessionDocumentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SessionDocuments
+     * const sessionDocument = await prisma.sessionDocument.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SessionDocumentUpdateManyArgs>(args: SelectSubset<T, SessionDocumentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SessionDocuments and returns the data updated in the database.
+     * @param {SessionDocumentUpdateManyAndReturnArgs} args - Arguments to update many SessionDocuments.
+     * @example
+     * // Update many SessionDocuments
+     * const sessionDocument = await prisma.sessionDocument.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SessionDocuments and only return the `sessionId`
+     * const sessionDocumentWithSessionIdOnly = await prisma.sessionDocument.updateManyAndReturn({
+     *   select: { sessionId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SessionDocumentUpdateManyAndReturnArgs>(args: SelectSubset<T, SessionDocumentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SessionDocumentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SessionDocument.
+     * @param {SessionDocumentUpsertArgs} args - Arguments to update or create a SessionDocument.
+     * @example
+     * // Update or create a SessionDocument
+     * const sessionDocument = await prisma.sessionDocument.upsert({
+     *   create: {
+     *     // ... data to create a SessionDocument
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SessionDocument we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SessionDocumentUpsertArgs>(args: SelectSubset<T, SessionDocumentUpsertArgs<ExtArgs>>): Prisma__SessionDocumentClient<$Result.GetResult<Prisma.$SessionDocumentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SessionDocuments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SessionDocumentCountArgs} args - Arguments to filter SessionDocuments to count.
+     * @example
+     * // Count the number of SessionDocuments
+     * const count = await prisma.sessionDocument.count({
+     *   where: {
+     *     // ... the filter for the SessionDocuments we want to count
+     *   }
+     * })
+    **/
+    count<T extends SessionDocumentCountArgs>(
+      args?: Subset<T, SessionDocumentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SessionDocumentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SessionDocument.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SessionDocumentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SessionDocumentAggregateArgs>(args: Subset<T, SessionDocumentAggregateArgs>): Prisma.PrismaPromise<GetSessionDocumentAggregateType<T>>
+
+    /**
+     * Group by SessionDocument.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SessionDocumentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SessionDocumentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SessionDocumentGroupByArgs['orderBy'] }
+        : { orderBy?: SessionDocumentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SessionDocumentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSessionDocumentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SessionDocument model
+   */
+  readonly fields: SessionDocumentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SessionDocument.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SessionDocumentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    session<T extends ChatSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ChatSessionDefaultArgs<ExtArgs>>): Prisma__ChatSessionClient<$Result.GetResult<Prisma.$ChatSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    document<T extends DocumentDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DocumentDefaultArgs<ExtArgs>>): Prisma__DocumentClient<$Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SessionDocument model
+   */
+  interface SessionDocumentFieldRefs {
+    readonly sessionId: FieldRef<"SessionDocument", 'String'>
+    readonly documentId: FieldRef<"SessionDocument", 'String'>
+    readonly attachedAt: FieldRef<"SessionDocument", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SessionDocument findUnique
+   */
+  export type SessionDocumentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SessionDocument
+     */
+    select?: SessionDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SessionDocument
+     */
+    omit?: SessionDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SessionDocumentInclude<ExtArgs> | null
+    /**
+     * Filter, which SessionDocument to fetch.
+     */
+    where: SessionDocumentWhereUniqueInput
+  }
+
+  /**
+   * SessionDocument findUniqueOrThrow
+   */
+  export type SessionDocumentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SessionDocument
+     */
+    select?: SessionDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SessionDocument
+     */
+    omit?: SessionDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SessionDocumentInclude<ExtArgs> | null
+    /**
+     * Filter, which SessionDocument to fetch.
+     */
+    where: SessionDocumentWhereUniqueInput
+  }
+
+  /**
+   * SessionDocument findFirst
+   */
+  export type SessionDocumentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SessionDocument
+     */
+    select?: SessionDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SessionDocument
+     */
+    omit?: SessionDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SessionDocumentInclude<ExtArgs> | null
+    /**
+     * Filter, which SessionDocument to fetch.
+     */
+    where?: SessionDocumentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SessionDocuments to fetch.
+     */
+    orderBy?: SessionDocumentOrderByWithRelationInput | SessionDocumentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SessionDocuments.
+     */
+    cursor?: SessionDocumentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SessionDocuments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SessionDocuments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SessionDocuments.
+     */
+    distinct?: SessionDocumentScalarFieldEnum | SessionDocumentScalarFieldEnum[]
+  }
+
+  /**
+   * SessionDocument findFirstOrThrow
+   */
+  export type SessionDocumentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SessionDocument
+     */
+    select?: SessionDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SessionDocument
+     */
+    omit?: SessionDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SessionDocumentInclude<ExtArgs> | null
+    /**
+     * Filter, which SessionDocument to fetch.
+     */
+    where?: SessionDocumentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SessionDocuments to fetch.
+     */
+    orderBy?: SessionDocumentOrderByWithRelationInput | SessionDocumentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SessionDocuments.
+     */
+    cursor?: SessionDocumentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SessionDocuments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SessionDocuments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SessionDocuments.
+     */
+    distinct?: SessionDocumentScalarFieldEnum | SessionDocumentScalarFieldEnum[]
+  }
+
+  /**
+   * SessionDocument findMany
+   */
+  export type SessionDocumentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SessionDocument
+     */
+    select?: SessionDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SessionDocument
+     */
+    omit?: SessionDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SessionDocumentInclude<ExtArgs> | null
+    /**
+     * Filter, which SessionDocuments to fetch.
+     */
+    where?: SessionDocumentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SessionDocuments to fetch.
+     */
+    orderBy?: SessionDocumentOrderByWithRelationInput | SessionDocumentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SessionDocuments.
+     */
+    cursor?: SessionDocumentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SessionDocuments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SessionDocuments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SessionDocuments.
+     */
+    distinct?: SessionDocumentScalarFieldEnum | SessionDocumentScalarFieldEnum[]
+  }
+
+  /**
+   * SessionDocument create
+   */
+  export type SessionDocumentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SessionDocument
+     */
+    select?: SessionDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SessionDocument
+     */
+    omit?: SessionDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SessionDocumentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SessionDocument.
+     */
+    data: XOR<SessionDocumentCreateInput, SessionDocumentUncheckedCreateInput>
+  }
+
+  /**
+   * SessionDocument createMany
+   */
+  export type SessionDocumentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SessionDocuments.
+     */
+    data: SessionDocumentCreateManyInput | SessionDocumentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SessionDocument createManyAndReturn
+   */
+  export type SessionDocumentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SessionDocument
+     */
+    select?: SessionDocumentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SessionDocument
+     */
+    omit?: SessionDocumentOmit<ExtArgs> | null
+    /**
+     * The data used to create many SessionDocuments.
+     */
+    data: SessionDocumentCreateManyInput | SessionDocumentCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SessionDocumentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SessionDocument update
+   */
+  export type SessionDocumentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SessionDocument
+     */
+    select?: SessionDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SessionDocument
+     */
+    omit?: SessionDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SessionDocumentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SessionDocument.
+     */
+    data: XOR<SessionDocumentUpdateInput, SessionDocumentUncheckedUpdateInput>
+    /**
+     * Choose, which SessionDocument to update.
+     */
+    where: SessionDocumentWhereUniqueInput
+  }
+
+  /**
+   * SessionDocument updateMany
+   */
+  export type SessionDocumentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SessionDocuments.
+     */
+    data: XOR<SessionDocumentUpdateManyMutationInput, SessionDocumentUncheckedUpdateManyInput>
+    /**
+     * Filter which SessionDocuments to update
+     */
+    where?: SessionDocumentWhereInput
+    /**
+     * Limit how many SessionDocuments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SessionDocument updateManyAndReturn
+   */
+  export type SessionDocumentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SessionDocument
+     */
+    select?: SessionDocumentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SessionDocument
+     */
+    omit?: SessionDocumentOmit<ExtArgs> | null
+    /**
+     * The data used to update SessionDocuments.
+     */
+    data: XOR<SessionDocumentUpdateManyMutationInput, SessionDocumentUncheckedUpdateManyInput>
+    /**
+     * Filter which SessionDocuments to update
+     */
+    where?: SessionDocumentWhereInput
+    /**
+     * Limit how many SessionDocuments to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SessionDocumentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SessionDocument upsert
+   */
+  export type SessionDocumentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SessionDocument
+     */
+    select?: SessionDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SessionDocument
+     */
+    omit?: SessionDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SessionDocumentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SessionDocument to update in case it exists.
+     */
+    where: SessionDocumentWhereUniqueInput
+    /**
+     * In case the SessionDocument found by the `where` argument doesn't exist, create a new SessionDocument with this data.
+     */
+    create: XOR<SessionDocumentCreateInput, SessionDocumentUncheckedCreateInput>
+    /**
+     * In case the SessionDocument was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SessionDocumentUpdateInput, SessionDocumentUncheckedUpdateInput>
+  }
+
+  /**
+   * SessionDocument delete
+   */
+  export type SessionDocumentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SessionDocument
+     */
+    select?: SessionDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SessionDocument
+     */
+    omit?: SessionDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SessionDocumentInclude<ExtArgs> | null
+    /**
+     * Filter which SessionDocument to delete.
+     */
+    where: SessionDocumentWhereUniqueInput
+  }
+
+  /**
+   * SessionDocument deleteMany
+   */
+  export type SessionDocumentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SessionDocuments to delete
+     */
+    where?: SessionDocumentWhereInput
+    /**
+     * Limit how many SessionDocuments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SessionDocument without action
+   */
+  export type SessionDocumentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SessionDocument
+     */
+    select?: SessionDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SessionDocument
+     */
+    omit?: SessionDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SessionDocumentInclude<ExtArgs> | null
   }
 
 
@@ -12661,11 +13803,19 @@ export namespace Prisma {
     fileType: 'fileType',
     chunkingStrategy: 'chunkingStrategy',
     userId: 'userId',
-    sessionId: 'sessionId',
     createdAt: 'createdAt'
   };
 
   export type DocumentScalarFieldEnum = (typeof DocumentScalarFieldEnum)[keyof typeof DocumentScalarFieldEnum]
+
+
+  export const SessionDocumentScalarFieldEnum: {
+    sessionId: 'sessionId',
+    documentId: 'documentId',
+    attachedAt: 'attachedAt'
+  };
+
+  export type SessionDocumentScalarFieldEnum = (typeof SessionDocumentScalarFieldEnum)[keyof typeof SessionDocumentScalarFieldEnum]
 
 
   export const ChunkScalarFieldEnum: {
@@ -13169,7 +14319,7 @@ export namespace Prisma {
     expiresAt?: DateTimeFilter<"ChatSession"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     messages?: MessageListRelationFilter
-    documents?: DocumentListRelationFilter
+    attachedDocuments?: SessionDocumentListRelationFilter
   }
 
   export type ChatSessionOrderByWithRelationInput = {
@@ -13180,7 +14330,7 @@ export namespace Prisma {
     expiresAt?: SortOrder
     user?: UserOrderByWithRelationInput
     messages?: MessageOrderByRelationAggregateInput
-    documents?: DocumentOrderByRelationAggregateInput
+    attachedDocuments?: SessionDocumentOrderByRelationAggregateInput
   }
 
   export type ChatSessionWhereUniqueInput = Prisma.AtLeast<{
@@ -13194,7 +14344,7 @@ export namespace Prisma {
     expiresAt?: DateTimeFilter<"ChatSession"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     messages?: MessageListRelationFilter
-    documents?: DocumentListRelationFilter
+    attachedDocuments?: SessionDocumentListRelationFilter
   }, "id">
 
   export type ChatSessionOrderByWithAggregationInput = {
@@ -13228,10 +14378,9 @@ export namespace Prisma {
     fileType?: EnumFileTypeFilter<"Document"> | $Enums.FileType
     chunkingStrategy?: EnumChunkingStrategyFilter<"Document"> | $Enums.ChunkingStrategy
     userId?: StringFilter<"Document"> | string
-    sessionId?: StringFilter<"Document"> | string
     createdAt?: DateTimeFilter<"Document"> | Date | string
-    session?: XOR<ChatSessionScalarRelationFilter, ChatSessionWhereInput>
     chunks?: ChunkListRelationFilter
+    sessions?: SessionDocumentListRelationFilter
   }
 
   export type DocumentOrderByWithRelationInput = {
@@ -13240,10 +14389,9 @@ export namespace Prisma {
     fileType?: SortOrder
     chunkingStrategy?: SortOrder
     userId?: SortOrder
-    sessionId?: SortOrder
     createdAt?: SortOrder
-    session?: ChatSessionOrderByWithRelationInput
     chunks?: ChunkOrderByRelationAggregateInput
+    sessions?: SessionDocumentOrderByRelationAggregateInput
   }
 
   export type DocumentWhereUniqueInput = Prisma.AtLeast<{
@@ -13255,10 +14403,9 @@ export namespace Prisma {
     fileType?: EnumFileTypeFilter<"Document"> | $Enums.FileType
     chunkingStrategy?: EnumChunkingStrategyFilter<"Document"> | $Enums.ChunkingStrategy
     userId?: StringFilter<"Document"> | string
-    sessionId?: StringFilter<"Document"> | string
     createdAt?: DateTimeFilter<"Document"> | Date | string
-    session?: XOR<ChatSessionScalarRelationFilter, ChatSessionWhereInput>
     chunks?: ChunkListRelationFilter
+    sessions?: SessionDocumentListRelationFilter
   }, "id">
 
   export type DocumentOrderByWithAggregationInput = {
@@ -13267,7 +14414,6 @@ export namespace Prisma {
     fileType?: SortOrder
     chunkingStrategy?: SortOrder
     userId?: SortOrder
-    sessionId?: SortOrder
     createdAt?: SortOrder
     _count?: DocumentCountOrderByAggregateInput
     _max?: DocumentMaxOrderByAggregateInput
@@ -13283,8 +14429,56 @@ export namespace Prisma {
     fileType?: EnumFileTypeWithAggregatesFilter<"Document"> | $Enums.FileType
     chunkingStrategy?: EnumChunkingStrategyWithAggregatesFilter<"Document"> | $Enums.ChunkingStrategy
     userId?: StringWithAggregatesFilter<"Document"> | string
-    sessionId?: StringWithAggregatesFilter<"Document"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Document"> | Date | string
+  }
+
+  export type SessionDocumentWhereInput = {
+    AND?: SessionDocumentWhereInput | SessionDocumentWhereInput[]
+    OR?: SessionDocumentWhereInput[]
+    NOT?: SessionDocumentWhereInput | SessionDocumentWhereInput[]
+    sessionId?: StringFilter<"SessionDocument"> | string
+    documentId?: StringFilter<"SessionDocument"> | string
+    attachedAt?: DateTimeFilter<"SessionDocument"> | Date | string
+    session?: XOR<ChatSessionScalarRelationFilter, ChatSessionWhereInput>
+    document?: XOR<DocumentScalarRelationFilter, DocumentWhereInput>
+  }
+
+  export type SessionDocumentOrderByWithRelationInput = {
+    sessionId?: SortOrder
+    documentId?: SortOrder
+    attachedAt?: SortOrder
+    session?: ChatSessionOrderByWithRelationInput
+    document?: DocumentOrderByWithRelationInput
+  }
+
+  export type SessionDocumentWhereUniqueInput = Prisma.AtLeast<{
+    sessionId_documentId?: SessionDocumentSessionIdDocumentIdCompoundUniqueInput
+    AND?: SessionDocumentWhereInput | SessionDocumentWhereInput[]
+    OR?: SessionDocumentWhereInput[]
+    NOT?: SessionDocumentWhereInput | SessionDocumentWhereInput[]
+    sessionId?: StringFilter<"SessionDocument"> | string
+    documentId?: StringFilter<"SessionDocument"> | string
+    attachedAt?: DateTimeFilter<"SessionDocument"> | Date | string
+    session?: XOR<ChatSessionScalarRelationFilter, ChatSessionWhereInput>
+    document?: XOR<DocumentScalarRelationFilter, DocumentWhereInput>
+  }, "sessionId_documentId">
+
+  export type SessionDocumentOrderByWithAggregationInput = {
+    sessionId?: SortOrder
+    documentId?: SortOrder
+    attachedAt?: SortOrder
+    _count?: SessionDocumentCountOrderByAggregateInput
+    _max?: SessionDocumentMaxOrderByAggregateInput
+    _min?: SessionDocumentMinOrderByAggregateInput
+  }
+
+  export type SessionDocumentScalarWhereWithAggregatesInput = {
+    AND?: SessionDocumentScalarWhereWithAggregatesInput | SessionDocumentScalarWhereWithAggregatesInput[]
+    OR?: SessionDocumentScalarWhereWithAggregatesInput[]
+    NOT?: SessionDocumentScalarWhereWithAggregatesInput | SessionDocumentScalarWhereWithAggregatesInput[]
+    sessionId?: StringWithAggregatesFilter<"SessionDocument"> | string
+    documentId?: StringWithAggregatesFilter<"SessionDocument"> | string
+    attachedAt?: DateTimeWithAggregatesFilter<"SessionDocument"> | Date | string
   }
 
   export type ChunkWhereInput = {
@@ -13824,7 +15018,7 @@ export namespace Prisma {
     expiresAt: Date | string
     user: UserCreateNestedOneWithoutChatSessionsInput
     messages?: MessageCreateNestedManyWithoutSessionInput
-    documents?: DocumentCreateNestedManyWithoutSessionInput
+    attachedDocuments?: SessionDocumentCreateNestedManyWithoutSessionInput
   }
 
   export type ChatSessionUncheckedCreateInput = {
@@ -13834,7 +15028,7 @@ export namespace Prisma {
     createdAt?: Date | string
     expiresAt: Date | string
     messages?: MessageUncheckedCreateNestedManyWithoutSessionInput
-    documents?: DocumentUncheckedCreateNestedManyWithoutSessionInput
+    attachedDocuments?: SessionDocumentUncheckedCreateNestedManyWithoutSessionInput
   }
 
   export type ChatSessionUpdateInput = {
@@ -13844,7 +15038,7 @@ export namespace Prisma {
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutChatSessionsNestedInput
     messages?: MessageUpdateManyWithoutSessionNestedInput
-    documents?: DocumentUpdateManyWithoutSessionNestedInput
+    attachedDocuments?: SessionDocumentUpdateManyWithoutSessionNestedInput
   }
 
   export type ChatSessionUncheckedUpdateInput = {
@@ -13854,7 +15048,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     messages?: MessageUncheckedUpdateManyWithoutSessionNestedInput
-    documents?: DocumentUncheckedUpdateManyWithoutSessionNestedInput
+    attachedDocuments?: SessionDocumentUncheckedUpdateManyWithoutSessionNestedInput
   }
 
   export type ChatSessionCreateManyInput = {
@@ -13887,8 +15081,8 @@ export namespace Prisma {
     chunkingStrategy: $Enums.ChunkingStrategy
     userId: string
     createdAt?: Date | string
-    session: ChatSessionCreateNestedOneWithoutDocumentsInput
     chunks?: ChunkCreateNestedManyWithoutDocumentInput
+    sessions?: SessionDocumentCreateNestedManyWithoutDocumentInput
   }
 
   export type DocumentUncheckedCreateInput = {
@@ -13897,9 +15091,9 @@ export namespace Prisma {
     fileType: $Enums.FileType
     chunkingStrategy: $Enums.ChunkingStrategy
     userId: string
-    sessionId: string
     createdAt?: Date | string
     chunks?: ChunkUncheckedCreateNestedManyWithoutDocumentInput
+    sessions?: SessionDocumentUncheckedCreateNestedManyWithoutDocumentInput
   }
 
   export type DocumentUpdateInput = {
@@ -13909,8 +15103,8 @@ export namespace Prisma {
     chunkingStrategy?: EnumChunkingStrategyFieldUpdateOperationsInput | $Enums.ChunkingStrategy
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    session?: ChatSessionUpdateOneRequiredWithoutDocumentsNestedInput
     chunks?: ChunkUpdateManyWithoutDocumentNestedInput
+    sessions?: SessionDocumentUpdateManyWithoutDocumentNestedInput
   }
 
   export type DocumentUncheckedUpdateInput = {
@@ -13919,9 +15113,9 @@ export namespace Prisma {
     fileType?: EnumFileTypeFieldUpdateOperationsInput | $Enums.FileType
     chunkingStrategy?: EnumChunkingStrategyFieldUpdateOperationsInput | $Enums.ChunkingStrategy
     userId?: StringFieldUpdateOperationsInput | string
-    sessionId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     chunks?: ChunkUncheckedUpdateManyWithoutDocumentNestedInput
+    sessions?: SessionDocumentUncheckedUpdateManyWithoutDocumentNestedInput
   }
 
   export type DocumentCreateManyInput = {
@@ -13930,7 +15124,6 @@ export namespace Prisma {
     fileType: $Enums.FileType
     chunkingStrategy: $Enums.ChunkingStrategy
     userId: string
-    sessionId: string
     createdAt?: Date | string
   }
 
@@ -13949,8 +15142,47 @@ export namespace Prisma {
     fileType?: EnumFileTypeFieldUpdateOperationsInput | $Enums.FileType
     chunkingStrategy?: EnumChunkingStrategyFieldUpdateOperationsInput | $Enums.ChunkingStrategy
     userId?: StringFieldUpdateOperationsInput | string
-    sessionId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SessionDocumentCreateInput = {
+    attachedAt?: Date | string
+    session: ChatSessionCreateNestedOneWithoutAttachedDocumentsInput
+    document: DocumentCreateNestedOneWithoutSessionsInput
+  }
+
+  export type SessionDocumentUncheckedCreateInput = {
+    sessionId: string
+    documentId: string
+    attachedAt?: Date | string
+  }
+
+  export type SessionDocumentUpdateInput = {
+    attachedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    session?: ChatSessionUpdateOneRequiredWithoutAttachedDocumentsNestedInput
+    document?: DocumentUpdateOneRequiredWithoutSessionsNestedInput
+  }
+
+  export type SessionDocumentUncheckedUpdateInput = {
+    sessionId?: StringFieldUpdateOperationsInput | string
+    documentId?: StringFieldUpdateOperationsInput | string
+    attachedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SessionDocumentCreateManyInput = {
+    sessionId: string
+    documentId: string
+    attachedAt?: Date | string
+  }
+
+  export type SessionDocumentUpdateManyMutationInput = {
+    attachedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SessionDocumentUncheckedUpdateManyInput = {
+    sessionId?: StringFieldUpdateOperationsInput | string
+    documentId?: StringFieldUpdateOperationsInput | string
+    attachedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ChunkUpdateInput = {
@@ -14544,17 +15776,17 @@ export namespace Prisma {
     none?: MessageWhereInput
   }
 
-  export type DocumentListRelationFilter = {
-    every?: DocumentWhereInput
-    some?: DocumentWhereInput
-    none?: DocumentWhereInput
+  export type SessionDocumentListRelationFilter = {
+    every?: SessionDocumentWhereInput
+    some?: SessionDocumentWhereInput
+    none?: SessionDocumentWhereInput
   }
 
   export type MessageOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type DocumentOrderByRelationAggregateInput = {
+  export type SessionDocumentOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -14596,11 +15828,6 @@ export namespace Prisma {
     not?: NestedEnumChunkingStrategyFilter<$PrismaModel> | $Enums.ChunkingStrategy
   }
 
-  export type ChatSessionScalarRelationFilter = {
-    is?: ChatSessionWhereInput
-    isNot?: ChatSessionWhereInput
-  }
-
   export type ChunkListRelationFilter = {
     every?: ChunkWhereInput
     some?: ChunkWhereInput
@@ -14617,7 +15844,6 @@ export namespace Prisma {
     fileType?: SortOrder
     chunkingStrategy?: SortOrder
     userId?: SortOrder
-    sessionId?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -14627,7 +15853,6 @@ export namespace Prisma {
     fileType?: SortOrder
     chunkingStrategy?: SortOrder
     userId?: SortOrder
-    sessionId?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -14637,7 +15862,6 @@ export namespace Prisma {
     fileType?: SortOrder
     chunkingStrategy?: SortOrder
     userId?: SortOrder
-    sessionId?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -14661,9 +15885,37 @@ export namespace Prisma {
     _max?: NestedEnumChunkingStrategyFilter<$PrismaModel>
   }
 
+  export type ChatSessionScalarRelationFilter = {
+    is?: ChatSessionWhereInput
+    isNot?: ChatSessionWhereInput
+  }
+
   export type DocumentScalarRelationFilter = {
     is?: DocumentWhereInput
     isNot?: DocumentWhereInput
+  }
+
+  export type SessionDocumentSessionIdDocumentIdCompoundUniqueInput = {
+    sessionId: string
+    documentId: string
+  }
+
+  export type SessionDocumentCountOrderByAggregateInput = {
+    sessionId?: SortOrder
+    documentId?: SortOrder
+    attachedAt?: SortOrder
+  }
+
+  export type SessionDocumentMaxOrderByAggregateInput = {
+    sessionId?: SortOrder
+    documentId?: SortOrder
+    attachedAt?: SortOrder
+  }
+
+  export type SessionDocumentMinOrderByAggregateInput = {
+    sessionId?: SortOrder
+    documentId?: SortOrder
+    attachedAt?: SortOrder
   }
 
   export type ChunkCountOrderByAggregateInput = {
@@ -15136,11 +16388,11 @@ export namespace Prisma {
     connect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
   }
 
-  export type DocumentCreateNestedManyWithoutSessionInput = {
-    create?: XOR<DocumentCreateWithoutSessionInput, DocumentUncheckedCreateWithoutSessionInput> | DocumentCreateWithoutSessionInput[] | DocumentUncheckedCreateWithoutSessionInput[]
-    connectOrCreate?: DocumentCreateOrConnectWithoutSessionInput | DocumentCreateOrConnectWithoutSessionInput[]
-    createMany?: DocumentCreateManySessionInputEnvelope
-    connect?: DocumentWhereUniqueInput | DocumentWhereUniqueInput[]
+  export type SessionDocumentCreateNestedManyWithoutSessionInput = {
+    create?: XOR<SessionDocumentCreateWithoutSessionInput, SessionDocumentUncheckedCreateWithoutSessionInput> | SessionDocumentCreateWithoutSessionInput[] | SessionDocumentUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: SessionDocumentCreateOrConnectWithoutSessionInput | SessionDocumentCreateOrConnectWithoutSessionInput[]
+    createMany?: SessionDocumentCreateManySessionInputEnvelope
+    connect?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
   }
 
   export type MessageUncheckedCreateNestedManyWithoutSessionInput = {
@@ -15150,11 +16402,11 @@ export namespace Prisma {
     connect?: MessageWhereUniqueInput | MessageWhereUniqueInput[]
   }
 
-  export type DocumentUncheckedCreateNestedManyWithoutSessionInput = {
-    create?: XOR<DocumentCreateWithoutSessionInput, DocumentUncheckedCreateWithoutSessionInput> | DocumentCreateWithoutSessionInput[] | DocumentUncheckedCreateWithoutSessionInput[]
-    connectOrCreate?: DocumentCreateOrConnectWithoutSessionInput | DocumentCreateOrConnectWithoutSessionInput[]
-    createMany?: DocumentCreateManySessionInputEnvelope
-    connect?: DocumentWhereUniqueInput | DocumentWhereUniqueInput[]
+  export type SessionDocumentUncheckedCreateNestedManyWithoutSessionInput = {
+    create?: XOR<SessionDocumentCreateWithoutSessionInput, SessionDocumentUncheckedCreateWithoutSessionInput> | SessionDocumentCreateWithoutSessionInput[] | SessionDocumentUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: SessionDocumentCreateOrConnectWithoutSessionInput | SessionDocumentCreateOrConnectWithoutSessionInput[]
+    createMany?: SessionDocumentCreateManySessionInputEnvelope
+    connect?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
   }
 
   export type UserUpdateOneRequiredWithoutChatSessionsNestedInput = {
@@ -15179,18 +16431,18 @@ export namespace Prisma {
     deleteMany?: MessageScalarWhereInput | MessageScalarWhereInput[]
   }
 
-  export type DocumentUpdateManyWithoutSessionNestedInput = {
-    create?: XOR<DocumentCreateWithoutSessionInput, DocumentUncheckedCreateWithoutSessionInput> | DocumentCreateWithoutSessionInput[] | DocumentUncheckedCreateWithoutSessionInput[]
-    connectOrCreate?: DocumentCreateOrConnectWithoutSessionInput | DocumentCreateOrConnectWithoutSessionInput[]
-    upsert?: DocumentUpsertWithWhereUniqueWithoutSessionInput | DocumentUpsertWithWhereUniqueWithoutSessionInput[]
-    createMany?: DocumentCreateManySessionInputEnvelope
-    set?: DocumentWhereUniqueInput | DocumentWhereUniqueInput[]
-    disconnect?: DocumentWhereUniqueInput | DocumentWhereUniqueInput[]
-    delete?: DocumentWhereUniqueInput | DocumentWhereUniqueInput[]
-    connect?: DocumentWhereUniqueInput | DocumentWhereUniqueInput[]
-    update?: DocumentUpdateWithWhereUniqueWithoutSessionInput | DocumentUpdateWithWhereUniqueWithoutSessionInput[]
-    updateMany?: DocumentUpdateManyWithWhereWithoutSessionInput | DocumentUpdateManyWithWhereWithoutSessionInput[]
-    deleteMany?: DocumentScalarWhereInput | DocumentScalarWhereInput[]
+  export type SessionDocumentUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<SessionDocumentCreateWithoutSessionInput, SessionDocumentUncheckedCreateWithoutSessionInput> | SessionDocumentCreateWithoutSessionInput[] | SessionDocumentUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: SessionDocumentCreateOrConnectWithoutSessionInput | SessionDocumentCreateOrConnectWithoutSessionInput[]
+    upsert?: SessionDocumentUpsertWithWhereUniqueWithoutSessionInput | SessionDocumentUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: SessionDocumentCreateManySessionInputEnvelope
+    set?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
+    disconnect?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
+    delete?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
+    connect?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
+    update?: SessionDocumentUpdateWithWhereUniqueWithoutSessionInput | SessionDocumentUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: SessionDocumentUpdateManyWithWhereWithoutSessionInput | SessionDocumentUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: SessionDocumentScalarWhereInput | SessionDocumentScalarWhereInput[]
   }
 
   export type MessageUncheckedUpdateManyWithoutSessionNestedInput = {
@@ -15207,32 +16459,40 @@ export namespace Prisma {
     deleteMany?: MessageScalarWhereInput | MessageScalarWhereInput[]
   }
 
-  export type DocumentUncheckedUpdateManyWithoutSessionNestedInput = {
-    create?: XOR<DocumentCreateWithoutSessionInput, DocumentUncheckedCreateWithoutSessionInput> | DocumentCreateWithoutSessionInput[] | DocumentUncheckedCreateWithoutSessionInput[]
-    connectOrCreate?: DocumentCreateOrConnectWithoutSessionInput | DocumentCreateOrConnectWithoutSessionInput[]
-    upsert?: DocumentUpsertWithWhereUniqueWithoutSessionInput | DocumentUpsertWithWhereUniqueWithoutSessionInput[]
-    createMany?: DocumentCreateManySessionInputEnvelope
-    set?: DocumentWhereUniqueInput | DocumentWhereUniqueInput[]
-    disconnect?: DocumentWhereUniqueInput | DocumentWhereUniqueInput[]
-    delete?: DocumentWhereUniqueInput | DocumentWhereUniqueInput[]
-    connect?: DocumentWhereUniqueInput | DocumentWhereUniqueInput[]
-    update?: DocumentUpdateWithWhereUniqueWithoutSessionInput | DocumentUpdateWithWhereUniqueWithoutSessionInput[]
-    updateMany?: DocumentUpdateManyWithWhereWithoutSessionInput | DocumentUpdateManyWithWhereWithoutSessionInput[]
-    deleteMany?: DocumentScalarWhereInput | DocumentScalarWhereInput[]
-  }
-
-  export type ChatSessionCreateNestedOneWithoutDocumentsInput = {
-    create?: XOR<ChatSessionCreateWithoutDocumentsInput, ChatSessionUncheckedCreateWithoutDocumentsInput>
-    connectOrCreate?: ChatSessionCreateOrConnectWithoutDocumentsInput
-    connect?: ChatSessionWhereUniqueInput
+  export type SessionDocumentUncheckedUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<SessionDocumentCreateWithoutSessionInput, SessionDocumentUncheckedCreateWithoutSessionInput> | SessionDocumentCreateWithoutSessionInput[] | SessionDocumentUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: SessionDocumentCreateOrConnectWithoutSessionInput | SessionDocumentCreateOrConnectWithoutSessionInput[]
+    upsert?: SessionDocumentUpsertWithWhereUniqueWithoutSessionInput | SessionDocumentUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: SessionDocumentCreateManySessionInputEnvelope
+    set?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
+    disconnect?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
+    delete?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
+    connect?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
+    update?: SessionDocumentUpdateWithWhereUniqueWithoutSessionInput | SessionDocumentUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: SessionDocumentUpdateManyWithWhereWithoutSessionInput | SessionDocumentUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: SessionDocumentScalarWhereInput | SessionDocumentScalarWhereInput[]
   }
 
   export type ChunkCreateNestedManyWithoutDocumentInput = {
     connect?: ChunkWhereUniqueInput | ChunkWhereUniqueInput[]
   }
 
+  export type SessionDocumentCreateNestedManyWithoutDocumentInput = {
+    create?: XOR<SessionDocumentCreateWithoutDocumentInput, SessionDocumentUncheckedCreateWithoutDocumentInput> | SessionDocumentCreateWithoutDocumentInput[] | SessionDocumentUncheckedCreateWithoutDocumentInput[]
+    connectOrCreate?: SessionDocumentCreateOrConnectWithoutDocumentInput | SessionDocumentCreateOrConnectWithoutDocumentInput[]
+    createMany?: SessionDocumentCreateManyDocumentInputEnvelope
+    connect?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
+  }
+
   export type ChunkUncheckedCreateNestedManyWithoutDocumentInput = {
     connect?: ChunkWhereUniqueInput | ChunkWhereUniqueInput[]
+  }
+
+  export type SessionDocumentUncheckedCreateNestedManyWithoutDocumentInput = {
+    create?: XOR<SessionDocumentCreateWithoutDocumentInput, SessionDocumentUncheckedCreateWithoutDocumentInput> | SessionDocumentCreateWithoutDocumentInput[] | SessionDocumentUncheckedCreateWithoutDocumentInput[]
+    connectOrCreate?: SessionDocumentCreateOrConnectWithoutDocumentInput | SessionDocumentCreateOrConnectWithoutDocumentInput[]
+    createMany?: SessionDocumentCreateManyDocumentInputEnvelope
+    connect?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
   }
 
   export type EnumFileTypeFieldUpdateOperationsInput = {
@@ -15241,14 +16501,6 @@ export namespace Prisma {
 
   export type EnumChunkingStrategyFieldUpdateOperationsInput = {
     set?: $Enums.ChunkingStrategy
-  }
-
-  export type ChatSessionUpdateOneRequiredWithoutDocumentsNestedInput = {
-    create?: XOR<ChatSessionCreateWithoutDocumentsInput, ChatSessionUncheckedCreateWithoutDocumentsInput>
-    connectOrCreate?: ChatSessionCreateOrConnectWithoutDocumentsInput
-    upsert?: ChatSessionUpsertWithoutDocumentsInput
-    connect?: ChatSessionWhereUniqueInput
-    update?: XOR<XOR<ChatSessionUpdateToOneWithWhereWithoutDocumentsInput, ChatSessionUpdateWithoutDocumentsInput>, ChatSessionUncheckedUpdateWithoutDocumentsInput>
   }
 
   export type ChunkUpdateManyWithoutDocumentNestedInput = {
@@ -15261,6 +16513,20 @@ export namespace Prisma {
     deleteMany?: ChunkScalarWhereInput | ChunkScalarWhereInput[]
   }
 
+  export type SessionDocumentUpdateManyWithoutDocumentNestedInput = {
+    create?: XOR<SessionDocumentCreateWithoutDocumentInput, SessionDocumentUncheckedCreateWithoutDocumentInput> | SessionDocumentCreateWithoutDocumentInput[] | SessionDocumentUncheckedCreateWithoutDocumentInput[]
+    connectOrCreate?: SessionDocumentCreateOrConnectWithoutDocumentInput | SessionDocumentCreateOrConnectWithoutDocumentInput[]
+    upsert?: SessionDocumentUpsertWithWhereUniqueWithoutDocumentInput | SessionDocumentUpsertWithWhereUniqueWithoutDocumentInput[]
+    createMany?: SessionDocumentCreateManyDocumentInputEnvelope
+    set?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
+    disconnect?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
+    delete?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
+    connect?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
+    update?: SessionDocumentUpdateWithWhereUniqueWithoutDocumentInput | SessionDocumentUpdateWithWhereUniqueWithoutDocumentInput[]
+    updateMany?: SessionDocumentUpdateManyWithWhereWithoutDocumentInput | SessionDocumentUpdateManyWithWhereWithoutDocumentInput[]
+    deleteMany?: SessionDocumentScalarWhereInput | SessionDocumentScalarWhereInput[]
+  }
+
   export type ChunkUncheckedUpdateManyWithoutDocumentNestedInput = {
     set?: ChunkWhereUniqueInput | ChunkWhereUniqueInput[]
     disconnect?: ChunkWhereUniqueInput | ChunkWhereUniqueInput[]
@@ -15269,6 +16535,48 @@ export namespace Prisma {
     update?: ChunkUpdateWithWhereUniqueWithoutDocumentInput | ChunkUpdateWithWhereUniqueWithoutDocumentInput[]
     updateMany?: ChunkUpdateManyWithWhereWithoutDocumentInput | ChunkUpdateManyWithWhereWithoutDocumentInput[]
     deleteMany?: ChunkScalarWhereInput | ChunkScalarWhereInput[]
+  }
+
+  export type SessionDocumentUncheckedUpdateManyWithoutDocumentNestedInput = {
+    create?: XOR<SessionDocumentCreateWithoutDocumentInput, SessionDocumentUncheckedCreateWithoutDocumentInput> | SessionDocumentCreateWithoutDocumentInput[] | SessionDocumentUncheckedCreateWithoutDocumentInput[]
+    connectOrCreate?: SessionDocumentCreateOrConnectWithoutDocumentInput | SessionDocumentCreateOrConnectWithoutDocumentInput[]
+    upsert?: SessionDocumentUpsertWithWhereUniqueWithoutDocumentInput | SessionDocumentUpsertWithWhereUniqueWithoutDocumentInput[]
+    createMany?: SessionDocumentCreateManyDocumentInputEnvelope
+    set?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
+    disconnect?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
+    delete?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
+    connect?: SessionDocumentWhereUniqueInput | SessionDocumentWhereUniqueInput[]
+    update?: SessionDocumentUpdateWithWhereUniqueWithoutDocumentInput | SessionDocumentUpdateWithWhereUniqueWithoutDocumentInput[]
+    updateMany?: SessionDocumentUpdateManyWithWhereWithoutDocumentInput | SessionDocumentUpdateManyWithWhereWithoutDocumentInput[]
+    deleteMany?: SessionDocumentScalarWhereInput | SessionDocumentScalarWhereInput[]
+  }
+
+  export type ChatSessionCreateNestedOneWithoutAttachedDocumentsInput = {
+    create?: XOR<ChatSessionCreateWithoutAttachedDocumentsInput, ChatSessionUncheckedCreateWithoutAttachedDocumentsInput>
+    connectOrCreate?: ChatSessionCreateOrConnectWithoutAttachedDocumentsInput
+    connect?: ChatSessionWhereUniqueInput
+  }
+
+  export type DocumentCreateNestedOneWithoutSessionsInput = {
+    create?: XOR<DocumentCreateWithoutSessionsInput, DocumentUncheckedCreateWithoutSessionsInput>
+    connectOrCreate?: DocumentCreateOrConnectWithoutSessionsInput
+    connect?: DocumentWhereUniqueInput
+  }
+
+  export type ChatSessionUpdateOneRequiredWithoutAttachedDocumentsNestedInput = {
+    create?: XOR<ChatSessionCreateWithoutAttachedDocumentsInput, ChatSessionUncheckedCreateWithoutAttachedDocumentsInput>
+    connectOrCreate?: ChatSessionCreateOrConnectWithoutAttachedDocumentsInput
+    upsert?: ChatSessionUpsertWithoutAttachedDocumentsInput
+    connect?: ChatSessionWhereUniqueInput
+    update?: XOR<XOR<ChatSessionUpdateToOneWithWhereWithoutAttachedDocumentsInput, ChatSessionUpdateWithoutAttachedDocumentsInput>, ChatSessionUncheckedUpdateWithoutAttachedDocumentsInput>
+  }
+
+  export type DocumentUpdateOneRequiredWithoutSessionsNestedInput = {
+    create?: XOR<DocumentCreateWithoutSessionsInput, DocumentUncheckedCreateWithoutSessionsInput>
+    connectOrCreate?: DocumentCreateOrConnectWithoutSessionsInput
+    upsert?: DocumentUpsertWithoutSessionsInput
+    connect?: DocumentWhereUniqueInput
+    update?: XOR<XOR<DocumentUpdateToOneWithWhereWithoutSessionsInput, DocumentUpdateWithoutSessionsInput>, DocumentUncheckedUpdateWithoutSessionsInput>
   }
 
   export type DocumentUpdateOneRequiredWithoutChunksNestedInput = {
@@ -15631,7 +16939,7 @@ export namespace Prisma {
     createdAt?: Date | string
     expiresAt: Date | string
     messages?: MessageCreateNestedManyWithoutSessionInput
-    documents?: DocumentCreateNestedManyWithoutSessionInput
+    attachedDocuments?: SessionDocumentCreateNestedManyWithoutSessionInput
   }
 
   export type ChatSessionUncheckedCreateWithoutUserInput = {
@@ -15640,7 +16948,7 @@ export namespace Prisma {
     createdAt?: Date | string
     expiresAt: Date | string
     messages?: MessageUncheckedCreateNestedManyWithoutSessionInput
-    documents?: DocumentUncheckedCreateNestedManyWithoutSessionInput
+    attachedDocuments?: SessionDocumentUncheckedCreateNestedManyWithoutSessionInput
   }
 
   export type ChatSessionCreateOrConnectWithoutUserInput = {
@@ -15983,33 +17291,23 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type DocumentCreateWithoutSessionInput = {
-    id?: string
-    name: string
-    fileType: $Enums.FileType
-    chunkingStrategy: $Enums.ChunkingStrategy
-    userId: string
-    createdAt?: Date | string
-    chunks?: ChunkCreateNestedManyWithoutDocumentInput
+  export type SessionDocumentCreateWithoutSessionInput = {
+    attachedAt?: Date | string
+    document: DocumentCreateNestedOneWithoutSessionsInput
   }
 
-  export type DocumentUncheckedCreateWithoutSessionInput = {
-    id?: string
-    name: string
-    fileType: $Enums.FileType
-    chunkingStrategy: $Enums.ChunkingStrategy
-    userId: string
-    createdAt?: Date | string
-    chunks?: ChunkUncheckedCreateNestedManyWithoutDocumentInput
+  export type SessionDocumentUncheckedCreateWithoutSessionInput = {
+    documentId: string
+    attachedAt?: Date | string
   }
 
-  export type DocumentCreateOrConnectWithoutSessionInput = {
-    where: DocumentWhereUniqueInput
-    create: XOR<DocumentCreateWithoutSessionInput, DocumentUncheckedCreateWithoutSessionInput>
+  export type SessionDocumentCreateOrConnectWithoutSessionInput = {
+    where: SessionDocumentWhereUniqueInput
+    create: XOR<SessionDocumentCreateWithoutSessionInput, SessionDocumentUncheckedCreateWithoutSessionInput>
   }
 
-  export type DocumentCreateManySessionInputEnvelope = {
-    data: DocumentCreateManySessionInput | DocumentCreateManySessionInput[]
+  export type SessionDocumentCreateManySessionInputEnvelope = {
+    data: SessionDocumentCreateManySessionInput | SessionDocumentCreateManySessionInput[]
     skipDuplicates?: boolean
   }
 
@@ -16076,85 +17374,49 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Message"> | Date | string
   }
 
-  export type DocumentUpsertWithWhereUniqueWithoutSessionInput = {
-    where: DocumentWhereUniqueInput
-    update: XOR<DocumentUpdateWithoutSessionInput, DocumentUncheckedUpdateWithoutSessionInput>
-    create: XOR<DocumentCreateWithoutSessionInput, DocumentUncheckedCreateWithoutSessionInput>
+  export type SessionDocumentUpsertWithWhereUniqueWithoutSessionInput = {
+    where: SessionDocumentWhereUniqueInput
+    update: XOR<SessionDocumentUpdateWithoutSessionInput, SessionDocumentUncheckedUpdateWithoutSessionInput>
+    create: XOR<SessionDocumentCreateWithoutSessionInput, SessionDocumentUncheckedCreateWithoutSessionInput>
   }
 
-  export type DocumentUpdateWithWhereUniqueWithoutSessionInput = {
-    where: DocumentWhereUniqueInput
-    data: XOR<DocumentUpdateWithoutSessionInput, DocumentUncheckedUpdateWithoutSessionInput>
+  export type SessionDocumentUpdateWithWhereUniqueWithoutSessionInput = {
+    where: SessionDocumentWhereUniqueInput
+    data: XOR<SessionDocumentUpdateWithoutSessionInput, SessionDocumentUncheckedUpdateWithoutSessionInput>
   }
 
-  export type DocumentUpdateManyWithWhereWithoutSessionInput = {
-    where: DocumentScalarWhereInput
-    data: XOR<DocumentUpdateManyMutationInput, DocumentUncheckedUpdateManyWithoutSessionInput>
+  export type SessionDocumentUpdateManyWithWhereWithoutSessionInput = {
+    where: SessionDocumentScalarWhereInput
+    data: XOR<SessionDocumentUpdateManyMutationInput, SessionDocumentUncheckedUpdateManyWithoutSessionInput>
   }
 
-  export type DocumentScalarWhereInput = {
-    AND?: DocumentScalarWhereInput | DocumentScalarWhereInput[]
-    OR?: DocumentScalarWhereInput[]
-    NOT?: DocumentScalarWhereInput | DocumentScalarWhereInput[]
-    id?: StringFilter<"Document"> | string
-    name?: StringFilter<"Document"> | string
-    fileType?: EnumFileTypeFilter<"Document"> | $Enums.FileType
-    chunkingStrategy?: EnumChunkingStrategyFilter<"Document"> | $Enums.ChunkingStrategy
-    userId?: StringFilter<"Document"> | string
-    sessionId?: StringFilter<"Document"> | string
-    createdAt?: DateTimeFilter<"Document"> | Date | string
+  export type SessionDocumentScalarWhereInput = {
+    AND?: SessionDocumentScalarWhereInput | SessionDocumentScalarWhereInput[]
+    OR?: SessionDocumentScalarWhereInput[]
+    NOT?: SessionDocumentScalarWhereInput | SessionDocumentScalarWhereInput[]
+    sessionId?: StringFilter<"SessionDocument"> | string
+    documentId?: StringFilter<"SessionDocument"> | string
+    attachedAt?: DateTimeFilter<"SessionDocument"> | Date | string
   }
 
-  export type ChatSessionCreateWithoutDocumentsInput = {
-    id?: string
-    title?: string | null
-    createdAt?: Date | string
-    expiresAt: Date | string
-    user: UserCreateNestedOneWithoutChatSessionsInput
-    messages?: MessageCreateNestedManyWithoutSessionInput
+  export type SessionDocumentCreateWithoutDocumentInput = {
+    attachedAt?: Date | string
+    session: ChatSessionCreateNestedOneWithoutAttachedDocumentsInput
   }
 
-  export type ChatSessionUncheckedCreateWithoutDocumentsInput = {
-    id?: string
-    title?: string | null
-    userId: string
-    createdAt?: Date | string
-    expiresAt: Date | string
-    messages?: MessageUncheckedCreateNestedManyWithoutSessionInput
+  export type SessionDocumentUncheckedCreateWithoutDocumentInput = {
+    sessionId: string
+    attachedAt?: Date | string
   }
 
-  export type ChatSessionCreateOrConnectWithoutDocumentsInput = {
-    where: ChatSessionWhereUniqueInput
-    create: XOR<ChatSessionCreateWithoutDocumentsInput, ChatSessionUncheckedCreateWithoutDocumentsInput>
+  export type SessionDocumentCreateOrConnectWithoutDocumentInput = {
+    where: SessionDocumentWhereUniqueInput
+    create: XOR<SessionDocumentCreateWithoutDocumentInput, SessionDocumentUncheckedCreateWithoutDocumentInput>
   }
 
-  export type ChatSessionUpsertWithoutDocumentsInput = {
-    update: XOR<ChatSessionUpdateWithoutDocumentsInput, ChatSessionUncheckedUpdateWithoutDocumentsInput>
-    create: XOR<ChatSessionCreateWithoutDocumentsInput, ChatSessionUncheckedCreateWithoutDocumentsInput>
-    where?: ChatSessionWhereInput
-  }
-
-  export type ChatSessionUpdateToOneWithWhereWithoutDocumentsInput = {
-    where?: ChatSessionWhereInput
-    data: XOR<ChatSessionUpdateWithoutDocumentsInput, ChatSessionUncheckedUpdateWithoutDocumentsInput>
-  }
-
-  export type ChatSessionUpdateWithoutDocumentsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutChatSessionsNestedInput
-    messages?: MessageUpdateManyWithoutSessionNestedInput
-  }
-
-  export type ChatSessionUncheckedUpdateWithoutDocumentsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: NullableStringFieldUpdateOperationsInput | string | null
-    userId?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    messages?: MessageUncheckedUpdateManyWithoutSessionNestedInput
+  export type SessionDocumentCreateManyDocumentInputEnvelope = {
+    data: SessionDocumentCreateManyDocumentInput | SessionDocumentCreateManyDocumentInput[]
+    skipDuplicates?: boolean
   }
 
   export type ChunkUpdateWithWhereUniqueWithoutDocumentInput = {
@@ -16176,6 +17438,130 @@ export namespace Prisma {
     documentId?: StringFilter<"Chunk"> | string
   }
 
+  export type SessionDocumentUpsertWithWhereUniqueWithoutDocumentInput = {
+    where: SessionDocumentWhereUniqueInput
+    update: XOR<SessionDocumentUpdateWithoutDocumentInput, SessionDocumentUncheckedUpdateWithoutDocumentInput>
+    create: XOR<SessionDocumentCreateWithoutDocumentInput, SessionDocumentUncheckedCreateWithoutDocumentInput>
+  }
+
+  export type SessionDocumentUpdateWithWhereUniqueWithoutDocumentInput = {
+    where: SessionDocumentWhereUniqueInput
+    data: XOR<SessionDocumentUpdateWithoutDocumentInput, SessionDocumentUncheckedUpdateWithoutDocumentInput>
+  }
+
+  export type SessionDocumentUpdateManyWithWhereWithoutDocumentInput = {
+    where: SessionDocumentScalarWhereInput
+    data: XOR<SessionDocumentUpdateManyMutationInput, SessionDocumentUncheckedUpdateManyWithoutDocumentInput>
+  }
+
+  export type ChatSessionCreateWithoutAttachedDocumentsInput = {
+    id?: string
+    title?: string | null
+    createdAt?: Date | string
+    expiresAt: Date | string
+    user: UserCreateNestedOneWithoutChatSessionsInput
+    messages?: MessageCreateNestedManyWithoutSessionInput
+  }
+
+  export type ChatSessionUncheckedCreateWithoutAttachedDocumentsInput = {
+    id?: string
+    title?: string | null
+    userId: string
+    createdAt?: Date | string
+    expiresAt: Date | string
+    messages?: MessageUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type ChatSessionCreateOrConnectWithoutAttachedDocumentsInput = {
+    where: ChatSessionWhereUniqueInput
+    create: XOR<ChatSessionCreateWithoutAttachedDocumentsInput, ChatSessionUncheckedCreateWithoutAttachedDocumentsInput>
+  }
+
+  export type DocumentCreateWithoutSessionsInput = {
+    id?: string
+    name: string
+    fileType: $Enums.FileType
+    chunkingStrategy: $Enums.ChunkingStrategy
+    userId: string
+    createdAt?: Date | string
+    chunks?: ChunkCreateNestedManyWithoutDocumentInput
+  }
+
+  export type DocumentUncheckedCreateWithoutSessionsInput = {
+    id?: string
+    name: string
+    fileType: $Enums.FileType
+    chunkingStrategy: $Enums.ChunkingStrategy
+    userId: string
+    createdAt?: Date | string
+    chunks?: ChunkUncheckedCreateNestedManyWithoutDocumentInput
+  }
+
+  export type DocumentCreateOrConnectWithoutSessionsInput = {
+    where: DocumentWhereUniqueInput
+    create: XOR<DocumentCreateWithoutSessionsInput, DocumentUncheckedCreateWithoutSessionsInput>
+  }
+
+  export type ChatSessionUpsertWithoutAttachedDocumentsInput = {
+    update: XOR<ChatSessionUpdateWithoutAttachedDocumentsInput, ChatSessionUncheckedUpdateWithoutAttachedDocumentsInput>
+    create: XOR<ChatSessionCreateWithoutAttachedDocumentsInput, ChatSessionUncheckedCreateWithoutAttachedDocumentsInput>
+    where?: ChatSessionWhereInput
+  }
+
+  export type ChatSessionUpdateToOneWithWhereWithoutAttachedDocumentsInput = {
+    where?: ChatSessionWhereInput
+    data: XOR<ChatSessionUpdateWithoutAttachedDocumentsInput, ChatSessionUncheckedUpdateWithoutAttachedDocumentsInput>
+  }
+
+  export type ChatSessionUpdateWithoutAttachedDocumentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutChatSessionsNestedInput
+    messages?: MessageUpdateManyWithoutSessionNestedInput
+  }
+
+  export type ChatSessionUncheckedUpdateWithoutAttachedDocumentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    messages?: MessageUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type DocumentUpsertWithoutSessionsInput = {
+    update: XOR<DocumentUpdateWithoutSessionsInput, DocumentUncheckedUpdateWithoutSessionsInput>
+    create: XOR<DocumentCreateWithoutSessionsInput, DocumentUncheckedCreateWithoutSessionsInput>
+    where?: DocumentWhereInput
+  }
+
+  export type DocumentUpdateToOneWithWhereWithoutSessionsInput = {
+    where?: DocumentWhereInput
+    data: XOR<DocumentUpdateWithoutSessionsInput, DocumentUncheckedUpdateWithoutSessionsInput>
+  }
+
+  export type DocumentUpdateWithoutSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    fileType?: EnumFileTypeFieldUpdateOperationsInput | $Enums.FileType
+    chunkingStrategy?: EnumChunkingStrategyFieldUpdateOperationsInput | $Enums.ChunkingStrategy
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    chunks?: ChunkUpdateManyWithoutDocumentNestedInput
+  }
+
+  export type DocumentUncheckedUpdateWithoutSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    fileType?: EnumFileTypeFieldUpdateOperationsInput | $Enums.FileType
+    chunkingStrategy?: EnumChunkingStrategyFieldUpdateOperationsInput | $Enums.ChunkingStrategy
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    chunks?: ChunkUncheckedUpdateManyWithoutDocumentNestedInput
+  }
+
   export type DocumentCreateWithoutChunksInput = {
     id?: string
     name: string
@@ -16183,7 +17569,7 @@ export namespace Prisma {
     chunkingStrategy: $Enums.ChunkingStrategy
     userId: string
     createdAt?: Date | string
-    session: ChatSessionCreateNestedOneWithoutDocumentsInput
+    sessions?: SessionDocumentCreateNestedManyWithoutDocumentInput
   }
 
   export type DocumentUncheckedCreateWithoutChunksInput = {
@@ -16192,8 +17578,8 @@ export namespace Prisma {
     fileType: $Enums.FileType
     chunkingStrategy: $Enums.ChunkingStrategy
     userId: string
-    sessionId: string
     createdAt?: Date | string
+    sessions?: SessionDocumentUncheckedCreateNestedManyWithoutDocumentInput
   }
 
   export type DocumentCreateOrConnectWithoutChunksInput = {
@@ -16219,7 +17605,7 @@ export namespace Prisma {
     chunkingStrategy?: EnumChunkingStrategyFieldUpdateOperationsInput | $Enums.ChunkingStrategy
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    session?: ChatSessionUpdateOneRequiredWithoutDocumentsNestedInput
+    sessions?: SessionDocumentUpdateManyWithoutDocumentNestedInput
   }
 
   export type DocumentUncheckedUpdateWithoutChunksInput = {
@@ -16228,8 +17614,8 @@ export namespace Prisma {
     fileType?: EnumFileTypeFieldUpdateOperationsInput | $Enums.FileType
     chunkingStrategy?: EnumChunkingStrategyFieldUpdateOperationsInput | $Enums.ChunkingStrategy
     userId?: StringFieldUpdateOperationsInput | string
-    sessionId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: SessionDocumentUncheckedUpdateManyWithoutDocumentNestedInput
   }
 
   export type ChatSessionCreateWithoutMessagesInput = {
@@ -16238,7 +17624,7 @@ export namespace Prisma {
     createdAt?: Date | string
     expiresAt: Date | string
     user: UserCreateNestedOneWithoutChatSessionsInput
-    documents?: DocumentCreateNestedManyWithoutSessionInput
+    attachedDocuments?: SessionDocumentCreateNestedManyWithoutSessionInput
   }
 
   export type ChatSessionUncheckedCreateWithoutMessagesInput = {
@@ -16247,7 +17633,7 @@ export namespace Prisma {
     userId: string
     createdAt?: Date | string
     expiresAt: Date | string
-    documents?: DocumentUncheckedCreateNestedManyWithoutSessionInput
+    attachedDocuments?: SessionDocumentUncheckedCreateNestedManyWithoutSessionInput
   }
 
   export type ChatSessionCreateOrConnectWithoutMessagesInput = {
@@ -16272,7 +17658,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutChatSessionsNestedInput
-    documents?: DocumentUpdateManyWithoutSessionNestedInput
+    attachedDocuments?: SessionDocumentUpdateManyWithoutSessionNestedInput
   }
 
   export type ChatSessionUncheckedUpdateWithoutMessagesInput = {
@@ -16281,7 +17667,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    documents?: DocumentUncheckedUpdateManyWithoutSessionNestedInput
+    attachedDocuments?: SessionDocumentUncheckedUpdateManyWithoutSessionNestedInput
   }
 
   export type ChatSessionCreateManyUserInput = {
@@ -16317,7 +17703,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     messages?: MessageUpdateManyWithoutSessionNestedInput
-    documents?: DocumentUpdateManyWithoutSessionNestedInput
+    attachedDocuments?: SessionDocumentUpdateManyWithoutSessionNestedInput
   }
 
   export type ChatSessionUncheckedUpdateWithoutUserInput = {
@@ -16326,7 +17712,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     messages?: MessageUncheckedUpdateManyWithoutSessionNestedInput
-    documents?: DocumentUncheckedUpdateManyWithoutSessionNestedInput
+    attachedDocuments?: SessionDocumentUncheckedUpdateManyWithoutSessionNestedInput
   }
 
   export type ChatSessionUncheckedUpdateManyWithoutUserInput = {
@@ -16404,13 +17790,9 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
-  export type DocumentCreateManySessionInput = {
-    id?: string
-    name: string
-    fileType: $Enums.FileType
-    chunkingStrategy: $Enums.ChunkingStrategy
-    userId: string
-    createdAt?: Date | string
+  export type SessionDocumentCreateManySessionInput = {
+    documentId: string
+    attachedAt?: Date | string
   }
 
   export type MessageUpdateWithoutSessionInput = {
@@ -16437,33 +17819,24 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DocumentUpdateWithoutSessionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    fileType?: EnumFileTypeFieldUpdateOperationsInput | $Enums.FileType
-    chunkingStrategy?: EnumChunkingStrategyFieldUpdateOperationsInput | $Enums.ChunkingStrategy
-    userId?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    chunks?: ChunkUpdateManyWithoutDocumentNestedInput
+  export type SessionDocumentUpdateWithoutSessionInput = {
+    attachedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    document?: DocumentUpdateOneRequiredWithoutSessionsNestedInput
   }
 
-  export type DocumentUncheckedUpdateWithoutSessionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    fileType?: EnumFileTypeFieldUpdateOperationsInput | $Enums.FileType
-    chunkingStrategy?: EnumChunkingStrategyFieldUpdateOperationsInput | $Enums.ChunkingStrategy
-    userId?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    chunks?: ChunkUncheckedUpdateManyWithoutDocumentNestedInput
+  export type SessionDocumentUncheckedUpdateWithoutSessionInput = {
+    documentId?: StringFieldUpdateOperationsInput | string
+    attachedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DocumentUncheckedUpdateManyWithoutSessionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    fileType?: EnumFileTypeFieldUpdateOperationsInput | $Enums.FileType
-    chunkingStrategy?: EnumChunkingStrategyFieldUpdateOperationsInput | $Enums.ChunkingStrategy
-    userId?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type SessionDocumentUncheckedUpdateManyWithoutSessionInput = {
+    documentId?: StringFieldUpdateOperationsInput | string
+    attachedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SessionDocumentCreateManyDocumentInput = {
+    sessionId: string
+    attachedAt?: Date | string
   }
 
   export type ChunkUpdateWithoutDocumentInput = {
@@ -16479,6 +17852,21 @@ export namespace Prisma {
   export type ChunkUncheckedUpdateManyWithoutDocumentInput = {
     id?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SessionDocumentUpdateWithoutDocumentInput = {
+    attachedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    session?: ChatSessionUpdateOneRequiredWithoutAttachedDocumentsNestedInput
+  }
+
+  export type SessionDocumentUncheckedUpdateWithoutDocumentInput = {
+    sessionId?: StringFieldUpdateOperationsInput | string
+    attachedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SessionDocumentUncheckedUpdateManyWithoutDocumentInput = {
+    sessionId?: StringFieldUpdateOperationsInput | string
+    attachedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

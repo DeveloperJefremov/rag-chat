@@ -66,14 +66,14 @@ model VerificationToken {
 }
 
 model ChatSession {
-  id        String     @id @default(uuid())
-  title     String?
-  userId    String
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime   @default(now())
-  expiresAt DateTime
-  messages  Message[]
-  documents Document[]
+  id                String            @id @default(uuid())
+  title             String?
+  userId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime          @default(now())
+  expiresAt         DateTime
+  messages          Message[]
+  attachedDocuments SessionDocument[]
 
   @@index([userId, createdAt])
   @@index([expiresAt])
@@ -81,19 +81,29 @@ model ChatSession {
 }
 
 model Document {
-  id               String           @id @default(uuid())
+  id               String            @id @default(uuid())
   name             String
   fileType         FileType
   chunkingStrategy ChunkingStrategy
   userId           String
-  sessionId        String
-  session          ChatSession      @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  createdAt        DateTime         @default(now())
+  createdAt        DateTime          @default(now())
   chunks           Chunk[]
+  sessions         SessionDocument[]
 
-  @@index([sessionId])
   @@index([userId, createdAt])
   @@map("documents")
+}
+
+model SessionDocument {
+  sessionId  String
+  documentId String
+  attachedAt DateTime    @default(now())
+  session    ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  document   Document    @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@id([sessionId, documentId])
+  @@index([documentId])
+  @@map("session_documents")
 }
 
 model Chunk {

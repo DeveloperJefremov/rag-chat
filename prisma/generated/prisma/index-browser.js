@@ -172,8 +172,13 @@ exports.Prisma.DocumentScalarFieldEnum = {
   fileType: 'fileType',
   chunkingStrategy: 'chunkingStrategy',
   userId: 'userId',
-  sessionId: 'sessionId',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.SessionDocumentScalarFieldEnum = {
+  sessionId: 'sessionId',
+  documentId: 'documentId',
+  attachedAt: 'attachedAt'
 };
 
 exports.Prisma.ChunkScalarFieldEnum = {
@@ -270,6 +275,7 @@ exports.Prisma.ModelName = {
   VerificationToken: 'VerificationToken',
   ChatSession: 'ChatSession',
   Document: 'Document',
+  SessionDocument: 'SessionDocument',
   Chunk: 'Chunk',
   Message: 'Message',
   UserUsage: 'UserUsage',
