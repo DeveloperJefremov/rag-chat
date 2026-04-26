@@ -3,6 +3,8 @@ import {
 	authContext,
 	ingestionService,
 	chatSessionRepo,
+	documentRepo,
+	sessionService,
 } from '@/server/infrastructure/http/container';
 import { FileType } from '@/domain/value-objects/FileType';
 import { ChunkingStrategy } from '@/domain/value-objects/ChunkingStrategy';
@@ -20,7 +22,7 @@ export async function POST(req: NextRequest) {
 
 		const formData = await req.formData();
 		const file = formData.get('file') as File | null;
-		const sessionId = formData.get('sessionId') as string | null;
+		const attachToSession = (formData.get('attachToSession') as string | null) || undefined;
 		const chunkingStrategy =
 			(formData.get('chunkingStrategy') as ChunkingStrategy | null) ?? 'RECURSIVE';
 
@@ -28,15 +30,17 @@ export async function POST(req: NextRequest) {
 			return NextResponse.json({ error: 'no_file' }, { status: 400 });
 		}
 
-		if (!sessionId) {
-			return NextResponse.json({ error: 'no_session_id' }, { status: 400 });
+		if (attachToSession) {
+			const session = await chatSessionRepo.findById(attachToSession, user.id);
+			if (!session) {
+				return NextResponse.json({ error: 'session_not_found' }, { status: 404 });
+			}
+			const attachedCount = await documentRepo.countAttached(attachToSession);
+			await sessionService.validateAttachedLimit(user.role, attachedCount);
 		}
 
-		// Verify the user owns this session
-		const session = await chatSessionRepo.findById(sessionId, user.id);
-		if (!session) {
-			return NextResponse.json({ error: 'session_not_found' }, { status: 404 });
-		}
+		const docCount = await documentRepo.countByUser(user.id);
+		await sessionService.validateDocumentsLimit(user.id, user.role, docCount);
 
 		const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
 		if (!SUPPORTED_FILE_TYPES.includes(ext as (typeof SUPPORTED_FILE_TYPES)[number])) {
@@ -61,15 +65,21 @@ export async function POST(req: NextRequest) {
 			buffer,
 			fileName: file.name,
 			fileType,
-			sessionId,
 			userId: user.id,
 			chunkingStrategy,
+			attachToSession,
 		});
 
 		return NextResponse.json(result, { status: 201 });
 	} catch (err: unknown) {
 		if (err instanceof Error && err.message === 'unauthenticated') {
 			return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
+		}
+		if (err instanceof Error && err.message === 'documents_limit_reached') {
+			return NextResponse.json({ error: 'documents_limit_reached' }, { status: 403 });
+		}
+		if (err instanceof Error && err.message === 'attached_limit_reached') {
+			return NextResponse.json({ error: 'attached_limit_reached' }, { status: 403 });
 		}
 		// eslint-disable-next-line no-console
 		console.error('[ingest] failed:', err);
