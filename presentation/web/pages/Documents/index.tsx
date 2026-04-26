@@ -1,6 +1,5 @@
 'use client';
-import { useState } from 'react';
-import { useSessionStore } from '@/client/stores/sessionStore';
+import { useEffect, useState } from 'react';
 import { useUploadStore } from '@/client/stores/uploadStore';
 import { FileDropzone } from '@/presentation/web/components/FileDropzone';
 import { DocumentTable } from './DocumentTable';
@@ -152,26 +151,23 @@ function ChunkPreviewPanel({ doc, onClose }: { doc: IngestResponseDto; onClose: 
 }
 
 export function DocumentsPage() {
-	const { sessions, activeSessionId, createSession } = useSessionStore();
-	const { documents, status, upload } = useUploadStore();
+	const { documents, status, upload, fetchDocuments, removeDocument } = useUploadStore();
 	const [strategy, setStrategy] = useState<ChunkingStrategy>('RECURSIVE');
 	const [selected, setSelected] = useState<IngestResponseDto | null>(null);
 	const [progress, setProgress] = useState(0);
 
-	const handleFile = async (file: File) => {
-		let sessionId = activeSessionId ?? sessions[0]?.id;
-		if (!sessionId) {
-			const newSession = await createSession();
-			sessionId = newSession.id;
-		}
+	useEffect(() => {
+		fetchDocuments();
+	}, [fetchDocuments]);
 
+	const handleFile = async (file: File) => {
 		setProgress(10);
 		const progressInterval = setInterval(() => {
 			setProgress(p => Math.min(p + Math.random() * 12, 90));
 		}, 200);
 
 		try {
-			await upload(file, sessionId, strategy);
+			await upload(file, { chunkingStrategy: strategy });
 			setProgress(100);
 		} finally {
 			clearInterval(progressInterval);
@@ -192,7 +188,6 @@ export function DocumentsPage() {
 				overflow: 'hidden',
 			}}
 		>
-			{/* Header */}
 			<div
 				style={{
 					padding: '18px 28px',
@@ -272,7 +267,6 @@ export function DocumentsPage() {
 						progress={Math.round(progress)}
 					/>
 
-					{/* Strategy info bar */}
 					<div
 						style={{
 							display: 'flex',
@@ -322,6 +316,7 @@ export function DocumentsPage() {
 						documents={documents}
 						selectedId={selected?.documentId ?? null}
 						onSelect={setSelected}
+						onDelete={removeDocument}
 					/>
 				</div>
 

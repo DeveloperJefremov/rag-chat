@@ -5,6 +5,7 @@ interface DocumentTableProps {
 	documents: IngestResponseDto[];
 	selectedId: string | null;
 	onSelect: (doc: IngestResponseDto | null) => void;
+	onDelete?: (id: string) => Promise<void> | void;
 }
 
 const MONO: React.CSSProperties = { fontFamily: 'var(--font-jetbrains-mono), monospace' };
@@ -47,7 +48,7 @@ function fileType(name: string): 'pdf' | 'md' | 'txt' | 'docx' {
 	return 'txt';
 }
 
-export function DocumentTable({ documents, selectedId, onSelect }: DocumentTableProps) {
+export function DocumentTable({ documents, selectedId, onSelect, onDelete }: DocumentTableProps) {
 	if (documents.length === 0) {
 		return (
 			<div
@@ -64,7 +65,9 @@ export function DocumentTable({ documents, selectedId, onSelect }: DocumentTable
 		);
 	}
 
-	const cols = '2fr 80px 80px 70px 90px 80px';
+	const cols = onDelete ? '2fr 80px 80px 70px 90px 80px 40px' : '2fr 80px 80px 70px 90px 80px';
+	const headers = ['Document', 'Type', 'Size', 'Chunks', 'Tokens', 'Added'];
+	if (onDelete) headers.push('');
 
 	return (
 		<div
@@ -84,9 +87,9 @@ export function DocumentTable({ documents, selectedId, onSelect }: DocumentTable
 					borderBottom: '1px solid var(--powder-200)',
 				}}
 			>
-				{['Document', 'Type', 'Size', 'Chunks', 'Tokens', 'Added'].map(h => (
+				{headers.map((h, i) => (
 					<div
-						key={h}
+						key={`${h}-${i}`}
 						style={{
 							...MONO,
 							fontSize: 9,
@@ -164,6 +167,28 @@ export function DocumentTable({ documents, selectedId, onSelect }: DocumentTable
 						</div>
 						<div style={{ ...MONO, fontSize: 11, color: 'var(--smoke)' }}>—</div>
 						<div style={{ ...MONO, fontSize: 11, color: 'var(--smoke) ' }}>Just now</div>
+						{onDelete && (
+							<button
+								onClick={e => {
+									e.stopPropagation();
+									void onDelete(doc.documentId);
+								}}
+								title='Delete document'
+								style={{
+									background: 'none',
+									border: 'none',
+									cursor: 'pointer',
+									color: 'var(--smoke)',
+									fontSize: 18,
+									lineHeight: 1,
+									padding: 0,
+								}}
+								onMouseEnter={e => (e.currentTarget.style.color = 'var(--terracotta-600)')}
+								onMouseLeave={e => (e.currentTarget.style.color = 'var(--smoke)')}
+							>
+								×
+							</button>
+						)}
 					</div>
 				);
 			})}

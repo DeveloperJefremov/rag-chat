@@ -4,6 +4,7 @@ import { SessionDto } from '../../shared/dtos/SessionDto';
 import { sessionApi } from '../infrastructure/container';
 import { useChatStore } from './chatStore';
 import { useUploadStore } from './uploadStore';
+import { useAttachmentStore } from './attachmentStore';
 
 interface SessionState {
 	sessions: SessionDto[];
@@ -30,7 +31,7 @@ export const useSessionStore = create<SessionState>(set => ({
 			set(state => {
 				const activeSessionId = state.activeSessionId ?? sessions[0]?.id ?? null;
 				if (activeSessionId) {
-					void useUploadStore.getState().fetchDocuments(activeSessionId);
+					void useAttachmentStore.getState().loadAttached(activeSessionId);
 					void useChatStore.getState().loadHistory(activeSessionId);
 				}
 				return { sessions, isLoading: false, activeSessionId };
@@ -43,7 +44,6 @@ export const useSessionStore = create<SessionState>(set => ({
 	createSession: async () => {
 		const session = await sessionApi.createSession();
 		useChatStore.getState().reset();
-		useUploadStore.getState().reset();
 		set(state => ({ sessions: [session, ...state.sessions], activeSessionId: session.id }));
 		return session;
 	},
@@ -56,8 +56,10 @@ export const useSessionStore = create<SessionState>(set => ({
 			const activeSessionId = wasActive ? (sessions[0]?.id ?? null) : state.activeSessionId;
 			if (wasActive) {
 				useChatStore.getState().reset();
-				useUploadStore.getState().reset();
-				if (activeSessionId) void useUploadStore.getState().fetchDocuments(activeSessionId);
+				useAttachmentStore.getState().clearForSession(id);
+				if (activeSessionId) {
+					void useAttachmentStore.getState().loadAttached(activeSessionId);
+				}
 			}
 			return { sessions, activeSessionId };
 		});
@@ -67,8 +69,7 @@ export const useSessionStore = create<SessionState>(set => ({
 		set(state => {
 			if (state.activeSessionId === id) return state;
 			useChatStore.getState().reset();
-			useUploadStore.getState().reset();
-			void useUploadStore.getState().fetchDocuments(id);
+			void useAttachmentStore.getState().loadAttached(id);
 			void useChatStore.getState().loadHistory(id);
 			return { activeSessionId: id };
 		}),
