@@ -3,6 +3,7 @@ import {
 	authContext,
 	retrievalService,
 	documentRepo,
+	chatSessionRepo,
 } from '@/server/infrastructure/http/container';
 import { ChatRequestDto } from '@/shared/dtos/ChatRequestDto';
 import { TOP_K_CHUNKS } from '@/shared/config/constants';
@@ -12,14 +13,30 @@ export async function POST(req: NextRequest) {
 		const user = await authContext.requireUser();
 		const body: ChatRequestDto = await req.json();
 
-		if (!body.message || !body.documentId || !body.sessionId) {
+		if (
+			!body.message ||
+			!body.sessionId ||
+			!Array.isArray(body.documentIds) ||
+			body.documentIds.length === 0
+		) {
 			return new Response(JSON.stringify({ error: 'missing_fields' }), { status: 400 });
 		}
 
-		// Verify document exists and belongs to the user
-		const document = await documentRepo.findById(body.documentId);
-		if (!document || document.userId !== user.id) {
-			return new Response(JSON.stringify({ error: 'document_not_found' }), { status: 404 });
+		const session = await chatSessionRepo.findById(body.sessionId, user.id);
+		if (!session) {
+			return new Response(JSON.stringify({ error: 'session_not_found' }), { status: 404 });
+		}
+
+		const attached = await documentRepo.findAttachedToSession(body.sessionId, user.id);
+		const attachedById = new Map(attached.map(d => [d.id, d]));
+		for (const id of body.documentIds) {
+			if (!attachedById.has(id)) {
+				return new Response(JSON.stringify({ error: 'document_not_attached' }), { status: 400 });
+			}
+		}
+		const documentNames: Record<string, string> = {};
+		for (const id of body.documentIds) {
+			documentNames[id] = attachedById.get(id)!.name;
 		}
 
 		const encoder = new TextEncoder();
@@ -30,10 +47,10 @@ export async function POST(req: NextRequest) {
 					const gen = retrievalService.stream({
 						message: body.message,
 						sessionId: body.sessionId,
-						documentId: body.documentId,
+						documentIds: body.documentIds,
+						documentNames,
 						userId: user.id,
 						userRole: user.role,
-						documentName: document.name,
 						chunkingStrategy: body.chunkingStrategy ?? 'RECURSIVE',
 						topK: body.topK ?? TOP_K_CHUNKS,
 						rerankingEnabled: body.rerankingEnabled ?? true,
