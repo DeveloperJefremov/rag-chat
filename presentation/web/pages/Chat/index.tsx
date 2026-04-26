@@ -3,10 +3,13 @@ import { useEffect, useState } from 'react';
 import { useSessionStore } from '@/client/stores/sessionStore';
 import { useChatStore } from '@/client/stores/chatStore';
 import { useControlsStore } from '@/client/stores/controlsStore';
+import { useAttachmentStore } from '@/client/stores/attachmentStore';
 import { useUploadStore } from '@/client/stores/uploadStore';
 import { MessageList } from '@/presentation/web/components/MessageList';
 import { MessageInput } from '@/presentation/web/components/MessageInput';
 import { LimitBadge } from '@/presentation/web/components/LimitBadge';
+import { AttachmentChips } from './AttachmentChips';
+import { AddFromLibraryDialog } from './AddFromLibraryDialog';
 
 const MONO: React.CSSProperties = { fontFamily: 'var(--font-jetbrains-mono), monospace' };
 
@@ -14,25 +17,27 @@ export function ChatPage() {
 	const { sessions, activeSessionId, fetchSessions, createSession } = useSessionStore();
 	const { messages, citationsByMessageId, isStreaming, sendMessage } = useChatStore();
 	const { chunkingStrategy, topK, rerankingEnabled } = useControlsStore();
-	const { documents } = useUploadStore();
-	const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
-	const [prevSessionId, setPrevSessionId] = useState<string | null>(activeSessionId ?? null);
+	const { fetchDocuments } = useUploadStore();
+	const { attachedBySession, activeBySession, loadAttached, toggleActive, detach } =
+		useAttachmentStore();
+	const [libraryOpen, setLibraryOpen] = useState(false);
 
-	if (activeSessionId !== prevSessionId) {
-		setPrevSessionId(activeSessionId ?? null);
-		setSelectedDocumentId(null);
-	}
+	const sessionId = activeSessionId ?? sessions[0]?.id ?? null;
+	const attached = sessionId ? (attachedBySession[sessionId] ?? []) : [];
+	const active = sessionId ? (activeBySession[sessionId] ?? new Set<string>()) : new Set<string>();
+	const activeIds = Array.from(active);
 
 	useEffect(() => {
 		fetchSessions();
-	}, [fetchSessions]);
+		fetchDocuments();
+	}, [fetchSessions, fetchDocuments]);
 
-	const activeDocumentId = selectedDocumentId ?? documents[0]?.documentId ?? null;
-	const sessionId = activeSessionId ?? sessions[0]?.id;
-	const activeDoc = documents.find(d => d.documentId === activeDocumentId);
+	useEffect(() => {
+		if (sessionId) void loadAttached(sessionId);
+	}, [sessionId, loadAttached]);
 
 	const handleSend = async (message: string) => {
-		if (!activeDocumentId) return;
+		if (activeIds.length === 0) return;
 		let sid = sessionId;
 		if (!sid) {
 			const ns = await createSession();
@@ -41,7 +46,7 @@ export function ChatPage() {
 		await sendMessage({
 			message,
 			sessionId: sid,
-			documentId: activeDocumentId,
+			documentIds: activeIds,
 			chunkingStrategy,
 			topK,
 			rerankingEnabled,
@@ -60,19 +65,19 @@ export function ChatPage() {
 				overflow: 'hidden',
 			}}
 		>
-			{/* Header */}
 			<div
 				style={{
-					padding: '18px 24px',
+					padding: '14px 24px',
 					borderBottom: '1px solid var(--powder-200)',
 					display: 'flex',
 					alignItems: 'center',
 					justifyContent: 'space-between',
 					background: 'var(--paper)',
 					flexShrink: 0,
+					gap: 12,
 				}}
 			>
-				<div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+				<div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
 					<div
 						style={{
 							width: 8,
@@ -93,30 +98,21 @@ export function ChatPage() {
 						Knowledge Assistant
 					</span>
 
-					{documents.length > 0 && (
-						<select
-							value={activeDocumentId ?? ''}
-							onChange={e => setSelectedDocumentId(e.target.value || null)}
-							style={{
-								...MONO,
-								fontSize: 11,
-								padding: '5px 10px',
-								background: 'var(--sand)',
-								border: '1px solid var(--powder-300)',
-								borderRadius: 6,
-								color: 'var(--cobalt-700)',
-								cursor: 'pointer',
-								outline: 'none',
-								marginLeft: 8,
-							}}
-						>
-							{documents.map(d => (
-								<option key={d.documentId} value={d.documentId}>
-									{d.name}
-								</option>
-							))}
-						</select>
-					)}
+					<AttachmentChips
+						docs={attached}
+						active={active}
+						onToggle={id => sessionId && toggleActive(sessionId, id)}
+						onDetach={id => sessionId && detach(sessionId, id)}
+					/>
+
+					<button
+						onClick={() => setLibraryOpen(true)}
+						disabled={!sessionId}
+						className='cursor-pointer text-xs underline'
+						style={{ color: 'var(--cobalt-700)' }}
+					>
+						+ Add from library
+					</button>
 				</div>
 
 				<div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -130,13 +126,12 @@ export function ChatPage() {
 							color: 'var(--smoke)',
 						}}
 					>
-						{sourcesCount} sources · {activeDoc ? 'indexed' : 'no document'}
+						{sourcesCount} sources · {activeIds.length} active
 					</div>
 				</div>
 			</div>
 
-			{/* Empty state when no documents */}
-			{documents.length === 0 ? (
+			{attached.length === 0 ? (
 				<div
 					style={{
 						flex: 1,
@@ -157,19 +152,11 @@ export function ChatPage() {
 							opacity: 0.6,
 						}}
 					>
-						No documents indexed yet
+						No documents attached to this chat
 					</div>
-					<div
-						style={{
-							...MONO,
-							fontSize: 10,
-							letterSpacing: '0.12em',
-							textTransform: 'uppercase',
-							color: 'var(--smoke)',
-						}}
-					>
-						Upload a document from the Documents page to begin
-					</div>
+					<button onClick={() => setLibraryOpen(true)} className='cursor-pointer text-xs underline'>
+						+ Add from library
+					</button>
 				</div>
 			) : (
 				<MessageList
@@ -181,12 +168,22 @@ export function ChatPage() {
 
 			<MessageInput
 				onSend={handleSend}
-				disabled={!activeDocumentId}
+				disabled={activeIds.length === 0}
 				isStreaming={isStreaming}
 				placeholder={
-					!activeDocumentId ? 'Select a document first…' : 'Ask anything about your knowledge base…'
+					activeIds.length === 0
+						? 'Attach or activate a document first…'
+						: 'Ask anything about your knowledge base…'
 				}
 			/>
+
+			{sessionId && (
+				<AddFromLibraryDialog
+					sessionId={sessionId}
+					open={libraryOpen}
+					onClose={() => setLibraryOpen(false)}
+				/>
+			)}
 		</div>
 	);
 }
