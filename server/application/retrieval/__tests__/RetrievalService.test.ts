@@ -9,7 +9,7 @@ import type { SessionService } from '../../session/SessionService';
 import type { IRerankClient } from '../../ports/IRerankClient';
 import type { LLMOpsService } from '../../llmops/LLMOpsService';
 
-const makeDeps = (overrides = {}) => ({
+const makeDeps = (overrides: Partial<ConstructorParameters<typeof RetrievalService>[0]> = {}) => ({
 	chunkRepo: { similaritySearch: vi.fn().mockResolvedValue([]) } as unknown as IChunkRepository,
 	embeddingClient: { embed: vi.fn().mockResolvedValue([0.1, 0.2]) } as unknown as IEmbeddingClient,
 	llmClient: {
@@ -67,6 +67,36 @@ describe('RetrievalService', () => {
 
 			expect(prompt).toContain('First question');
 			expect(prompt).toContain('First answer');
+		});
+	});
+
+	describe('stream', () => {
+		it('passes documentIds[] to similaritySearch', async () => {
+			const chunkRepo = {
+				similaritySearch: vi.fn().mockResolvedValue([]),
+			} as unknown as IChunkRepository;
+			const llmClient = {
+				streamMessage: async function* () {},
+				generateText: vi.fn().mockResolvedValue(''),
+			} as unknown as ILLMClient;
+			const service = new RetrievalService(makeDeps({ chunkRepo, llmClient }));
+
+			const gen = service.stream({
+				message: 'q',
+				sessionId: 's',
+				documentIds: ['doc-a', 'doc-b'],
+				documentNames: { 'doc-a': 'A.pdf', 'doc-b': 'B.pdf' },
+				userId: 'u',
+				userRole: 'USER',
+				rerankingEnabled: false,
+			});
+			for await (const _ of gen) {
+				void _;
+			}
+
+			expect(chunkRepo.similaritySearch).toHaveBeenCalledWith(
+				expect.objectContaining({ documentIds: ['doc-a', 'doc-b'], userId: 'u' }),
+			);
 		});
 	});
 });

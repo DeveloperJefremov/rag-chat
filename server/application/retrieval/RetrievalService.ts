@@ -25,10 +25,10 @@ interface RetrievalServiceDeps {
 interface StreamParams {
 	message: string;
 	sessionId: string;
-	documentId: string;
+	documentIds: string[];
+	documentNames: Record<string, string>;
 	userId: string;
 	userRole: 'USER' | 'ADMIN';
-	documentName: string;
 	chunkingStrategy?: ChunkingStrategy;
 	topK?: number;
 	rerankingEnabled?: boolean;
@@ -103,12 +103,12 @@ Current question: ${userMessage}`;
 
 		// eslint-disable-next-line no-console
 		console.log('[chat] similarity search', {
-			documentId: params.documentId,
+			documentIds: params.documentIds,
 			topK: rerankingEnabled ? topK * 4 : topK,
 		});
 		const candidates = await this.chunkRepo.similaritySearch({
 			queryVector,
-			documentId: params.documentId,
+			documentIds: params.documentIds,
 			userId: params.userId,
 			topK: rerankingEnabled ? topK * 4 : topK,
 		});
@@ -133,7 +133,7 @@ Current question: ${userMessage}`;
 		const sources: CitationDto[] = reranked.map((chunk, i) => ({
 			index: i + 1,
 			content: chunk.content.slice(0, 200),
-			documentName: params.documentName,
+			documentName: params.documentNames[chunk.documentId] ?? 'Unknown',
 		}));
 
 		yield { sources };
@@ -186,7 +186,7 @@ Current question: ${userMessage}`;
 			void this.llmOpsService.log({
 				userId: params.userId,
 				sessionId: params.sessionId,
-				documentId: params.documentId,
+				documentId: params.documentIds[0] ?? '',
 				query: params.message,
 				response: fullResponse,
 				latencyMs,
