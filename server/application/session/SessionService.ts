@@ -32,6 +32,22 @@ export class SessionService {
 		}
 	}
 
+	async validateDocumentsLimit(
+		_userId: string,
+		role: UserRole,
+		currentCount: number,
+	): Promise<void> {
+		const limit = LIMITS_BY_ROLE[role].maxDocumentsPerUser;
+		if (limit === Infinity) return;
+		if (currentCount >= limit) throw new Error('documents_limit_reached');
+	}
+
+	async validateAttachedLimit(role: UserRole, currentCount: number): Promise<void> {
+		const limit = LIMITS_BY_ROLE[role].maxAttachedPerSession;
+		if (limit === Infinity) return;
+		if (currentCount >= limit) throw new Error('attached_limit_reached');
+	}
+
 	async incrementUsage(userId: string): Promise<void> {
 		await this.userUsageRepo.increment(userId);
 	}

@@ -93,4 +93,34 @@ describe('SessionService', () => {
 			await expect(service.validateLimit('admin-1', 'ADMIN')).resolves.toBeUndefined();
 		});
 	});
+
+	describe('validateDocumentsLimit', () => {
+		it('throws when USER reaches maxDocumentsPerUser (20)', async () => {
+			const service = new SessionService(makeSessionRepo(), makeUsageRepo());
+			await expect(service.validateDocumentsLimit('u', 'USER', 20)).rejects.toThrow(
+				'documents_limit_reached',
+			);
+		});
+		it('passes when below limit', async () => {
+			const service = new SessionService(makeSessionRepo(), makeUsageRepo());
+			await expect(service.validateDocumentsLimit('u', 'USER', 5)).resolves.toBeUndefined();
+		});
+		it('does not throw for ADMIN', async () => {
+			const service = new SessionService(makeSessionRepo(), makeUsageRepo());
+			await expect(service.validateDocumentsLimit('u', 'ADMIN', 99999)).resolves.toBeUndefined();
+		});
+	});
+
+	describe('validateAttachedLimit', () => {
+		it('throws when USER reaches maxAttachedPerSession (10)', async () => {
+			const service = new SessionService(makeSessionRepo(), makeUsageRepo());
+			await expect(service.validateAttachedLimit('USER', 10)).rejects.toThrow(
+				'attached_limit_reached',
+			);
+		});
+		it('passes when below limit', async () => {
+			const service = new SessionService(makeSessionRepo(), makeUsageRepo());
+			await expect(service.validateAttachedLimit('USER', 3)).resolves.toBeUndefined();
+		});
+	});
 });
