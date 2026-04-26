@@ -22,10 +22,11 @@ export class PrismaChunkRepository implements IChunkRepository {
 
 	async similaritySearch(params: {
 		queryVector: number[];
-		documentId: string;
+		documentIds: string[];
 		userId: string;
 		topK: number;
 	}): Promise<Chunk[]> {
+		if (params.documentIds.length === 0) return [];
 		if (params.queryVector.some(v => !Number.isFinite(v))) {
 			throw new Error('Invalid query vector: contains non-finite values');
 		}
@@ -38,7 +39,7 @@ export class PrismaChunkRepository implements IChunkRepository {
       SELECT c.id, c.content, c."documentId"
       FROM chunks c
       JOIN documents d ON d.id = c."documentId"
-      WHERE c."documentId" = ${params.documentId}
+      WHERE c."documentId" = ANY(${params.documentIds}::text[])
         AND d."userId" = ${params.userId}
       ORDER BY c.embedding <=> ${vectorLiteral}::vector
       LIMIT ${topK}
