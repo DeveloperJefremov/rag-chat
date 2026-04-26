@@ -9,7 +9,7 @@ import { useSessionStore } from './sessionStore';
 interface SendMessageParams {
 	message: string;
 	sessionId: string;
-	documentId: string;
+	documentIds: string[];
 	chunkingStrategy?: ChunkingStrategy;
 	topK?: number;
 	rerankingEnabled?: boolean;
