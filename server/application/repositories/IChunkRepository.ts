@@ -10,7 +10,7 @@ export interface IChunkRepository {
 	saveMany(chunks: CreateChunkData[]): Promise<void>;
 	similaritySearch(params: {
 		queryVector: number[];
-		documentId: string;
+		documentIds: string[];
 		userId: string;
 		topK: number;
 	}): Promise<Chunk[]>;

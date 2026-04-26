@@ -7,6 +7,5 @@ export interface Document {
 	fileType: FileType;
 	chunkingStrategy: ChunkingStrategy;
 	userId: string;
-	sessionId: string;
 	createdAt: Date;
 }

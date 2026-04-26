@@ -7,12 +7,17 @@ export interface CreateDocumentData {
 	fileType: FileType;
 	chunkingStrategy: ChunkingStrategy;
 	userId: string;
-	sessionId: string;
 }
 
 export interface IDocumentRepository {
 	create(data: CreateDocumentData): Promise<Document>;
-	findById(id: string): Promise<Document | null>;
-	findBySessionId(sessionId: string): Promise<Document[]>;
-	deleteById(id: string): Promise<void>;
+	findById(id: string, userId: string): Promise<Document | null>;
+	findByIds(ids: string[], userId: string): Promise<Document[]>;
+	findAllByUser(userId: string): Promise<Document[]>;
+	findAttachedToSession(sessionId: string, userId: string): Promise<Document[]>;
+	countByUser(userId: string): Promise<number>;
+	countAttached(sessionId: string): Promise<number>;
+	attachToSession(sessionId: string, documentId: string): Promise<void>;
+	detachFromSession(sessionId: string, documentId: string): Promise<void>;
+	deleteById(id: string, userId: string): Promise<void>;
 }
