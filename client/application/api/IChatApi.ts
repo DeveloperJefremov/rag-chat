@@ -5,7 +5,7 @@ import { MessageDto } from '../../../shared/dtos/MessageDto';
 export interface StreamChatParams {
 	message: string;
 	sessionId: string;
-	documentId: string;
+	documentIds: string[];
 	chunkingStrategy?: ChunkingStrategy;
 	topK?: number;
 	rerankingEnabled?: boolean;
