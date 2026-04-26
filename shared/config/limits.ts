@@ -2,15 +2,22 @@ export type UserRole = 'USER' | 'ADMIN';
 
 export interface RoleLimits {
 	queriesPerDay: number;
-	maxDocumentsPerSession: number;
+	maxDocumentsPerUser: number;
 	maxChatSessions: number;
+	maxAttachedPerSession: number;
 }
 
 export const LIMITS_BY_ROLE: Record<UserRole, RoleLimits> = {
-	USER: { queriesPerDay: 100, maxDocumentsPerSession: 5, maxChatSessions: 10 },
+	USER: {
+		queriesPerDay: 100,
+		maxDocumentsPerUser: 20,
+		maxChatSessions: 10,
+		maxAttachedPerSession: 10,
+	},
 	ADMIN: {
 		queriesPerDay: Infinity,
-		maxDocumentsPerSession: Infinity,
+		maxDocumentsPerUser: Infinity,
 		maxChatSessions: Infinity,
+		maxAttachedPerSession: Infinity,
 	},
 };
