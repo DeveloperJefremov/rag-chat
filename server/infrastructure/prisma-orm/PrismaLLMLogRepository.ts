@@ -4,6 +4,7 @@ import { ChunkingStrategy } from '../../../domain/value-objects/ChunkingStrategy
 import {
 	CreateLLMLogData,
 	ILLMLogRepository,
+	UserLLMStats,
 } from '../../application/repositories/ILLMLogRepository';
 
 export class PrismaLLMLogRepository implements ILLMLogRepository {
@@ -24,6 +25,7 @@ export class PrismaLLMLogRepository implements ILLMLogRepository {
 			rerankingUsed: log.rerankingUsed,
 			chunkingStrategy: log.chunkingStrategy as ChunkingStrategy,
 			createdAt: log.createdAt,
+			anonymizedAt: log.anonymizedAt,
 		};
 	}
 
@@ -47,6 +49,37 @@ export class PrismaLLMLogRepository implements ILLMLogRepository {
 			rerankingUsed: log.rerankingUsed,
 			chunkingStrategy: log.chunkingStrategy as ChunkingStrategy,
 			createdAt: log.createdAt,
+			anonymizedAt: log.anonymizedAt,
 		}));
+	}
+
+	async aggregateByUser(userId: string): Promise<UserLLMStats> {
+		const agg = await prisma.lLMLog.aggregate({
+			where: { userId },
+			_count: { _all: true },
+			_sum: {
+				promptTokens: true,
+				completionTokens: true,
+				estimatedCostUsd: true,
+			},
+		});
+		return {
+			totalQueries: agg._count._all,
+			totalPromptTokens: agg._sum.promptTokens ?? 0,
+			totalCompletionTokens: agg._sum.completionTokens ?? 0,
+			totalCostUsd: agg._sum.estimatedCostUsd ?? 0,
+		};
+	}
+
+	async anonymizeByUser(userId: string): Promise<void> {
+		await prisma.lLMLog.updateMany({
+			where: { userId },
+			data: {
+				userId: null,
+				query: '',
+				response: '',
+				anonymizedAt: new Date(),
+			},
+		});
 	}
 }

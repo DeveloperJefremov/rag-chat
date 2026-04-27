@@ -5,6 +5,8 @@ import { PrismaChunkRepository } from '../prisma-orm/PrismaChunkRepository';
 import { PrismaMessageRepository } from '../prisma-orm/PrismaMessageRepository';
 import { PrismaUserUsageRepository } from '../prisma-orm/PrismaUserUsageRepository';
 import { PrismaLLMLogRepository } from '../prisma-orm/PrismaLLMLogRepository';
+import { PrismaUserRepository } from '../prisma-orm/PrismaUserRepository';
+import { PrismaDeletedUserAuditRepository } from '../prisma-orm/PrismaDeletedUserAuditRepository';
 import { GoogleEmbeddingClient } from '../google/GoogleEmbeddingClient';
 import { GeminiClient } from '../google/GeminiClient';
 import { LocalRerankClient } from '../local/LocalRerankClient';
@@ -16,6 +18,7 @@ import { SessionService } from '../../application/session/SessionService';
 import { IngestionService } from '../../application/ingestion/IngestionService';
 import { RetrievalService } from '../../application/retrieval/RetrievalService';
 import { LLMOpsService } from '../../application/llmops/LLMOpsService';
+import { AccountService } from '../../application/account/AccountService';
 import { CHUNK_SIZE, CHUNK_OVERLAP } from '../../../shared/config/constants';
 
 const chatSessionRepo = new PrismaChatSessionRepository();
@@ -24,6 +27,8 @@ const chunkRepo = new PrismaChunkRepository();
 const messageRepo = new PrismaMessageRepository();
 const userUsageRepo = new PrismaUserUsageRepository();
 const llmLogRepo = new PrismaLLMLogRepository();
+const userRepo = new PrismaUserRepository();
+const deletedUserAuditRepo = new PrismaDeletedUserAuditRepository();
 
 const embeddingClient = new GoogleEmbeddingClient();
 const llmClient = new GeminiClient();
@@ -56,3 +61,11 @@ export const retrievalService = new RetrievalService({
 export { documentRepo, chatSessionRepo, messageRepo };
 
 export const authContext = new NextAuthContext();
+
+export const accountService = new AccountService(
+	userRepo,
+	chatSessionRepo,
+	documentRepo,
+	llmLogRepo,
+	deletedUserAuditRepo,
+);

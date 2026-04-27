@@ -205,7 +205,11 @@ See design doc for full Prisma schema. Key points:
 - **`Document.userId`** is denormalized for fast ownership filtering without a join.
 - **`Chunk.embedding`** is `vector(768)` — Google text-embedding-004 dimension.
 - **`UserUsage(userId, date) @unique`** — per-day query counter, isolated from hot `User` rows.
-- **`LLMLog`** has `userId`, `sessionId`, `documentId` but NO FKs — logs survive deletion.
+- **`LLMLog`** has `userId`, `sessionId`, `documentId` but NO FKs — logs survive deletion of
+  the referenced sessions/documents. On account deletion the row is **anonymized**, not
+  deleted: `userId` is nulled, `query`/`response` are blanked, `anonymizedAt` is set. Per-query
+  observability (latency, tokens, cost, citation/rerank flags, chunking strategy) is preserved
+  for the LLMOps dashboard; PII is removed.
 - **`ChunkingStrategy`** is an enum everywhere (was `String` in `LLMLog` — fixed).
 - **All relations** use `onDelete: Cascade`.
 
@@ -383,7 +387,9 @@ openssl rand -base64 32           # generate AUTH_SECRET
 - **Role-based limits via `LIMITS_BY_ROLE`** — adding a new role is a config change, not a code change.
 - **`UserUsage` separate table** — daily counter without writing to `User` on every query.
 - **`Document.userId` denormalized** — avoids a join on the hot filter path.
-- **`LLMLog` has no FKs** — logs survive deletion of user/session/document.
+- **`LLMLog` has no FKs** — logs survive deletion of session/document. On account deletion
+  the row is anonymized (PII blanked, `userId` nulled, `anonymizedAt` set), not deleted.
+  Aggregate per-user totals at deletion time are preserved in `DeletedUserAudit`.
 - **`AuthSession` renamed** from NextAuth's default `Session` — avoids clash with `ChatSession`.
 - **Admin-only routes**: `/api/llmops`, `/stats` page.
 - **Server port interfaces** — `ILLMClient`, `IEmbeddingClient`, `IRerankClient`, `IFileParser`,

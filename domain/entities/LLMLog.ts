@@ -2,7 +2,7 @@ import { ChunkingStrategy } from '../value-objects/ChunkingStrategy';
 
 export interface LLMLog {
 	id: string;
-	userId: string;
+	userId: string | null;
 	sessionId: string;
 	documentId: string;
 	query: string;
@@ -15,4 +15,5 @@ export interface LLMLog {
 	rerankingUsed: boolean;
 	chunkingStrategy: ChunkingStrategy;
 	createdAt: Date;
+	anonymizedAt: Date | null;
 }

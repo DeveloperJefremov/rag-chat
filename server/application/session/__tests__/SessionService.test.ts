@@ -17,6 +17,7 @@ const makeSessionRepo = (
 ): IChatSessionRepository => ({
 	findById: vi.fn(),
 	findByUserId: vi.fn(),
+	countByUser: vi.fn(),
 	create: vi.fn(),
 	update: vi.fn(),
 	delete: vi.fn(),

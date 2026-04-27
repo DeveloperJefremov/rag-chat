@@ -16,7 +16,16 @@ export interface CreateLLMLogData {
 	chunkingStrategy: ChunkingStrategy;
 }
 
+export interface UserLLMStats {
+	totalQueries: number;
+	totalPromptTokens: number;
+	totalCompletionTokens: number;
+	totalCostUsd: number;
+}
+
 export interface ILLMLogRepository {
 	create(data: CreateLLMLogData): Promise<LLMLog>;
 	getRecent(limit: number): Promise<LLMLog[]>;
+	aggregateByUser(userId: string): Promise<UserLLMStats>;
+	anonymizeByUser(userId: string): Promise<void>;
 }

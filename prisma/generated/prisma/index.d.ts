@@ -64,6 +64,11 @@ export type Message = $Result.DefaultSelection<Prisma.$MessagePayload>
  */
 export type UserUsage = $Result.DefaultSelection<Prisma.$UserUsagePayload>
 /**
+ * Model DeletedUserAudit
+ * 
+ */
+export type DeletedUserAudit = $Result.DefaultSelection<Prisma.$DeletedUserAuditPayload>
+/**
  * Model LLMLog
  * 
  */
@@ -345,6 +350,16 @@ export class PrismaClient<
     * ```
     */
   get userUsage(): Prisma.UserUsageDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.deletedUserAudit`: Exposes CRUD operations for the **DeletedUserAudit** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DeletedUserAudits
+    * const deletedUserAudits = await prisma.deletedUserAudit.findMany()
+    * ```
+    */
+  get deletedUserAudit(): Prisma.DeletedUserAuditDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.lLMLog`: Exposes CRUD operations for the **LLMLog** model.
@@ -799,6 +814,7 @@ export namespace Prisma {
     Chunk: 'Chunk',
     Message: 'Message',
     UserUsage: 'UserUsage',
+    DeletedUserAudit: 'DeletedUserAudit',
     LLMLog: 'LLMLog'
   };
 
@@ -815,7 +831,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "account" | "session" | "verificationToken" | "chatSession" | "document" | "sessionDocument" | "chunk" | "message" | "userUsage" | "lLMLog"
+      modelProps: "user" | "account" | "session" | "verificationToken" | "chatSession" | "document" | "sessionDocument" | "chunk" | "message" | "userUsage" | "deletedUserAudit" | "lLMLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1543,6 +1559,80 @@ export namespace Prisma {
           }
         }
       }
+      DeletedUserAudit: {
+        payload: Prisma.$DeletedUserAuditPayload<ExtArgs>
+        fields: Prisma.DeletedUserAuditFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DeletedUserAuditFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeletedUserAuditPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DeletedUserAuditFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeletedUserAuditPayload>
+          }
+          findFirst: {
+            args: Prisma.DeletedUserAuditFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeletedUserAuditPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DeletedUserAuditFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeletedUserAuditPayload>
+          }
+          findMany: {
+            args: Prisma.DeletedUserAuditFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeletedUserAuditPayload>[]
+          }
+          create: {
+            args: Prisma.DeletedUserAuditCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeletedUserAuditPayload>
+          }
+          createMany: {
+            args: Prisma.DeletedUserAuditCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DeletedUserAuditCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeletedUserAuditPayload>[]
+          }
+          delete: {
+            args: Prisma.DeletedUserAuditDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeletedUserAuditPayload>
+          }
+          update: {
+            args: Prisma.DeletedUserAuditUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeletedUserAuditPayload>
+          }
+          deleteMany: {
+            args: Prisma.DeletedUserAuditDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DeletedUserAuditUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DeletedUserAuditUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeletedUserAuditPayload>[]
+          }
+          upsert: {
+            args: Prisma.DeletedUserAuditUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeletedUserAuditPayload>
+          }
+          aggregate: {
+            args: Prisma.DeletedUserAuditAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDeletedUserAudit>
+          }
+          groupBy: {
+            args: Prisma.DeletedUserAuditGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DeletedUserAuditGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DeletedUserAuditCountArgs<ExtArgs>
+            result: $Utils.Optional<DeletedUserAuditCountAggregateOutputType> | number
+          }
+        }
+      }
       LLMLog: {
         payload: Prisma.$LLMLogPayload<ExtArgs>
         fields: Prisma.LLMLogFieldRefs
@@ -1735,6 +1825,7 @@ export namespace Prisma {
     chunk?: ChunkOmit
     message?: MessageOmit
     userUsage?: UserUsageOmit
+    deletedUserAudit?: DeletedUserAuditOmit
     lLMLog?: LLMLogOmit
   }
 
@@ -12560,6 +12651,1138 @@ export namespace Prisma {
 
 
   /**
+   * Model DeletedUserAudit
+   */
+
+  export type AggregateDeletedUserAudit = {
+    _count: DeletedUserAuditCountAggregateOutputType | null
+    _avg: DeletedUserAuditAvgAggregateOutputType | null
+    _sum: DeletedUserAuditSumAggregateOutputType | null
+    _min: DeletedUserAuditMinAggregateOutputType | null
+    _max: DeletedUserAuditMaxAggregateOutputType | null
+  }
+
+  export type DeletedUserAuditAvgAggregateOutputType = {
+    totalQueries: number | null
+    totalDocuments: number | null
+    totalChatSessions: number | null
+    totalCostUsd: number | null
+    totalPromptTokens: number | null
+    totalCompletionTokens: number | null
+  }
+
+  export type DeletedUserAuditSumAggregateOutputType = {
+    totalQueries: number | null
+    totalDocuments: number | null
+    totalChatSessions: number | null
+    totalCostUsd: number | null
+    totalPromptTokens: number | null
+    totalCompletionTokens: number | null
+  }
+
+  export type DeletedUserAuditMinAggregateOutputType = {
+    id: string | null
+    originalUserId: string | null
+    registeredAt: Date | null
+    deletedAt: Date | null
+    role: $Enums.UserRole | null
+    totalQueries: number | null
+    totalDocuments: number | null
+    totalChatSessions: number | null
+    totalCostUsd: number | null
+    totalPromptTokens: number | null
+    totalCompletionTokens: number | null
+  }
+
+  export type DeletedUserAuditMaxAggregateOutputType = {
+    id: string | null
+    originalUserId: string | null
+    registeredAt: Date | null
+    deletedAt: Date | null
+    role: $Enums.UserRole | null
+    totalQueries: number | null
+    totalDocuments: number | null
+    totalChatSessions: number | null
+    totalCostUsd: number | null
+    totalPromptTokens: number | null
+    totalCompletionTokens: number | null
+  }
+
+  export type DeletedUserAuditCountAggregateOutputType = {
+    id: number
+    originalUserId: number
+    registeredAt: number
+    deletedAt: number
+    role: number
+    totalQueries: number
+    totalDocuments: number
+    totalChatSessions: number
+    totalCostUsd: number
+    totalPromptTokens: number
+    totalCompletionTokens: number
+    _all: number
+  }
+
+
+  export type DeletedUserAuditAvgAggregateInputType = {
+    totalQueries?: true
+    totalDocuments?: true
+    totalChatSessions?: true
+    totalCostUsd?: true
+    totalPromptTokens?: true
+    totalCompletionTokens?: true
+  }
+
+  export type DeletedUserAuditSumAggregateInputType = {
+    totalQueries?: true
+    totalDocuments?: true
+    totalChatSessions?: true
+    totalCostUsd?: true
+    totalPromptTokens?: true
+    totalCompletionTokens?: true
+  }
+
+  export type DeletedUserAuditMinAggregateInputType = {
+    id?: true
+    originalUserId?: true
+    registeredAt?: true
+    deletedAt?: true
+    role?: true
+    totalQueries?: true
+    totalDocuments?: true
+    totalChatSessions?: true
+    totalCostUsd?: true
+    totalPromptTokens?: true
+    totalCompletionTokens?: true
+  }
+
+  export type DeletedUserAuditMaxAggregateInputType = {
+    id?: true
+    originalUserId?: true
+    registeredAt?: true
+    deletedAt?: true
+    role?: true
+    totalQueries?: true
+    totalDocuments?: true
+    totalChatSessions?: true
+    totalCostUsd?: true
+    totalPromptTokens?: true
+    totalCompletionTokens?: true
+  }
+
+  export type DeletedUserAuditCountAggregateInputType = {
+    id?: true
+    originalUserId?: true
+    registeredAt?: true
+    deletedAt?: true
+    role?: true
+    totalQueries?: true
+    totalDocuments?: true
+    totalChatSessions?: true
+    totalCostUsd?: true
+    totalPromptTokens?: true
+    totalCompletionTokens?: true
+    _all?: true
+  }
+
+  export type DeletedUserAuditAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DeletedUserAudit to aggregate.
+     */
+    where?: DeletedUserAuditWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeletedUserAudits to fetch.
+     */
+    orderBy?: DeletedUserAuditOrderByWithRelationInput | DeletedUserAuditOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DeletedUserAuditWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeletedUserAudits from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeletedUserAudits.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DeletedUserAudits
+    **/
+    _count?: true | DeletedUserAuditCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DeletedUserAuditAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DeletedUserAuditSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DeletedUserAuditMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DeletedUserAuditMaxAggregateInputType
+  }
+
+  export type GetDeletedUserAuditAggregateType<T extends DeletedUserAuditAggregateArgs> = {
+        [P in keyof T & keyof AggregateDeletedUserAudit]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDeletedUserAudit[P]>
+      : GetScalarType<T[P], AggregateDeletedUserAudit[P]>
+  }
+
+
+
+
+  export type DeletedUserAuditGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DeletedUserAuditWhereInput
+    orderBy?: DeletedUserAuditOrderByWithAggregationInput | DeletedUserAuditOrderByWithAggregationInput[]
+    by: DeletedUserAuditScalarFieldEnum[] | DeletedUserAuditScalarFieldEnum
+    having?: DeletedUserAuditScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DeletedUserAuditCountAggregateInputType | true
+    _avg?: DeletedUserAuditAvgAggregateInputType
+    _sum?: DeletedUserAuditSumAggregateInputType
+    _min?: DeletedUserAuditMinAggregateInputType
+    _max?: DeletedUserAuditMaxAggregateInputType
+  }
+
+  export type DeletedUserAuditGroupByOutputType = {
+    id: string
+    originalUserId: string
+    registeredAt: Date
+    deletedAt: Date
+    role: $Enums.UserRole
+    totalQueries: number
+    totalDocuments: number
+    totalChatSessions: number
+    totalCostUsd: number
+    totalPromptTokens: number
+    totalCompletionTokens: number
+    _count: DeletedUserAuditCountAggregateOutputType | null
+    _avg: DeletedUserAuditAvgAggregateOutputType | null
+    _sum: DeletedUserAuditSumAggregateOutputType | null
+    _min: DeletedUserAuditMinAggregateOutputType | null
+    _max: DeletedUserAuditMaxAggregateOutputType | null
+  }
+
+  type GetDeletedUserAuditGroupByPayload<T extends DeletedUserAuditGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DeletedUserAuditGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DeletedUserAuditGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DeletedUserAuditGroupByOutputType[P]>
+            : GetScalarType<T[P], DeletedUserAuditGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DeletedUserAuditSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    originalUserId?: boolean
+    registeredAt?: boolean
+    deletedAt?: boolean
+    role?: boolean
+    totalQueries?: boolean
+    totalDocuments?: boolean
+    totalChatSessions?: boolean
+    totalCostUsd?: boolean
+    totalPromptTokens?: boolean
+    totalCompletionTokens?: boolean
+  }, ExtArgs["result"]["deletedUserAudit"]>
+
+  export type DeletedUserAuditSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    originalUserId?: boolean
+    registeredAt?: boolean
+    deletedAt?: boolean
+    role?: boolean
+    totalQueries?: boolean
+    totalDocuments?: boolean
+    totalChatSessions?: boolean
+    totalCostUsd?: boolean
+    totalPromptTokens?: boolean
+    totalCompletionTokens?: boolean
+  }, ExtArgs["result"]["deletedUserAudit"]>
+
+  export type DeletedUserAuditSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    originalUserId?: boolean
+    registeredAt?: boolean
+    deletedAt?: boolean
+    role?: boolean
+    totalQueries?: boolean
+    totalDocuments?: boolean
+    totalChatSessions?: boolean
+    totalCostUsd?: boolean
+    totalPromptTokens?: boolean
+    totalCompletionTokens?: boolean
+  }, ExtArgs["result"]["deletedUserAudit"]>
+
+  export type DeletedUserAuditSelectScalar = {
+    id?: boolean
+    originalUserId?: boolean
+    registeredAt?: boolean
+    deletedAt?: boolean
+    role?: boolean
+    totalQueries?: boolean
+    totalDocuments?: boolean
+    totalChatSessions?: boolean
+    totalCostUsd?: boolean
+    totalPromptTokens?: boolean
+    totalCompletionTokens?: boolean
+  }
+
+  export type DeletedUserAuditOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "originalUserId" | "registeredAt" | "deletedAt" | "role" | "totalQueries" | "totalDocuments" | "totalChatSessions" | "totalCostUsd" | "totalPromptTokens" | "totalCompletionTokens", ExtArgs["result"]["deletedUserAudit"]>
+
+  export type $DeletedUserAuditPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DeletedUserAudit"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      originalUserId: string
+      registeredAt: Date
+      deletedAt: Date
+      role: $Enums.UserRole
+      totalQueries: number
+      totalDocuments: number
+      totalChatSessions: number
+      totalCostUsd: number
+      totalPromptTokens: number
+      totalCompletionTokens: number
+    }, ExtArgs["result"]["deletedUserAudit"]>
+    composites: {}
+  }
+
+  type DeletedUserAuditGetPayload<S extends boolean | null | undefined | DeletedUserAuditDefaultArgs> = $Result.GetResult<Prisma.$DeletedUserAuditPayload, S>
+
+  type DeletedUserAuditCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DeletedUserAuditFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DeletedUserAuditCountAggregateInputType | true
+    }
+
+  export interface DeletedUserAuditDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DeletedUserAudit'], meta: { name: 'DeletedUserAudit' } }
+    /**
+     * Find zero or one DeletedUserAudit that matches the filter.
+     * @param {DeletedUserAuditFindUniqueArgs} args - Arguments to find a DeletedUserAudit
+     * @example
+     * // Get one DeletedUserAudit
+     * const deletedUserAudit = await prisma.deletedUserAudit.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DeletedUserAuditFindUniqueArgs>(args: SelectSubset<T, DeletedUserAuditFindUniqueArgs<ExtArgs>>): Prisma__DeletedUserAuditClient<$Result.GetResult<Prisma.$DeletedUserAuditPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DeletedUserAudit that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DeletedUserAuditFindUniqueOrThrowArgs} args - Arguments to find a DeletedUserAudit
+     * @example
+     * // Get one DeletedUserAudit
+     * const deletedUserAudit = await prisma.deletedUserAudit.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DeletedUserAuditFindUniqueOrThrowArgs>(args: SelectSubset<T, DeletedUserAuditFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DeletedUserAuditClient<$Result.GetResult<Prisma.$DeletedUserAuditPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DeletedUserAudit that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeletedUserAuditFindFirstArgs} args - Arguments to find a DeletedUserAudit
+     * @example
+     * // Get one DeletedUserAudit
+     * const deletedUserAudit = await prisma.deletedUserAudit.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DeletedUserAuditFindFirstArgs>(args?: SelectSubset<T, DeletedUserAuditFindFirstArgs<ExtArgs>>): Prisma__DeletedUserAuditClient<$Result.GetResult<Prisma.$DeletedUserAuditPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DeletedUserAudit that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeletedUserAuditFindFirstOrThrowArgs} args - Arguments to find a DeletedUserAudit
+     * @example
+     * // Get one DeletedUserAudit
+     * const deletedUserAudit = await prisma.deletedUserAudit.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DeletedUserAuditFindFirstOrThrowArgs>(args?: SelectSubset<T, DeletedUserAuditFindFirstOrThrowArgs<ExtArgs>>): Prisma__DeletedUserAuditClient<$Result.GetResult<Prisma.$DeletedUserAuditPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DeletedUserAudits that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeletedUserAuditFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DeletedUserAudits
+     * const deletedUserAudits = await prisma.deletedUserAudit.findMany()
+     * 
+     * // Get first 10 DeletedUserAudits
+     * const deletedUserAudits = await prisma.deletedUserAudit.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const deletedUserAuditWithIdOnly = await prisma.deletedUserAudit.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DeletedUserAuditFindManyArgs>(args?: SelectSubset<T, DeletedUserAuditFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeletedUserAuditPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DeletedUserAudit.
+     * @param {DeletedUserAuditCreateArgs} args - Arguments to create a DeletedUserAudit.
+     * @example
+     * // Create one DeletedUserAudit
+     * const DeletedUserAudit = await prisma.deletedUserAudit.create({
+     *   data: {
+     *     // ... data to create a DeletedUserAudit
+     *   }
+     * })
+     * 
+     */
+    create<T extends DeletedUserAuditCreateArgs>(args: SelectSubset<T, DeletedUserAuditCreateArgs<ExtArgs>>): Prisma__DeletedUserAuditClient<$Result.GetResult<Prisma.$DeletedUserAuditPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DeletedUserAudits.
+     * @param {DeletedUserAuditCreateManyArgs} args - Arguments to create many DeletedUserAudits.
+     * @example
+     * // Create many DeletedUserAudits
+     * const deletedUserAudit = await prisma.deletedUserAudit.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DeletedUserAuditCreateManyArgs>(args?: SelectSubset<T, DeletedUserAuditCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DeletedUserAudits and returns the data saved in the database.
+     * @param {DeletedUserAuditCreateManyAndReturnArgs} args - Arguments to create many DeletedUserAudits.
+     * @example
+     * // Create many DeletedUserAudits
+     * const deletedUserAudit = await prisma.deletedUserAudit.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DeletedUserAudits and only return the `id`
+     * const deletedUserAuditWithIdOnly = await prisma.deletedUserAudit.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DeletedUserAuditCreateManyAndReturnArgs>(args?: SelectSubset<T, DeletedUserAuditCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeletedUserAuditPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DeletedUserAudit.
+     * @param {DeletedUserAuditDeleteArgs} args - Arguments to delete one DeletedUserAudit.
+     * @example
+     * // Delete one DeletedUserAudit
+     * const DeletedUserAudit = await prisma.deletedUserAudit.delete({
+     *   where: {
+     *     // ... filter to delete one DeletedUserAudit
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DeletedUserAuditDeleteArgs>(args: SelectSubset<T, DeletedUserAuditDeleteArgs<ExtArgs>>): Prisma__DeletedUserAuditClient<$Result.GetResult<Prisma.$DeletedUserAuditPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DeletedUserAudit.
+     * @param {DeletedUserAuditUpdateArgs} args - Arguments to update one DeletedUserAudit.
+     * @example
+     * // Update one DeletedUserAudit
+     * const deletedUserAudit = await prisma.deletedUserAudit.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DeletedUserAuditUpdateArgs>(args: SelectSubset<T, DeletedUserAuditUpdateArgs<ExtArgs>>): Prisma__DeletedUserAuditClient<$Result.GetResult<Prisma.$DeletedUserAuditPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DeletedUserAudits.
+     * @param {DeletedUserAuditDeleteManyArgs} args - Arguments to filter DeletedUserAudits to delete.
+     * @example
+     * // Delete a few DeletedUserAudits
+     * const { count } = await prisma.deletedUserAudit.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DeletedUserAuditDeleteManyArgs>(args?: SelectSubset<T, DeletedUserAuditDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DeletedUserAudits.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeletedUserAuditUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DeletedUserAudits
+     * const deletedUserAudit = await prisma.deletedUserAudit.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DeletedUserAuditUpdateManyArgs>(args: SelectSubset<T, DeletedUserAuditUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DeletedUserAudits and returns the data updated in the database.
+     * @param {DeletedUserAuditUpdateManyAndReturnArgs} args - Arguments to update many DeletedUserAudits.
+     * @example
+     * // Update many DeletedUserAudits
+     * const deletedUserAudit = await prisma.deletedUserAudit.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DeletedUserAudits and only return the `id`
+     * const deletedUserAuditWithIdOnly = await prisma.deletedUserAudit.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DeletedUserAuditUpdateManyAndReturnArgs>(args: SelectSubset<T, DeletedUserAuditUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeletedUserAuditPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DeletedUserAudit.
+     * @param {DeletedUserAuditUpsertArgs} args - Arguments to update or create a DeletedUserAudit.
+     * @example
+     * // Update or create a DeletedUserAudit
+     * const deletedUserAudit = await prisma.deletedUserAudit.upsert({
+     *   create: {
+     *     // ... data to create a DeletedUserAudit
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DeletedUserAudit we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DeletedUserAuditUpsertArgs>(args: SelectSubset<T, DeletedUserAuditUpsertArgs<ExtArgs>>): Prisma__DeletedUserAuditClient<$Result.GetResult<Prisma.$DeletedUserAuditPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DeletedUserAudits.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeletedUserAuditCountArgs} args - Arguments to filter DeletedUserAudits to count.
+     * @example
+     * // Count the number of DeletedUserAudits
+     * const count = await prisma.deletedUserAudit.count({
+     *   where: {
+     *     // ... the filter for the DeletedUserAudits we want to count
+     *   }
+     * })
+    **/
+    count<T extends DeletedUserAuditCountArgs>(
+      args?: Subset<T, DeletedUserAuditCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DeletedUserAuditCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DeletedUserAudit.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeletedUserAuditAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DeletedUserAuditAggregateArgs>(args: Subset<T, DeletedUserAuditAggregateArgs>): Prisma.PrismaPromise<GetDeletedUserAuditAggregateType<T>>
+
+    /**
+     * Group by DeletedUserAudit.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeletedUserAuditGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DeletedUserAuditGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DeletedUserAuditGroupByArgs['orderBy'] }
+        : { orderBy?: DeletedUserAuditGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DeletedUserAuditGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDeletedUserAuditGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DeletedUserAudit model
+   */
+  readonly fields: DeletedUserAuditFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DeletedUserAudit.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DeletedUserAuditClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DeletedUserAudit model
+   */
+  interface DeletedUserAuditFieldRefs {
+    readonly id: FieldRef<"DeletedUserAudit", 'String'>
+    readonly originalUserId: FieldRef<"DeletedUserAudit", 'String'>
+    readonly registeredAt: FieldRef<"DeletedUserAudit", 'DateTime'>
+    readonly deletedAt: FieldRef<"DeletedUserAudit", 'DateTime'>
+    readonly role: FieldRef<"DeletedUserAudit", 'UserRole'>
+    readonly totalQueries: FieldRef<"DeletedUserAudit", 'Int'>
+    readonly totalDocuments: FieldRef<"DeletedUserAudit", 'Int'>
+    readonly totalChatSessions: FieldRef<"DeletedUserAudit", 'Int'>
+    readonly totalCostUsd: FieldRef<"DeletedUserAudit", 'Float'>
+    readonly totalPromptTokens: FieldRef<"DeletedUserAudit", 'Int'>
+    readonly totalCompletionTokens: FieldRef<"DeletedUserAudit", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DeletedUserAudit findUnique
+   */
+  export type DeletedUserAuditFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeletedUserAudit
+     */
+    select?: DeletedUserAuditSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeletedUserAudit
+     */
+    omit?: DeletedUserAuditOmit<ExtArgs> | null
+    /**
+     * Filter, which DeletedUserAudit to fetch.
+     */
+    where: DeletedUserAuditWhereUniqueInput
+  }
+
+  /**
+   * DeletedUserAudit findUniqueOrThrow
+   */
+  export type DeletedUserAuditFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeletedUserAudit
+     */
+    select?: DeletedUserAuditSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeletedUserAudit
+     */
+    omit?: DeletedUserAuditOmit<ExtArgs> | null
+    /**
+     * Filter, which DeletedUserAudit to fetch.
+     */
+    where: DeletedUserAuditWhereUniqueInput
+  }
+
+  /**
+   * DeletedUserAudit findFirst
+   */
+  export type DeletedUserAuditFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeletedUserAudit
+     */
+    select?: DeletedUserAuditSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeletedUserAudit
+     */
+    omit?: DeletedUserAuditOmit<ExtArgs> | null
+    /**
+     * Filter, which DeletedUserAudit to fetch.
+     */
+    where?: DeletedUserAuditWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeletedUserAudits to fetch.
+     */
+    orderBy?: DeletedUserAuditOrderByWithRelationInput | DeletedUserAuditOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DeletedUserAudits.
+     */
+    cursor?: DeletedUserAuditWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeletedUserAudits from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeletedUserAudits.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DeletedUserAudits.
+     */
+    distinct?: DeletedUserAuditScalarFieldEnum | DeletedUserAuditScalarFieldEnum[]
+  }
+
+  /**
+   * DeletedUserAudit findFirstOrThrow
+   */
+  export type DeletedUserAuditFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeletedUserAudit
+     */
+    select?: DeletedUserAuditSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeletedUserAudit
+     */
+    omit?: DeletedUserAuditOmit<ExtArgs> | null
+    /**
+     * Filter, which DeletedUserAudit to fetch.
+     */
+    where?: DeletedUserAuditWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeletedUserAudits to fetch.
+     */
+    orderBy?: DeletedUserAuditOrderByWithRelationInput | DeletedUserAuditOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DeletedUserAudits.
+     */
+    cursor?: DeletedUserAuditWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeletedUserAudits from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeletedUserAudits.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DeletedUserAudits.
+     */
+    distinct?: DeletedUserAuditScalarFieldEnum | DeletedUserAuditScalarFieldEnum[]
+  }
+
+  /**
+   * DeletedUserAudit findMany
+   */
+  export type DeletedUserAuditFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeletedUserAudit
+     */
+    select?: DeletedUserAuditSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeletedUserAudit
+     */
+    omit?: DeletedUserAuditOmit<ExtArgs> | null
+    /**
+     * Filter, which DeletedUserAudits to fetch.
+     */
+    where?: DeletedUserAuditWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeletedUserAudits to fetch.
+     */
+    orderBy?: DeletedUserAuditOrderByWithRelationInput | DeletedUserAuditOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DeletedUserAudits.
+     */
+    cursor?: DeletedUserAuditWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeletedUserAudits from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeletedUserAudits.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DeletedUserAudits.
+     */
+    distinct?: DeletedUserAuditScalarFieldEnum | DeletedUserAuditScalarFieldEnum[]
+  }
+
+  /**
+   * DeletedUserAudit create
+   */
+  export type DeletedUserAuditCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeletedUserAudit
+     */
+    select?: DeletedUserAuditSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeletedUserAudit
+     */
+    omit?: DeletedUserAuditOmit<ExtArgs> | null
+    /**
+     * The data needed to create a DeletedUserAudit.
+     */
+    data: XOR<DeletedUserAuditCreateInput, DeletedUserAuditUncheckedCreateInput>
+  }
+
+  /**
+   * DeletedUserAudit createMany
+   */
+  export type DeletedUserAuditCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DeletedUserAudits.
+     */
+    data: DeletedUserAuditCreateManyInput | DeletedUserAuditCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DeletedUserAudit createManyAndReturn
+   */
+  export type DeletedUserAuditCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeletedUserAudit
+     */
+    select?: DeletedUserAuditSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeletedUserAudit
+     */
+    omit?: DeletedUserAuditOmit<ExtArgs> | null
+    /**
+     * The data used to create many DeletedUserAudits.
+     */
+    data: DeletedUserAuditCreateManyInput | DeletedUserAuditCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DeletedUserAudit update
+   */
+  export type DeletedUserAuditUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeletedUserAudit
+     */
+    select?: DeletedUserAuditSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeletedUserAudit
+     */
+    omit?: DeletedUserAuditOmit<ExtArgs> | null
+    /**
+     * The data needed to update a DeletedUserAudit.
+     */
+    data: XOR<DeletedUserAuditUpdateInput, DeletedUserAuditUncheckedUpdateInput>
+    /**
+     * Choose, which DeletedUserAudit to update.
+     */
+    where: DeletedUserAuditWhereUniqueInput
+  }
+
+  /**
+   * DeletedUserAudit updateMany
+   */
+  export type DeletedUserAuditUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DeletedUserAudits.
+     */
+    data: XOR<DeletedUserAuditUpdateManyMutationInput, DeletedUserAuditUncheckedUpdateManyInput>
+    /**
+     * Filter which DeletedUserAudits to update
+     */
+    where?: DeletedUserAuditWhereInput
+    /**
+     * Limit how many DeletedUserAudits to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DeletedUserAudit updateManyAndReturn
+   */
+  export type DeletedUserAuditUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeletedUserAudit
+     */
+    select?: DeletedUserAuditSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeletedUserAudit
+     */
+    omit?: DeletedUserAuditOmit<ExtArgs> | null
+    /**
+     * The data used to update DeletedUserAudits.
+     */
+    data: XOR<DeletedUserAuditUpdateManyMutationInput, DeletedUserAuditUncheckedUpdateManyInput>
+    /**
+     * Filter which DeletedUserAudits to update
+     */
+    where?: DeletedUserAuditWhereInput
+    /**
+     * Limit how many DeletedUserAudits to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DeletedUserAudit upsert
+   */
+  export type DeletedUserAuditUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeletedUserAudit
+     */
+    select?: DeletedUserAuditSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeletedUserAudit
+     */
+    omit?: DeletedUserAuditOmit<ExtArgs> | null
+    /**
+     * The filter to search for the DeletedUserAudit to update in case it exists.
+     */
+    where: DeletedUserAuditWhereUniqueInput
+    /**
+     * In case the DeletedUserAudit found by the `where` argument doesn't exist, create a new DeletedUserAudit with this data.
+     */
+    create: XOR<DeletedUserAuditCreateInput, DeletedUserAuditUncheckedCreateInput>
+    /**
+     * In case the DeletedUserAudit was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DeletedUserAuditUpdateInput, DeletedUserAuditUncheckedUpdateInput>
+  }
+
+  /**
+   * DeletedUserAudit delete
+   */
+  export type DeletedUserAuditDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeletedUserAudit
+     */
+    select?: DeletedUserAuditSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeletedUserAudit
+     */
+    omit?: DeletedUserAuditOmit<ExtArgs> | null
+    /**
+     * Filter which DeletedUserAudit to delete.
+     */
+    where: DeletedUserAuditWhereUniqueInput
+  }
+
+  /**
+   * DeletedUserAudit deleteMany
+   */
+  export type DeletedUserAuditDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DeletedUserAudits to delete
+     */
+    where?: DeletedUserAuditWhereInput
+    /**
+     * Limit how many DeletedUserAudits to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DeletedUserAudit without action
+   */
+  export type DeletedUserAuditDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeletedUserAudit
+     */
+    select?: DeletedUserAuditSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeletedUserAudit
+     */
+    omit?: DeletedUserAuditOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model LLMLog
    */
 
@@ -12600,6 +13823,7 @@ export namespace Prisma {
     rerankingUsed: boolean | null
     chunkingStrategy: $Enums.ChunkingStrategy | null
     createdAt: Date | null
+    anonymizedAt: Date | null
   }
 
   export type LLMLogMaxAggregateOutputType = {
@@ -12617,6 +13841,7 @@ export namespace Prisma {
     rerankingUsed: boolean | null
     chunkingStrategy: $Enums.ChunkingStrategy | null
     createdAt: Date | null
+    anonymizedAt: Date | null
   }
 
   export type LLMLogCountAggregateOutputType = {
@@ -12634,6 +13859,7 @@ export namespace Prisma {
     rerankingUsed: number
     chunkingStrategy: number
     createdAt: number
+    anonymizedAt: number
     _all: number
   }
 
@@ -12667,6 +13893,7 @@ export namespace Prisma {
     rerankingUsed?: true
     chunkingStrategy?: true
     createdAt?: true
+    anonymizedAt?: true
   }
 
   export type LLMLogMaxAggregateInputType = {
@@ -12684,6 +13911,7 @@ export namespace Prisma {
     rerankingUsed?: true
     chunkingStrategy?: true
     createdAt?: true
+    anonymizedAt?: true
   }
 
   export type LLMLogCountAggregateInputType = {
@@ -12701,6 +13929,7 @@ export namespace Prisma {
     rerankingUsed?: true
     chunkingStrategy?: true
     createdAt?: true
+    anonymizedAt?: true
     _all?: true
   }
 
@@ -12792,7 +14021,7 @@ export namespace Prisma {
 
   export type LLMLogGroupByOutputType = {
     id: string
-    userId: string
+    userId: string | null
     sessionId: string
     documentId: string
     query: string
@@ -12805,6 +14034,7 @@ export namespace Prisma {
     rerankingUsed: boolean
     chunkingStrategy: $Enums.ChunkingStrategy
     createdAt: Date
+    anonymizedAt: Date | null
     _count: LLMLogCountAggregateOutputType | null
     _avg: LLMLogAvgAggregateOutputType | null
     _sum: LLMLogSumAggregateOutputType | null
@@ -12841,6 +14071,7 @@ export namespace Prisma {
     rerankingUsed?: boolean
     chunkingStrategy?: boolean
     createdAt?: boolean
+    anonymizedAt?: boolean
   }, ExtArgs["result"]["lLMLog"]>
 
   export type LLMLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -12858,6 +14089,7 @@ export namespace Prisma {
     rerankingUsed?: boolean
     chunkingStrategy?: boolean
     createdAt?: boolean
+    anonymizedAt?: boolean
   }, ExtArgs["result"]["lLMLog"]>
 
   export type LLMLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -12875,6 +14107,7 @@ export namespace Prisma {
     rerankingUsed?: boolean
     chunkingStrategy?: boolean
     createdAt?: boolean
+    anonymizedAt?: boolean
   }, ExtArgs["result"]["lLMLog"]>
 
   export type LLMLogSelectScalar = {
@@ -12892,16 +14125,17 @@ export namespace Prisma {
     rerankingUsed?: boolean
     chunkingStrategy?: boolean
     createdAt?: boolean
+    anonymizedAt?: boolean
   }
 
-  export type LLMLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "sessionId" | "documentId" | "query" | "response" | "latencyMs" | "promptTokens" | "completionTokens" | "estimatedCostUsd" | "hasCitation" | "rerankingUsed" | "chunkingStrategy" | "createdAt", ExtArgs["result"]["lLMLog"]>
+  export type LLMLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "sessionId" | "documentId" | "query" | "response" | "latencyMs" | "promptTokens" | "completionTokens" | "estimatedCostUsd" | "hasCitation" | "rerankingUsed" | "chunkingStrategy" | "createdAt" | "anonymizedAt", ExtArgs["result"]["lLMLog"]>
 
   export type $LLMLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "LLMLog"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      userId: string
+      userId: string | null
       sessionId: string
       documentId: string
       query: string
@@ -12914,6 +14148,7 @@ export namespace Prisma {
       rerankingUsed: boolean
       chunkingStrategy: $Enums.ChunkingStrategy
       createdAt: Date
+      anonymizedAt: Date | null
     }, ExtArgs["result"]["lLMLog"]>
     composites: {}
   }
@@ -13351,6 +14586,7 @@ export namespace Prisma {
     readonly rerankingUsed: FieldRef<"LLMLog", 'Boolean'>
     readonly chunkingStrategy: FieldRef<"LLMLog", 'ChunkingStrategy'>
     readonly createdAt: FieldRef<"LLMLog", 'DateTime'>
+    readonly anonymizedAt: FieldRef<"LLMLog", 'DateTime'>
   }
     
 
@@ -13849,6 +15085,23 @@ export namespace Prisma {
   export type UserUsageScalarFieldEnum = (typeof UserUsageScalarFieldEnum)[keyof typeof UserUsageScalarFieldEnum]
 
 
+  export const DeletedUserAuditScalarFieldEnum: {
+    id: 'id',
+    originalUserId: 'originalUserId',
+    registeredAt: 'registeredAt',
+    deletedAt: 'deletedAt',
+    role: 'role',
+    totalQueries: 'totalQueries',
+    totalDocuments: 'totalDocuments',
+    totalChatSessions: 'totalChatSessions',
+    totalCostUsd: 'totalCostUsd',
+    totalPromptTokens: 'totalPromptTokens',
+    totalCompletionTokens: 'totalCompletionTokens'
+  };
+
+  export type DeletedUserAuditScalarFieldEnum = (typeof DeletedUserAuditScalarFieldEnum)[keyof typeof DeletedUserAuditScalarFieldEnum]
+
+
   export const LLMLogScalarFieldEnum: {
     id: 'id',
     userId: 'userId',
@@ -13863,7 +15116,8 @@ export namespace Prisma {
     hasCitation: 'hasCitation',
     rerankingUsed: 'rerankingUsed',
     chunkingStrategy: 'chunkingStrategy',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    anonymizedAt: 'anonymizedAt'
   };
 
   export type LLMLogScalarFieldEnum = (typeof LLMLogScalarFieldEnum)[keyof typeof LLMLogScalarFieldEnum]
@@ -14636,12 +15890,96 @@ export namespace Prisma {
     queries?: IntWithAggregatesFilter<"UserUsage"> | number
   }
 
+  export type DeletedUserAuditWhereInput = {
+    AND?: DeletedUserAuditWhereInput | DeletedUserAuditWhereInput[]
+    OR?: DeletedUserAuditWhereInput[]
+    NOT?: DeletedUserAuditWhereInput | DeletedUserAuditWhereInput[]
+    id?: StringFilter<"DeletedUserAudit"> | string
+    originalUserId?: StringFilter<"DeletedUserAudit"> | string
+    registeredAt?: DateTimeFilter<"DeletedUserAudit"> | Date | string
+    deletedAt?: DateTimeFilter<"DeletedUserAudit"> | Date | string
+    role?: EnumUserRoleFilter<"DeletedUserAudit"> | $Enums.UserRole
+    totalQueries?: IntFilter<"DeletedUserAudit"> | number
+    totalDocuments?: IntFilter<"DeletedUserAudit"> | number
+    totalChatSessions?: IntFilter<"DeletedUserAudit"> | number
+    totalCostUsd?: FloatFilter<"DeletedUserAudit"> | number
+    totalPromptTokens?: IntFilter<"DeletedUserAudit"> | number
+    totalCompletionTokens?: IntFilter<"DeletedUserAudit"> | number
+  }
+
+  export type DeletedUserAuditOrderByWithRelationInput = {
+    id?: SortOrder
+    originalUserId?: SortOrder
+    registeredAt?: SortOrder
+    deletedAt?: SortOrder
+    role?: SortOrder
+    totalQueries?: SortOrder
+    totalDocuments?: SortOrder
+    totalChatSessions?: SortOrder
+    totalCostUsd?: SortOrder
+    totalPromptTokens?: SortOrder
+    totalCompletionTokens?: SortOrder
+  }
+
+  export type DeletedUserAuditWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: DeletedUserAuditWhereInput | DeletedUserAuditWhereInput[]
+    OR?: DeletedUserAuditWhereInput[]
+    NOT?: DeletedUserAuditWhereInput | DeletedUserAuditWhereInput[]
+    originalUserId?: StringFilter<"DeletedUserAudit"> | string
+    registeredAt?: DateTimeFilter<"DeletedUserAudit"> | Date | string
+    deletedAt?: DateTimeFilter<"DeletedUserAudit"> | Date | string
+    role?: EnumUserRoleFilter<"DeletedUserAudit"> | $Enums.UserRole
+    totalQueries?: IntFilter<"DeletedUserAudit"> | number
+    totalDocuments?: IntFilter<"DeletedUserAudit"> | number
+    totalChatSessions?: IntFilter<"DeletedUserAudit"> | number
+    totalCostUsd?: FloatFilter<"DeletedUserAudit"> | number
+    totalPromptTokens?: IntFilter<"DeletedUserAudit"> | number
+    totalCompletionTokens?: IntFilter<"DeletedUserAudit"> | number
+  }, "id">
+
+  export type DeletedUserAuditOrderByWithAggregationInput = {
+    id?: SortOrder
+    originalUserId?: SortOrder
+    registeredAt?: SortOrder
+    deletedAt?: SortOrder
+    role?: SortOrder
+    totalQueries?: SortOrder
+    totalDocuments?: SortOrder
+    totalChatSessions?: SortOrder
+    totalCostUsd?: SortOrder
+    totalPromptTokens?: SortOrder
+    totalCompletionTokens?: SortOrder
+    _count?: DeletedUserAuditCountOrderByAggregateInput
+    _avg?: DeletedUserAuditAvgOrderByAggregateInput
+    _max?: DeletedUserAuditMaxOrderByAggregateInput
+    _min?: DeletedUserAuditMinOrderByAggregateInput
+    _sum?: DeletedUserAuditSumOrderByAggregateInput
+  }
+
+  export type DeletedUserAuditScalarWhereWithAggregatesInput = {
+    AND?: DeletedUserAuditScalarWhereWithAggregatesInput | DeletedUserAuditScalarWhereWithAggregatesInput[]
+    OR?: DeletedUserAuditScalarWhereWithAggregatesInput[]
+    NOT?: DeletedUserAuditScalarWhereWithAggregatesInput | DeletedUserAuditScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DeletedUserAudit"> | string
+    originalUserId?: StringWithAggregatesFilter<"DeletedUserAudit"> | string
+    registeredAt?: DateTimeWithAggregatesFilter<"DeletedUserAudit"> | Date | string
+    deletedAt?: DateTimeWithAggregatesFilter<"DeletedUserAudit"> | Date | string
+    role?: EnumUserRoleWithAggregatesFilter<"DeletedUserAudit"> | $Enums.UserRole
+    totalQueries?: IntWithAggregatesFilter<"DeletedUserAudit"> | number
+    totalDocuments?: IntWithAggregatesFilter<"DeletedUserAudit"> | number
+    totalChatSessions?: IntWithAggregatesFilter<"DeletedUserAudit"> | number
+    totalCostUsd?: FloatWithAggregatesFilter<"DeletedUserAudit"> | number
+    totalPromptTokens?: IntWithAggregatesFilter<"DeletedUserAudit"> | number
+    totalCompletionTokens?: IntWithAggregatesFilter<"DeletedUserAudit"> | number
+  }
+
   export type LLMLogWhereInput = {
     AND?: LLMLogWhereInput | LLMLogWhereInput[]
     OR?: LLMLogWhereInput[]
     NOT?: LLMLogWhereInput | LLMLogWhereInput[]
     id?: StringFilter<"LLMLog"> | string
-    userId?: StringFilter<"LLMLog"> | string
+    userId?: StringNullableFilter<"LLMLog"> | string | null
     sessionId?: StringFilter<"LLMLog"> | string
     documentId?: StringFilter<"LLMLog"> | string
     query?: StringFilter<"LLMLog"> | string
@@ -14654,11 +15992,12 @@ export namespace Prisma {
     rerankingUsed?: BoolFilter<"LLMLog"> | boolean
     chunkingStrategy?: EnumChunkingStrategyFilter<"LLMLog"> | $Enums.ChunkingStrategy
     createdAt?: DateTimeFilter<"LLMLog"> | Date | string
+    anonymizedAt?: DateTimeNullableFilter<"LLMLog"> | Date | string | null
   }
 
   export type LLMLogOrderByWithRelationInput = {
     id?: SortOrder
-    userId?: SortOrder
+    userId?: SortOrderInput | SortOrder
     sessionId?: SortOrder
     documentId?: SortOrder
     query?: SortOrder
@@ -14671,6 +16010,7 @@ export namespace Prisma {
     rerankingUsed?: SortOrder
     chunkingStrategy?: SortOrder
     createdAt?: SortOrder
+    anonymizedAt?: SortOrderInput | SortOrder
   }
 
   export type LLMLogWhereUniqueInput = Prisma.AtLeast<{
@@ -14678,7 +16018,7 @@ export namespace Prisma {
     AND?: LLMLogWhereInput | LLMLogWhereInput[]
     OR?: LLMLogWhereInput[]
     NOT?: LLMLogWhereInput | LLMLogWhereInput[]
-    userId?: StringFilter<"LLMLog"> | string
+    userId?: StringNullableFilter<"LLMLog"> | string | null
     sessionId?: StringFilter<"LLMLog"> | string
     documentId?: StringFilter<"LLMLog"> | string
     query?: StringFilter<"LLMLog"> | string
@@ -14691,11 +16031,12 @@ export namespace Prisma {
     rerankingUsed?: BoolFilter<"LLMLog"> | boolean
     chunkingStrategy?: EnumChunkingStrategyFilter<"LLMLog"> | $Enums.ChunkingStrategy
     createdAt?: DateTimeFilter<"LLMLog"> | Date | string
+    anonymizedAt?: DateTimeNullableFilter<"LLMLog"> | Date | string | null
   }, "id">
 
   export type LLMLogOrderByWithAggregationInput = {
     id?: SortOrder
-    userId?: SortOrder
+    userId?: SortOrderInput | SortOrder
     sessionId?: SortOrder
     documentId?: SortOrder
     query?: SortOrder
@@ -14708,6 +16049,7 @@ export namespace Prisma {
     rerankingUsed?: SortOrder
     chunkingStrategy?: SortOrder
     createdAt?: SortOrder
+    anonymizedAt?: SortOrderInput | SortOrder
     _count?: LLMLogCountOrderByAggregateInput
     _avg?: LLMLogAvgOrderByAggregateInput
     _max?: LLMLogMaxOrderByAggregateInput
@@ -14720,7 +16062,7 @@ export namespace Prisma {
     OR?: LLMLogScalarWhereWithAggregatesInput[]
     NOT?: LLMLogScalarWhereWithAggregatesInput | LLMLogScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"LLMLog"> | string
-    userId?: StringWithAggregatesFilter<"LLMLog"> | string
+    userId?: StringNullableWithAggregatesFilter<"LLMLog"> | string | null
     sessionId?: StringWithAggregatesFilter<"LLMLog"> | string
     documentId?: StringWithAggregatesFilter<"LLMLog"> | string
     query?: StringWithAggregatesFilter<"LLMLog"> | string
@@ -14733,6 +16075,7 @@ export namespace Prisma {
     rerankingUsed?: BoolWithAggregatesFilter<"LLMLog"> | boolean
     chunkingStrategy?: EnumChunkingStrategyWithAggregatesFilter<"LLMLog"> | $Enums.ChunkingStrategy
     createdAt?: DateTimeWithAggregatesFilter<"LLMLog"> | Date | string
+    anonymizedAt?: DateTimeNullableWithAggregatesFilter<"LLMLog"> | Date | string | null
   }
 
   export type UserCreateInput = {
@@ -15319,9 +16662,107 @@ export namespace Prisma {
     queries?: IntFieldUpdateOperationsInput | number
   }
 
+  export type DeletedUserAuditCreateInput = {
+    id?: string
+    originalUserId: string
+    registeredAt: Date | string
+    deletedAt?: Date | string
+    role: $Enums.UserRole
+    totalQueries?: number
+    totalDocuments?: number
+    totalChatSessions?: number
+    totalCostUsd?: number
+    totalPromptTokens?: number
+    totalCompletionTokens?: number
+  }
+
+  export type DeletedUserAuditUncheckedCreateInput = {
+    id?: string
+    originalUserId: string
+    registeredAt: Date | string
+    deletedAt?: Date | string
+    role: $Enums.UserRole
+    totalQueries?: number
+    totalDocuments?: number
+    totalChatSessions?: number
+    totalCostUsd?: number
+    totalPromptTokens?: number
+    totalCompletionTokens?: number
+  }
+
+  export type DeletedUserAuditUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    originalUserId?: StringFieldUpdateOperationsInput | string
+    registeredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    totalQueries?: IntFieldUpdateOperationsInput | number
+    totalDocuments?: IntFieldUpdateOperationsInput | number
+    totalChatSessions?: IntFieldUpdateOperationsInput | number
+    totalCostUsd?: FloatFieldUpdateOperationsInput | number
+    totalPromptTokens?: IntFieldUpdateOperationsInput | number
+    totalCompletionTokens?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type DeletedUserAuditUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    originalUserId?: StringFieldUpdateOperationsInput | string
+    registeredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    totalQueries?: IntFieldUpdateOperationsInput | number
+    totalDocuments?: IntFieldUpdateOperationsInput | number
+    totalChatSessions?: IntFieldUpdateOperationsInput | number
+    totalCostUsd?: FloatFieldUpdateOperationsInput | number
+    totalPromptTokens?: IntFieldUpdateOperationsInput | number
+    totalCompletionTokens?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type DeletedUserAuditCreateManyInput = {
+    id?: string
+    originalUserId: string
+    registeredAt: Date | string
+    deletedAt?: Date | string
+    role: $Enums.UserRole
+    totalQueries?: number
+    totalDocuments?: number
+    totalChatSessions?: number
+    totalCostUsd?: number
+    totalPromptTokens?: number
+    totalCompletionTokens?: number
+  }
+
+  export type DeletedUserAuditUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    originalUserId?: StringFieldUpdateOperationsInput | string
+    registeredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    totalQueries?: IntFieldUpdateOperationsInput | number
+    totalDocuments?: IntFieldUpdateOperationsInput | number
+    totalChatSessions?: IntFieldUpdateOperationsInput | number
+    totalCostUsd?: FloatFieldUpdateOperationsInput | number
+    totalPromptTokens?: IntFieldUpdateOperationsInput | number
+    totalCompletionTokens?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type DeletedUserAuditUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    originalUserId?: StringFieldUpdateOperationsInput | string
+    registeredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    totalQueries?: IntFieldUpdateOperationsInput | number
+    totalDocuments?: IntFieldUpdateOperationsInput | number
+    totalChatSessions?: IntFieldUpdateOperationsInput | number
+    totalCostUsd?: FloatFieldUpdateOperationsInput | number
+    totalPromptTokens?: IntFieldUpdateOperationsInput | number
+    totalCompletionTokens?: IntFieldUpdateOperationsInput | number
+  }
+
   export type LLMLogCreateInput = {
     id?: string
-    userId: string
+    userId?: string | null
     sessionId: string
     documentId: string
     query: string
@@ -15334,11 +16775,12 @@ export namespace Prisma {
     rerankingUsed: boolean
     chunkingStrategy: $Enums.ChunkingStrategy
     createdAt?: Date | string
+    anonymizedAt?: Date | string | null
   }
 
   export type LLMLogUncheckedCreateInput = {
     id?: string
-    userId: string
+    userId?: string | null
     sessionId: string
     documentId: string
     query: string
@@ -15351,11 +16793,12 @@ export namespace Prisma {
     rerankingUsed: boolean
     chunkingStrategy: $Enums.ChunkingStrategy
     createdAt?: Date | string
+    anonymizedAt?: Date | string | null
   }
 
   export type LLMLogUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     sessionId?: StringFieldUpdateOperationsInput | string
     documentId?: StringFieldUpdateOperationsInput | string
     query?: StringFieldUpdateOperationsInput | string
@@ -15368,11 +16811,12 @@ export namespace Prisma {
     rerankingUsed?: BoolFieldUpdateOperationsInput | boolean
     chunkingStrategy?: EnumChunkingStrategyFieldUpdateOperationsInput | $Enums.ChunkingStrategy
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    anonymizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type LLMLogUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     sessionId?: StringFieldUpdateOperationsInput | string
     documentId?: StringFieldUpdateOperationsInput | string
     query?: StringFieldUpdateOperationsInput | string
@@ -15385,11 +16829,12 @@ export namespace Prisma {
     rerankingUsed?: BoolFieldUpdateOperationsInput | boolean
     chunkingStrategy?: EnumChunkingStrategyFieldUpdateOperationsInput | $Enums.ChunkingStrategy
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    anonymizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type LLMLogCreateManyInput = {
     id?: string
-    userId: string
+    userId?: string | null
     sessionId: string
     documentId: string
     query: string
@@ -15402,11 +16847,12 @@ export namespace Prisma {
     rerankingUsed: boolean
     chunkingStrategy: $Enums.ChunkingStrategy
     createdAt?: Date | string
+    anonymizedAt?: Date | string | null
   }
 
   export type LLMLogUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     sessionId?: StringFieldUpdateOperationsInput | string
     documentId?: StringFieldUpdateOperationsInput | string
     query?: StringFieldUpdateOperationsInput | string
@@ -15419,11 +16865,12 @@ export namespace Prisma {
     rerankingUsed?: BoolFieldUpdateOperationsInput | boolean
     chunkingStrategy?: EnumChunkingStrategyFieldUpdateOperationsInput | $Enums.ChunkingStrategy
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    anonymizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type LLMLogUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     sessionId?: StringFieldUpdateOperationsInput | string
     documentId?: StringFieldUpdateOperationsInput | string
     query?: StringFieldUpdateOperationsInput | string
@@ -15436,6 +16883,7 @@ export namespace Prisma {
     rerankingUsed?: BoolFieldUpdateOperationsInput | boolean
     chunkingStrategy?: EnumChunkingStrategyFieldUpdateOperationsInput | $Enums.ChunkingStrategy
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    anonymizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -16099,6 +17547,82 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
+  export type DeletedUserAuditCountOrderByAggregateInput = {
+    id?: SortOrder
+    originalUserId?: SortOrder
+    registeredAt?: SortOrder
+    deletedAt?: SortOrder
+    role?: SortOrder
+    totalQueries?: SortOrder
+    totalDocuments?: SortOrder
+    totalChatSessions?: SortOrder
+    totalCostUsd?: SortOrder
+    totalPromptTokens?: SortOrder
+    totalCompletionTokens?: SortOrder
+  }
+
+  export type DeletedUserAuditAvgOrderByAggregateInput = {
+    totalQueries?: SortOrder
+    totalDocuments?: SortOrder
+    totalChatSessions?: SortOrder
+    totalCostUsd?: SortOrder
+    totalPromptTokens?: SortOrder
+    totalCompletionTokens?: SortOrder
+  }
+
+  export type DeletedUserAuditMaxOrderByAggregateInput = {
+    id?: SortOrder
+    originalUserId?: SortOrder
+    registeredAt?: SortOrder
+    deletedAt?: SortOrder
+    role?: SortOrder
+    totalQueries?: SortOrder
+    totalDocuments?: SortOrder
+    totalChatSessions?: SortOrder
+    totalCostUsd?: SortOrder
+    totalPromptTokens?: SortOrder
+    totalCompletionTokens?: SortOrder
+  }
+
+  export type DeletedUserAuditMinOrderByAggregateInput = {
+    id?: SortOrder
+    originalUserId?: SortOrder
+    registeredAt?: SortOrder
+    deletedAt?: SortOrder
+    role?: SortOrder
+    totalQueries?: SortOrder
+    totalDocuments?: SortOrder
+    totalChatSessions?: SortOrder
+    totalCostUsd?: SortOrder
+    totalPromptTokens?: SortOrder
+    totalCompletionTokens?: SortOrder
+  }
+
+  export type DeletedUserAuditSumOrderByAggregateInput = {
+    totalQueries?: SortOrder
+    totalDocuments?: SortOrder
+    totalChatSessions?: SortOrder
+    totalCostUsd?: SortOrder
+    totalPromptTokens?: SortOrder
+    totalCompletionTokens?: SortOrder
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
   export type BoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
@@ -16119,6 +17643,7 @@ export namespace Prisma {
     rerankingUsed?: SortOrder
     chunkingStrategy?: SortOrder
     createdAt?: SortOrder
+    anonymizedAt?: SortOrder
   }
 
   export type LLMLogAvgOrderByAggregateInput = {
@@ -16143,6 +17668,7 @@ export namespace Prisma {
     rerankingUsed?: SortOrder
     chunkingStrategy?: SortOrder
     createdAt?: SortOrder
+    anonymizedAt?: SortOrder
   }
 
   export type LLMLogMinOrderByAggregateInput = {
@@ -16160,6 +17686,7 @@ export namespace Prisma {
     rerankingUsed?: SortOrder
     chunkingStrategy?: SortOrder
     createdAt?: SortOrder
+    anonymizedAt?: SortOrder
   }
 
   export type LLMLogSumOrderByAggregateInput = {
@@ -16167,22 +17694,6 @@ export namespace Prisma {
     promptTokens?: SortOrder
     completionTokens?: SortOrder
     estimatedCostUsd?: SortOrder
-  }
-
-  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedFloatFilter<$PrismaModel>
-    _min?: NestedFloatFilter<$PrismaModel>
-    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -16904,11 +18415,6 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
     in?: number[] | ListFloatFieldRefInput<$PrismaModel>
@@ -16923,6 +18429,11 @@ export namespace Prisma {
     _sum?: NestedFloatFilter<$PrismaModel>
     _min?: NestedFloatFilter<$PrismaModel>
     _max?: NestedFloatFilter<$PrismaModel>
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {

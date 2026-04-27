@@ -203,6 +203,20 @@ exports.Prisma.UserUsageScalarFieldEnum = {
   queries: 'queries'
 };
 
+exports.Prisma.DeletedUserAuditScalarFieldEnum = {
+  id: 'id',
+  originalUserId: 'originalUserId',
+  registeredAt: 'registeredAt',
+  deletedAt: 'deletedAt',
+  role: 'role',
+  totalQueries: 'totalQueries',
+  totalDocuments: 'totalDocuments',
+  totalChatSessions: 'totalChatSessions',
+  totalCostUsd: 'totalCostUsd',
+  totalPromptTokens: 'totalPromptTokens',
+  totalCompletionTokens: 'totalCompletionTokens'
+};
+
 exports.Prisma.LLMLogScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -217,7 +231,8 @@ exports.Prisma.LLMLogScalarFieldEnum = {
   hasCitation: 'hasCitation',
   rerankingUsed: 'rerankingUsed',
   chunkingStrategy: 'chunkingStrategy',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  anonymizedAt: 'anonymizedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -279,6 +294,7 @@ exports.Prisma.ModelName = {
   Chunk: 'Chunk',
   Message: 'Message',
   UserUsage: 'UserUsage',
+  DeletedUserAudit: 'DeletedUserAudit',
   LLMLog: 'LLMLog'
 };
 

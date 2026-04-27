@@ -141,9 +141,26 @@ model UserUsage {
   @@map("user_usage")
 }
 
+model DeletedUserAudit {
+  id                    String   @id @default(uuid())
+  originalUserId        String
+  registeredAt          DateTime
+  deletedAt             DateTime @default(now())
+  role                  UserRole
+  totalQueries          Int      @default(0)
+  totalDocuments        Int      @default(0)
+  totalChatSessions     Int      @default(0)
+  totalCostUsd          Float    @default(0)
+  totalPromptTokens     Int      @default(0)
+  totalCompletionTokens Int      @default(0)
+
+  @@index([deletedAt])
+  @@map("deleted_user_audits")
+}
+
 model LLMLog {
   id               String           @id @default(uuid())
-  userId           String
+  userId           String?
   sessionId        String
   documentId       String
   query            String
@@ -156,6 +173,7 @@ model LLMLog {
   rerankingUsed    Boolean
   chunkingStrategy ChunkingStrategy
   createdAt        DateTime         @default(now())
+  anonymizedAt     DateTime?
 
   @@index([createdAt])
   @@index([userId, createdAt])
