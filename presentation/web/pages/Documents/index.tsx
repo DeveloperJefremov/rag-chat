@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useUploadStore } from '@/client/stores/uploadStore';
 import { FileDropzone } from '@/presentation/web/components/FileDropzone';
+import { MobileMenuButton } from '@/presentation/web/components/MobileMenuButton';
 import { DocumentTable } from './DocumentTable';
 import { ChunkingStrategy } from '@/domain/value-objects/ChunkingStrategy';
 import { IngestResponseDto } from '@/shared/dtos/IngestResponseDto';
@@ -197,32 +198,36 @@ export function DocumentsPage() {
 					justifyContent: 'space-between',
 					flexShrink: 0,
 					background: 'var(--paper)',
+					gap: 12,
 				}}
 			>
-				<div>
-					<h1
-						style={{
-							fontFamily: 'var(--font-fraunces), serif',
-							fontWeight: 300,
-							fontSize: 22,
-							color: 'var(--cobalt-800)',
-							letterSpacing: '-0.01em',
-							fontStyle: 'italic',
-						}}
-					>
-						Documents
-					</h1>
-					<div
-						style={{
-							...MONO,
-							fontSize: 10,
-							color: 'var(--smoke)',
-							letterSpacing: '0.1em',
-							textTransform: 'uppercase',
-							marginTop: 2,
-						}}
-					>
-						{documents.length} files · {totalChunks} chunks indexed
+				<div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+					<MobileMenuButton />
+					<div>
+						<h1
+							style={{
+								fontFamily: 'var(--font-fraunces), serif',
+								fontWeight: 300,
+								fontSize: 22,
+								color: 'var(--cobalt-800)',
+								letterSpacing: '-0.01em',
+								fontStyle: 'italic',
+							}}
+						>
+							Documents
+						</h1>
+						<div
+							style={{
+								...MONO,
+								fontSize: 10,
+								color: 'var(--smoke)',
+								letterSpacing: '0.1em',
+								textTransform: 'uppercase',
+								marginTop: 2,
+							}}
+						>
+							{documents.length} files · {totalChunks} chunks indexed
+						</div>
 					</div>
 				</div>
 				<div style={{ display: 'flex', gap: 8 }}>

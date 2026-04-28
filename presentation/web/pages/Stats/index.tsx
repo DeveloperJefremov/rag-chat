@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { llmOpsApi } from '@/client/infrastructure/container';
 import { LLMOpsLogEntry, LLMOpsStats } from '@/client/application/api/ILLMOpsApi';
 import { useSidebarStore } from '@/client/stores/sidebarStore';
+import { MobileMenuButton } from '@/presentation/web/components/MobileMenuButton';
 import { MetricCards } from './MetricCards';
 import { ChartsRow, DailyData } from './ChartsRow';
 import { CitationModel } from './CitationModel';
@@ -214,32 +215,36 @@ export function StatsPage() {
 					justifyContent: 'space-between',
 					flexShrink: 0,
 					background: 'var(--paper)',
+					gap: 12,
 				}}
 			>
-				<div>
-					<h1
-						style={{
-							fontFamily: 'var(--font-fraunces), serif',
-							fontWeight: 300,
-							fontSize: 22,
-							color: 'var(--cobalt-800)',
-							letterSpacing: '-0.01em',
-							fontStyle: 'italic',
-						}}
-					>
-						Observability
-					</h1>
-					<div
-						style={{
-							fontFamily: 'var(--font-jetbrains-mono), monospace',
-							fontSize: 10,
-							color: 'var(--smoke)',
-							letterSpacing: '0.1em',
-							textTransform: 'uppercase',
-							marginTop: 2,
-						}}
-					>
-						{dateLabel}
+				<div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+					<MobileMenuButton />
+					<div>
+						<h1
+							style={{
+								fontFamily: 'var(--font-fraunces), serif',
+								fontWeight: 300,
+								fontSize: 22,
+								color: 'var(--cobalt-800)',
+								letterSpacing: '-0.01em',
+								fontStyle: 'italic',
+							}}
+						>
+							Observability
+						</h1>
+						<div
+							style={{
+								fontFamily: 'var(--font-jetbrains-mono), monospace',
+								fontSize: 10,
+								color: 'var(--smoke)',
+								letterSpacing: '0.1em',
+								textTransform: 'uppercase',
+								marginTop: 2,
+							}}
+						>
+							{dateLabel}
+						</div>
 					</div>
 				</div>
 

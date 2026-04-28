@@ -8,6 +8,7 @@ import { useUploadStore } from '@/client/stores/uploadStore';
 import { MessageList } from '@/presentation/web/components/MessageList';
 import { MessageInput } from '@/presentation/web/components/MessageInput';
 import { LimitBadge } from '@/presentation/web/components/LimitBadge';
+import { MobileMenuButton } from '@/presentation/web/components/MobileMenuButton';
 import { AttachmentChips } from './AttachmentChips';
 import { AddFromLibraryDialog } from './AddFromLibraryDialog';
 
@@ -78,6 +79,7 @@ export function ChatPage() {
 				}}
 			>
 				<div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+					<MobileMenuButton />
 					<div
 						style={{
 							width: 8,
