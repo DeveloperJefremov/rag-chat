@@ -1,4 +1,5 @@
 'use client';
+import clsx from 'clsx';
 import { ChangeEvent, DragEvent, useRef, useState } from 'react';
 
 const ACCEPTED = '.pdf,.txt,.docx';
@@ -10,8 +11,6 @@ interface FileDropzoneProps {
 	uploading?: boolean;
 	progress?: number;
 }
-
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-jetbrains-mono), monospace' };
 
 export function FileDropzone({
 	onFile,
@@ -66,71 +65,31 @@ export function FileDropzone({
 			onDragLeave={() => setDragging(false)}
 			onDrop={handleDrop}
 			onClick={() => !disabled && !uploading && inputRef.current?.click()}
-			style={{
-				border: `2px dashed ${dragging ? 'var(--cobalt-500)' : 'var(--powder-300)'}`,
-				borderRadius: 10,
-				background: dragging ? 'var(--powder-100)' : 'var(--paper)',
-				padding: '36px 24px',
-				display: 'flex',
-				flexDirection: 'column',
-				alignItems: 'center',
-				justifyContent: 'center',
-				gap: 12,
-				cursor: disabled || uploading ? 'default' : 'pointer',
-				transition: 'border-color 0.15s, background 0.15s',
-				minHeight: 160,
-				opacity: disabled ? 0.5 : 1,
-			}}
+			className={clsx(
+				'desk:min-h-[160px] desk:p-9 flex min-h-[120px] flex-col items-center justify-center gap-3 rounded-[10px] border-2 border-dashed p-6 transition-[border-color,background]',
+				dragging ? 'border-cobalt-500 bg-powder-100' : 'border-powder-300 bg-paper',
+				disabled || uploading ? 'cursor-default' : 'cursor-pointer',
+				disabled && 'opacity-50',
+			)}
 		>
 			<input
 				ref={inputRef}
 				type='file'
 				accept={ACCEPTED}
 				onChange={handleChange}
-				style={{ display: 'none' }}
+				className='hidden'
 			/>
 			{uploading ? (
 				<>
-					<div
-						style={{
-							width: 36,
-							height: 36,
-							border: '3px solid var(--powder-200)',
-							borderTopColor: 'var(--cobalt-700)',
-							borderRadius: '50%',
-							animation: 'spin 0.8s linear infinite',
-						}}
-					/>
-					<div
-						style={{
-							fontFamily: 'inherit',
-							fontSize: 13,
-							color: 'var(--cobalt-800)',
-							fontWeight: 500,
-						}}
-					>
-						Indexing…
-					</div>
-					<div
-						style={{
-							width: 180,
-							height: 4,
-							background: 'var(--powder-200)',
-							borderRadius: 2,
-							overflow: 'hidden',
-						}}
-					>
+					<div className='border-powder-200 border-t-cobalt-700 h-9 w-9 animate-[spin_0.8s_linear_infinite] rounded-full border-[3px]' />
+					<div className='text-cobalt-800 text-[13px] font-medium'>Indexing…</div>
+					<div className='bg-powder-200 h-1 w-[180px] overflow-hidden rounded-[2px]'>
 						<div
-							style={{
-								height: '100%',
-								background: 'var(--terracotta-500)',
-								borderRadius: 2,
-								width: `${progress}%`,
-								transition: 'width 0.2s',
-							}}
+							className='bg-terracotta-500 h-full rounded-[2px] transition-[width] duration-200'
+							style={{ width: `${progress}%` }}
 						/>
 					</div>
-					<div style={{ ...MONO, fontSize: 10, color: 'var(--smoke)', letterSpacing: '0.1em' }}>
+					<div className='text-smoke font-mono text-[10px] tracking-[0.1em]'>
 						{progress}% · chunking · embedding
 					</div>
 				</>
@@ -141,46 +100,24 @@ export function FileDropzone({
 						height='32'
 						viewBox='0 0 24 24'
 						fill='none'
-						stroke='var(--powder-400)'
+						stroke='currentColor'
 						strokeWidth='1.5'
+						className='text-powder-400'
 					>
 						<path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4' />
 						<polyline points='17 8 12 3 7 8' />
 						<line x1='12' y1='3' x2='12' y2='15' />
 					</svg>
-					<div style={{ textAlign: 'center' }}>
-						<div
-							style={{
-								fontFamily: 'inherit',
-								fontSize: 14,
-								color: 'var(--cobalt-800)',
-								fontWeight: 500,
-								marginBottom: 4,
-							}}
-						>
+					<div className='text-center'>
+						<div className='text-cobalt-800 mb-1 text-sm font-medium'>
 							Drop files here, or click to browse
 						</div>
-						<div
-							style={{
-								...MONO,
-								fontSize: 10,
-								color: 'var(--smoke)',
-								letterSpacing: '0.1em',
-								textTransform: 'uppercase',
-							}}
-						>
+						<div className='text-smoke font-mono text-[10px] tracking-[0.1em] uppercase'>
 							PDF · TXT · DOCX — up to {MAX_MB} MB
 						</div>
 					</div>
 					{validationError && (
-						<div
-							style={{
-								...MONO,
-								fontSize: 10,
-								color: 'var(--terracotta-600)',
-								letterSpacing: '0.08em',
-							}}
-						>
+						<div className='text-terracotta-600 font-mono text-[10px] tracking-[0.08em]'>
 							{validationError}
 						</div>
 					)}

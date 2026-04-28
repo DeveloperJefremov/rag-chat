@@ -1,4 +1,5 @@
 'use client';
+import clsx from 'clsx';
 import { KeyboardEvent, useRef, useState } from 'react';
 
 interface MessageInputProps {
@@ -38,17 +39,7 @@ export function MessageInput({
 	const canSend = !disabled && value.trim().length > 0;
 
 	return (
-		<div
-			style={{
-				padding: '16px 20px',
-				borderTop: '1px solid var(--powder-200)',
-				background: 'var(--paper)',
-				display: 'flex',
-				gap: 10,
-				alignItems: 'flex-end',
-				flexShrink: 0,
-			}}
-		>
+		<div className='border-powder-200 bg-paper desk:gap-3 desk:p-4 flex flex-shrink-0 items-end gap-2.5 border-t p-3'>
 			<textarea
 				ref={textareaRef}
 				value={value}
@@ -61,84 +52,27 @@ export function MessageInput({
 				disabled={isStreaming}
 				placeholder={placeholder}
 				rows={1}
-				style={{
-					flex: 1,
-					padding: '12px 16px',
-					background: isStreaming ? 'rgba(244,237,224,0.5)' : 'var(--sand)',
-					border: '1px solid var(--powder-300)',
-					borderRadius: 8,
-					fontFamily: 'inherit',
-					fontSize: 14,
-					color: 'var(--ink)',
-					resize: 'none',
-					outline: 'none',
-					lineHeight: 1.5,
-					maxHeight: 120,
-					overflowY: 'auto',
-					transition: 'border-color 0.15s, background 0.15s',
-				}}
-				onFocus={e => (e.target.style.borderColor = 'var(--cobalt-700)')}
-				onBlur={e => (e.target.style.borderColor = 'var(--powder-300)')}
+				className={clsx(
+					'border-powder-300 text-ink focus:border-cobalt-700 max-h-[120px] flex-1 resize-none overflow-y-auto rounded-lg border px-4 py-3 text-sm leading-[1.5] transition-[border-color,background] outline-none',
+					isStreaming ? 'bg-sand/50' : 'bg-sand',
+				)}
 			/>
 			<button
+				type='button'
 				onClick={handleSend}
 				disabled={!canSend}
-				style={{
-					padding: '12px 20px',
-					background: canSend ? 'var(--cobalt-800)' : 'var(--powder-300)',
-					color: 'var(--paper)',
-					border: 'none',
-					borderRadius: 8,
-					fontFamily: 'inherit',
-					fontSize: 13,
-					fontWeight: 500,
-					cursor: canSend ? 'pointer' : 'not-allowed',
-					transition: 'background 0.15s',
-					display: 'flex',
-					alignItems: 'center',
-					gap: 6,
-					flexShrink: 0,
-					height: 44,
-				}}
-				onMouseEnter={e => {
-					if (canSend) e.currentTarget.style.background = 'var(--terracotta-600)';
-				}}
-				onMouseLeave={e => {
-					if (canSend) e.currentTarget.style.background = 'var(--cobalt-800)';
-				}}
+				className={clsx(
+					'text-paper flex h-11 flex-shrink-0 items-center gap-1.5 rounded-lg border-none px-5 py-3 text-[13px] font-medium transition-colors',
+					canSend
+						? 'bg-cobalt-800 hover:bg-terracotta-600 cursor-pointer'
+						: 'bg-powder-300 cursor-not-allowed',
+				)}
 			>
 				{isStreaming ? (
-					<span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-						<span
-							className='dot-1'
-							style={{
-								width: 5,
-								height: 5,
-								borderRadius: '50%',
-								background: 'var(--paper)',
-								display: 'inline-block',
-							}}
-						/>
-						<span
-							className='dot-2'
-							style={{
-								width: 5,
-								height: 5,
-								borderRadius: '50%',
-								background: 'var(--paper)',
-								display: 'inline-block',
-							}}
-						/>
-						<span
-							className='dot-3'
-							style={{
-								width: 5,
-								height: 5,
-								borderRadius: '50%',
-								background: 'var(--paper)',
-								display: 'inline-block',
-							}}
-						/>
+					<span className='flex items-center gap-1'>
+						<span className='dot-1 bg-paper inline-block h-[5px] w-[5px] rounded-full' />
+						<span className='dot-2 bg-paper inline-block h-[5px] w-[5px] rounded-full' />
+						<span className='dot-3 bg-paper inline-block h-[5px] w-[5px] rounded-full' />
 					</span>
 				) : (
 					'Send →'

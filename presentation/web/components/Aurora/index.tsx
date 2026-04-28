@@ -202,5 +202,5 @@ export function Aurora(props: AuroraProps) {
 		};
 	}, [amplitude, blend, colorStops]);
 
-	return <div ref={ctnDom} style={{ width: '100%', height: '100%' }} />;
+	return <div ref={ctnDom} className='h-full w-full' />;
 }

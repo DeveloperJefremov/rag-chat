@@ -1,4 +1,5 @@
 'use client';
+import clsx from 'clsx';
 import { useEffect, useRef } from 'react';
 import { MessageDto } from '@/shared/dtos/MessageDto';
 import { CitationDto } from '@/shared/dtos/CitationDto';
@@ -10,27 +11,14 @@ interface MessageListProps {
 	isStreaming: boolean;
 }
 
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-jetbrains-mono), monospace' };
-
 function Avatar({ role }: { role: 'USER' | 'ASSISTANT' }) {
 	const isUser = role === 'USER';
 	return (
 		<div
-			style={{
-				width: 32,
-				height: 32,
-				borderRadius: 6,
-				flexShrink: 0,
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'center',
-				...MONO,
-				fontSize: 10,
-				fontWeight: 500,
-				background: isUser ? 'var(--cobalt-800)' : 'var(--terracotta-600)',
-				color: 'var(--paper)',
-				letterSpacing: '0.05em',
-			}}
+			className={clsx(
+				'text-paper flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md font-mono text-[10px] font-medium tracking-[0.05em]',
+				isUser ? 'bg-cobalt-800' : 'bg-terracotta-600',
+			)}
 		>
 			{isUser ? 'You' : 'AI'}
 		</div>
@@ -38,18 +26,11 @@ function Avatar({ role }: { role: 'USER' | 'ASSISTANT' }) {
 }
 
 function TypingIndicator() {
-	const dot: React.CSSProperties = {
-		width: 6,
-		height: 6,
-		borderRadius: '50%',
-		background: 'var(--terracotta-500)',
-		display: 'inline-block',
-	};
 	return (
-		<div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 2px' }}>
-			<span className='dot-1' style={dot} />
-			<span className='dot-2' style={dot} />
-			<span className='dot-3' style={dot} />
+		<div className='flex items-center gap-1 px-0.5 py-1'>
+			<span className='dot-1 bg-terracotta-500 inline-block h-1.5 w-1.5 rounded-full' />
+			<span className='dot-2 bg-terracotta-500 inline-block h-1.5 w-1.5 rounded-full' />
+			<span className='dot-3 bg-terracotta-500 inline-block h-1.5 w-1.5 rounded-full' />
 		</div>
 	);
 }
@@ -64,14 +45,7 @@ function renderText(text: string) {
 			return (
 				<code
 					key={i}
-					style={{
-						...MONO,
-						fontSize: '0.88em',
-						background: 'rgba(26,46,92,0.08)',
-						padding: '1px 5px',
-						borderRadius: 3,
-						color: 'var(--cobalt-700)',
-					}}
+					className='text-cobalt-700 rounded-[3px] bg-[rgba(26,46,92,0.08)] px-1.5 py-px font-mono text-[0.88em]'
 				>
 					{p.slice(1, -1)}
 				</code>
@@ -98,39 +72,11 @@ export function MessageList({ messages, citationsByMessageId, isStreaming }: Mes
 
 	if (messages.length === 0 && !isStreaming) {
 		return (
-			<div
-				style={{
-					flex: 1,
-					display: 'flex',
-					flexDirection: 'column',
-					alignItems: 'center',
-					justifyContent: 'center',
-					color: 'var(--powder-400)',
-					textAlign: 'center',
-					gap: 12,
-					padding: 40,
-				}}
-			>
-				<div
-					style={{
-						fontFamily: 'var(--font-fraunces), serif',
-						fontStyle: 'italic',
-						fontSize: 24,
-						color: 'var(--cobalt-800)',
-						opacity: 0.5,
-					}}
-				>
+			<div className='text-powder-400 desk:p-10 flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center'>
+				<div className='text-cobalt-800/50 desk:text-2xl font-serif text-xl italic'>
 					Start a new conversation
 				</div>
-				<div
-					style={{
-						...MONO,
-						fontSize: 10,
-						letterSpacing: '0.12em',
-						textTransform: 'uppercase',
-						color: 'var(--smoke)',
-					}}
-				>
+				<div className='text-smoke font-mono text-[10px] tracking-[0.12em] uppercase'>
 					Ask anything about your knowledge base
 				</div>
 			</div>
@@ -141,64 +87,32 @@ export function MessageList({ messages, citationsByMessageId, isStreaming }: Mes
 		isStreaming && messages.length > 0 && messages[messages.length - 1]?.role === 'USER';
 
 	return (
-		<div
-			style={{
-				flex: 1,
-				overflowY: 'auto',
-				padding: '28px 24px',
-				display: 'flex',
-				flexDirection: 'column',
-				gap: 22,
-			}}
-		>
+		<div className='desk:px-6 desk:py-6 desk:gap-[22px] flex flex-1 flex-col gap-5 overflow-y-auto px-3 py-4'>
 			{messages.map(msg => {
 				const isUser = msg.role === 'USER';
 				const citations = citationsByMessageId[msg.id] ?? [];
 				return (
 					<div
 						key={msg.id}
-						className='msg-animated'
-						style={{
-							display: 'flex',
-							gap: 12,
-							maxWidth: '82%',
-							alignSelf: isUser ? 'flex-end' : 'flex-start',
-							flexDirection: isUser ? 'row-reverse' : 'row',
-						}}
+						className={clsx(
+							'msg-animated desk:max-w-[720px] flex max-w-[88%] gap-3',
+							isUser ? 'flex-row-reverse self-end' : 'flex-row self-start',
+						)}
 					>
 						<Avatar role={msg.role} />
-						<div
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								gap: 4,
-								alignItems: isUser ? 'flex-end' : 'flex-start',
-							}}
-						>
+						<div className={clsx('flex flex-col gap-1', isUser ? 'items-end' : 'items-start')}>
 							<div
-								style={{
-									padding: '12px 16px',
-									background: isUser ? 'var(--cobalt-800)' : 'var(--powder-100)',
-									color: isUser ? 'var(--paper)' : 'var(--ink)',
-									borderRadius: isUser ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
-									fontSize: 14,
-									lineHeight: 1.58,
-									whiteSpace: 'pre-wrap',
-								}}
+								className={clsx(
+									'px-4 py-3 text-sm leading-[1.58] whitespace-pre-wrap',
+									isUser
+										? 'bg-cobalt-800 text-paper rounded-[12px_12px_2px_12px]'
+										: 'bg-powder-100 text-ink rounded-[12px_12px_12px_2px]',
+								)}
 							>
 								{renderText(msg.content)}
 							</div>
 							{!isUser && citations.length > 0 && <CitationList citations={citations} />}
-							<div
-								style={{
-									...MONO,
-									fontSize: 10,
-									letterSpacing: '0.1em',
-									color: 'var(--smoke)',
-									textTransform: 'uppercase',
-									marginTop: 2,
-								}}
-							>
+							<div className='text-smoke mt-0.5 font-mono text-[10px] tracking-[0.1em] uppercase'>
 								{formatTime(msg.createdAt)}
 							</div>
 						</div>
@@ -207,18 +121,9 @@ export function MessageList({ messages, citationsByMessageId, isStreaming }: Mes
 			})}
 
 			{showTypingBubble && (
-				<div
-					className='msg-animated'
-					style={{ display: 'flex', gap: 12, maxWidth: '82%', alignSelf: 'flex-start' }}
-				>
+				<div className='msg-animated desk:max-w-[720px] flex max-w-[88%] gap-3 self-start'>
 					<Avatar role='ASSISTANT' />
-					<div
-						style={{
-							padding: '12px 16px',
-							background: 'var(--powder-100)',
-							borderRadius: '12px 12px 12px 2px',
-						}}
-					>
+					<div className='bg-powder-100 rounded-[12px_12px_12px_2px] px-4 py-3'>
 						<TypingIndicator />
 					</div>
 				</div>
