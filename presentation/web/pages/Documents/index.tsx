@@ -1,13 +1,13 @@
 'use client';
+import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 import { useUploadStore } from '@/client/stores/uploadStore';
 import { FileDropzone } from '@/presentation/web/components/FileDropzone';
 import { MobileMenuButton } from '@/presentation/web/components/MobileMenuButton';
 import { DocumentTable } from './DocumentTable';
+import { DocumentCardList } from './DocumentCardList';
 import { ChunkingStrategy } from '@/domain/value-objects/ChunkingStrategy';
 import { IngestResponseDto } from '@/shared/dtos/IngestResponseDto';
-
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-jetbrains-mono), monospace' };
 
 const STRATEGIES: Array<{ id: ChunkingStrategy; label: string; desc: string }> = [
 	{ id: 'FIXED', label: 'Fixed-size', desc: '512 tokens, 64 overlap' },
@@ -18,59 +18,18 @@ const STRATEGIES: Array<{ id: ChunkingStrategy; label: string; desc: string }> =
 
 function ChunkPreviewPanel({ doc, onClose }: { doc: IngestResponseDto; onClose: () => void }) {
 	return (
-		<div
-			style={{
-				width: 340,
-				minWidth: 340,
-				height: '100%',
-				background: 'var(--paper)',
-				borderLeft: '1px solid var(--powder-200)',
-				display: 'flex',
-				flexDirection: 'column',
-				animation: 'fade-up 0.25s ease both',
-			}}
-		>
-			<div
-				style={{
-					padding: '16px 20px',
-					borderBottom: '1px solid var(--powder-200)',
-					display: 'flex',
-					justifyContent: 'space-between',
-					alignItems: 'flex-start',
-				}}
-			>
+		<div className='bg-paper border-powder-200 desk:flex desk:w-[340px] desk:min-w-[340px] hidden h-full animate-[fade-up_0.25s_ease_both] flex-col border-l'>
+			<div className='border-powder-200 flex items-start justify-between border-b px-5 py-4'>
 				<div>
-					<div
-						style={{
-							fontFamily: 'inherit',
-							fontSize: 13,
-							fontWeight: 500,
-							color: 'var(--cobalt-800)',
-							marginBottom: 3,
-						}}
-					>
-						{doc.name}
-					</div>
-					<div
-						style={{
-							...MONO,
-							fontSize: 10,
-							color: 'var(--smoke)',
-							letterSpacing: '0.08em',
-						}}
-					>
+					<div className='text-cobalt-800 mb-[3px] text-[13px] font-medium'>{doc.name}</div>
+					<div className='text-smoke font-mono text-[10px] tracking-[0.08em]'>
 						{doc.chunkCount} chunks · {doc.chunkingStrategy ?? 'default'}
 					</div>
 				</div>
 				<button
+					type='button'
 					onClick={onClose}
-					style={{
-						background: 'none',
-						border: 'none',
-						cursor: 'pointer',
-						color: 'var(--smoke)',
-						padding: 4,
-					}}
+					className='text-smoke hover:text-cobalt-800 cursor-pointer border-none bg-transparent p-1'
 				>
 					<svg
 						width='16'
@@ -85,63 +44,22 @@ function ChunkPreviewPanel({ doc, onClose }: { doc: IngestResponseDto; onClose: 
 					</svg>
 				</button>
 			</div>
-			<div
-				style={{
-					flex: 1,
-					overflowY: 'auto',
-					padding: '14px 20px',
-					display: 'flex',
-					flexDirection: 'column',
-					gap: 10,
-				}}
-			>
-				<div
-					style={{
-						padding: '12px 14px',
-						background: 'var(--sand)',
-						borderRadius: 6,
-						borderLeft: '3px solid var(--cobalt-500)',
-					}}
-				>
-					<div
-						style={{
-							...MONO,
-							fontSize: 9,
-							color: 'var(--smoke)',
-							letterSpacing: '0.12em',
-							textTransform: 'uppercase',
-							marginBottom: 8,
-						}}
-					>
+			<div className='flex flex-1 flex-col gap-2.5 overflow-y-auto px-5 py-3.5'>
+				<div className='border-l-cobalt-500 bg-sand rounded-md border-l-[3px] px-3.5 py-3'>
+					<div className='text-smoke mb-2 font-mono text-[9px] tracking-[0.12em] uppercase'>
 						Document indexed
 					</div>
-					<p style={{ fontSize: 12, lineHeight: 1.6, color: 'var(--ink)' }}>
+					<p className='text-ink text-xs leading-[1.6]'>
 						{doc.chunkCount} chunks generated using{' '}
 						<strong>{doc.chunkingStrategy ?? 'default'}</strong> strategy. Document ID:{' '}
-						<code style={{ ...MONO, fontSize: 10 }}>{doc.documentId.slice(0, 8)}…</code>
+						<code className='font-mono text-[10px]'>{doc.documentId.slice(0, 8)}…</code>
 					</p>
 				</div>
-				<div
-					style={{
-						padding: '12px 14px',
-						background: 'var(--sand)',
-						borderRadius: 6,
-						borderLeft: '3px solid var(--terracotta-500)',
-					}}
-				>
-					<div
-						style={{
-							...MONO,
-							fontSize: 9,
-							color: 'var(--smoke)',
-							letterSpacing: '0.12em',
-							textTransform: 'uppercase',
-							marginBottom: 8,
-						}}
-					>
+				<div className='border-l-terracotta-500 bg-sand rounded-md border-l-[3px] px-3.5 py-3'>
+					<div className='text-smoke mb-2 font-mono text-[9px] tracking-[0.12em] uppercase'>
 						Ready for retrieval
 					</div>
-					<p style={{ fontSize: 12, lineHeight: 1.6, color: 'var(--ink)' }}>
+					<p className='text-ink text-xs leading-[1.6]'>
 						Ask questions about this document from the <strong>Chat</strong> page. Each chunk was
 						embedded with Google text-embedding-004 (768d).
 					</p>
@@ -178,75 +96,35 @@ export function DocumentsPage() {
 
 	const totalChunks = documents.reduce((a, d) => a + d.chunkCount, 0);
 	const uploading = status === 'uploading';
+	const activeStrategy = STRATEGIES.find(s => s.id === strategy);
 
 	return (
-		<div
-			style={{
-				display: 'flex',
-				flexDirection: 'column',
-				height: '100%',
-				background: 'var(--paper)',
-				overflow: 'hidden',
-			}}
-		>
-			<div
-				style={{
-					padding: '18px 28px',
-					borderBottom: '1px solid var(--powder-200)',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'space-between',
-					flexShrink: 0,
-					background: 'var(--paper)',
-					gap: 12,
-				}}
-			>
-				<div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+		<div className='bg-paper flex h-full flex-col overflow-hidden'>
+			<div className='border-powder-200 bg-paper desk:px-7 desk:py-[18px] flex flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b px-4 py-3'>
+				<div className='flex min-w-0 items-center gap-3'>
 					<MobileMenuButton />
-					<div>
-						<h1
-							style={{
-								fontFamily: 'var(--font-fraunces), serif',
-								fontWeight: 300,
-								fontSize: 22,
-								color: 'var(--cobalt-800)',
-								letterSpacing: '-0.01em',
-								fontStyle: 'italic',
-							}}
-						>
+					<div className='min-w-0'>
+						<h1 className='text-cobalt-800 desk:text-[22px] m-0 font-serif text-xl font-light tracking-[-0.01em] italic'>
 							Documents
 						</h1>
-						<div
-							style={{
-								...MONO,
-								fontSize: 10,
-								color: 'var(--smoke)',
-								letterSpacing: '0.1em',
-								textTransform: 'uppercase',
-								marginTop: 2,
-							}}
-						>
+						<div className='text-smoke mt-0.5 font-mono text-[10px] tracking-[0.1em] uppercase'>
 							{documents.length} files · {totalChunks} chunks indexed
 						</div>
 					</div>
 				</div>
-				<div style={{ display: 'flex', gap: 8 }}>
+				<div className='desk:flex hidden gap-2'>
 					{STRATEGIES.map(s => (
 						<button
 							key={s.id}
+							type='button'
 							onClick={() => setStrategy(s.id)}
 							title={s.desc}
-							style={{
-								padding: '7px 14px',
-								background: strategy === s.id ? 'var(--cobalt-800)' : 'var(--paper)',
-								color: strategy === s.id ? 'var(--paper)' : 'var(--smoke)',
-								border: `1px solid ${strategy === s.id ? 'var(--cobalt-800)' : 'var(--powder-300)'}`,
-								borderRadius: 7,
-								fontFamily: 'inherit',
-								fontSize: 12,
-								cursor: 'pointer',
-								transition: 'all 0.15s',
-							}}
+							className={clsx(
+								'cursor-pointer rounded-md border px-3.5 py-1.5 text-xs transition-colors',
+								strategy === s.id
+									? 'border-cobalt-800 bg-cobalt-800 text-paper'
+									: 'border-powder-300 bg-paper text-smoke hover:border-cobalt-700',
+							)}
 						>
 							{s.label}
 						</button>
@@ -254,17 +132,8 @@ export function DocumentsPage() {
 				</div>
 			</div>
 
-			<div style={{ flex: 1, overflow: 'hidden', display: 'flex' }}>
-				<div
-					style={{
-						flex: 1,
-						overflowY: 'auto',
-						padding: '24px 28px',
-						display: 'flex',
-						flexDirection: 'column',
-						gap: 20,
-					}}
-				>
+			<div className='flex flex-1 overflow-hidden'>
+				<div className='desk:px-7 desk:py-6 flex flex-1 flex-col gap-5 overflow-y-auto px-4 py-5'>
 					<FileDropzone
 						onFile={handleFile}
 						disabled={uploading}
@@ -272,52 +141,43 @@ export function DocumentsPage() {
 						progress={Math.round(progress)}
 					/>
 
-					<div
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: 12,
-							padding: '10px 16px',
-							background: 'var(--sand)',
-							borderRadius: 8,
-						}}
-					>
-						<div
-							style={{
-								width: 6,
-								height: 6,
-								borderRadius: 1,
-								background: 'var(--terracotta-500)',
-								flexShrink: 0,
-							}}
-						/>
-						<span
-							style={{
-								...MONO,
-								fontSize: 10,
-								letterSpacing: '0.12em',
-								textTransform: 'uppercase',
-								color: 'var(--terracotta-700)',
-							}}
-						>
+					<div className='desk:hidden flex flex-wrap gap-2'>
+						{STRATEGIES.map(s => (
+							<button
+								key={s.id}
+								type='button'
+								onClick={() => setStrategy(s.id)}
+								title={s.desc}
+								className={clsx(
+									'cursor-pointer rounded-md border px-3 py-1.5 text-xs transition-colors',
+									strategy === s.id
+										? 'border-cobalt-800 bg-cobalt-800 text-paper'
+										: 'border-powder-300 bg-paper text-smoke',
+								)}
+							>
+								{s.label}
+							</button>
+						))}
+					</div>
+
+					<div className='bg-sand flex flex-wrap items-center gap-3 rounded-lg px-4 py-2.5'>
+						<div className='bg-terracotta-500 h-1.5 w-1.5 flex-shrink-0 rounded-[1px]' />
+						<span className='text-terracotta-700 font-mono text-[10px] tracking-[0.12em] uppercase'>
 							Strategy:
 						</span>
-						<span
-							style={{
-								fontFamily: 'inherit',
-								fontSize: 12,
-								color: 'var(--cobalt-800)',
-								fontWeight: 500,
-							}}
-						>
-							{STRATEGIES.find(s => s.id === strategy)?.label}
-						</span>
-						<span style={{ ...MONO, fontSize: 11, color: 'var(--smoke)' }}>
-							— {STRATEGIES.find(s => s.id === strategy)?.desc}
-						</span>
+						<span className='text-cobalt-800 text-xs font-medium'>{activeStrategy?.label}</span>
+						<span className='text-smoke font-mono text-[11px]'>— {activeStrategy?.desc}</span>
 					</div>
 
 					<DocumentTable
+						className='desk:block hidden'
+						documents={documents}
+						selectedId={selected?.documentId ?? null}
+						onSelect={setSelected}
+						onDelete={removeDocument}
+					/>
+					<DocumentCardList
+						className='desk:hidden'
 						documents={documents}
 						selectedId={selected?.documentId ?? null}
 						onSelect={setSelected}

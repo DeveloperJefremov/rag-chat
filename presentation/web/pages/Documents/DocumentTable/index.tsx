@@ -1,4 +1,5 @@
 'use client';
+import clsx from 'clsx';
 import { IngestResponseDto } from '@/shared/dtos/IngestResponseDto';
 
 interface DocumentTableProps {
@@ -6,34 +7,18 @@ interface DocumentTableProps {
 	selectedId: string | null;
 	onSelect: (doc: IngestResponseDto | null) => void;
 	onDelete?: (id: string) => Promise<void> | void;
+	className?: string;
 }
 
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-jetbrains-mono), monospace' };
-
 function TypeIcon({ type }: { type: 'pdf' | 'md' | 'txt' | 'docx' }) {
-	const bg = type === 'pdf' ? 'var(--terracotta-600)' : 'var(--cobalt-700)';
 	return (
 		<div
-			style={{
-				width: 32,
-				height: 32,
-				borderRadius: 6,
-				background: bg,
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'center',
-				flexShrink: 0,
-			}}
+			className={clsx(
+				'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md',
+				type === 'pdf' ? 'bg-terracotta-600' : 'bg-cobalt-700',
+			)}
 		>
-			<span
-				style={{
-					...MONO,
-					fontSize: 9,
-					fontWeight: 500,
-					color: 'var(--paper)',
-					letterSpacing: '0.05em',
-				}}
-			>
+			<span className='text-paper font-mono text-[9px] font-medium tracking-[0.05em]'>
 				{type.toUpperCase()}
 			</span>
 		</div>
@@ -48,19 +33,22 @@ function fileType(name: string): 'pdf' | 'md' | 'txt' | 'docx' {
 	return 'txt';
 }
 
-export function DocumentTable({ documents, selectedId, onSelect, onDelete }: DocumentTableProps) {
+export function DocumentTable({
+	documents,
+	selectedId,
+	onSelect,
+	onDelete,
+	className,
+}: DocumentTableProps) {
 	if (documents.length === 0) {
 		return (
 			<div
-				style={{
-					background: 'var(--paper)',
-					border: '1px solid var(--powder-200)',
-					borderRadius: 8,
-					padding: '40px 20px',
-					textAlign: 'center',
-				}}
+				className={clsx(
+					'border-powder-200 bg-paper rounded-lg border px-5 py-10 text-center',
+					className,
+				)}
 			>
-				<p style={{ ...MONO, fontSize: 12, color: 'var(--smoke)' }}>No documents uploaded yet.</p>
+				<p className='text-smoke font-mono text-xs'>No documents uploaded yet.</p>
 			</div>
 		);
 	}
@@ -71,32 +59,16 @@ export function DocumentTable({ documents, selectedId, onSelect, onDelete }: Doc
 
 	return (
 		<div
-			style={{
-				background: 'var(--paper)',
-				border: '1px solid var(--powder-200)',
-				borderRadius: 8,
-				overflow: 'hidden',
-			}}
+			className={clsx('border-powder-200 bg-paper overflow-hidden rounded-lg border', className)}
 		>
 			<div
-				style={{
-					display: 'grid',
-					gridTemplateColumns: cols,
-					padding: '10px 16px',
-					background: 'var(--sand)',
-					borderBottom: '1px solid var(--powder-200)',
-				}}
+				className='bg-sand border-powder-200 grid border-b px-4 py-2.5'
+				style={{ gridTemplateColumns: cols }}
 			>
 				{headers.map((h, i) => (
 					<div
 						key={`${h}-${i}`}
-						style={{
-							...MONO,
-							fontSize: 9,
-							letterSpacing: '0.15em',
-							textTransform: 'uppercase',
-							color: 'var(--smoke)',
-						}}
+						className='text-smoke font-mono text-[9px] tracking-[0.15em] uppercase'
 					>
 						{h}
 					</div>
@@ -109,82 +81,36 @@ export function DocumentTable({ documents, selectedId, onSelect, onDelete }: Doc
 					<div
 						key={doc.documentId}
 						onClick={() => onSelect(isActive ? null : doc)}
+						className={clsx(
+							'grid cursor-pointer items-center px-4 py-3 transition-colors',
+							i < documents.length - 1 && 'border-powder-200 border-b',
+							isActive ? 'bg-powder-100' : 'hover:bg-sand',
+						)}
 						style={{
-							display: 'grid',
 							gridTemplateColumns: cols,
-							padding: '12px 16px',
-							borderBottom: i < documents.length - 1 ? '1px solid var(--powder-200)' : 'none',
-							cursor: 'pointer',
-							background: isActive ? 'var(--powder-100)' : 'transparent',
-							transition: 'background 0.12s',
-							alignItems: 'center',
 							animation: `fade-up 0.3s ease ${i * 0.04}s both`,
 						}}
-						onMouseEnter={e => {
-							if (!isActive) e.currentTarget.style.background = 'var(--sand)';
-						}}
-						onMouseLeave={e => {
-							if (!isActive) e.currentTarget.style.background = 'transparent';
-						}}
 					>
-						<div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+						<div className='flex items-center gap-2.5'>
 							<TypeIcon type={type} />
-							<span
-								style={{
-									fontFamily: 'inherit',
-									fontSize: 13,
-									color: 'var(--cobalt-800)',
-									fontWeight: 500,
-									overflow: 'hidden',
-									textOverflow: 'ellipsis',
-									whiteSpace: 'nowrap',
-								}}
-							>
-								{doc.name}
-							</span>
+							<span className='text-cobalt-800 truncate text-[13px] font-medium'>{doc.name}</span>
 						</div>
-						<div
-							style={{
-								...MONO,
-								fontSize: 11,
-								color: 'var(--smoke)',
-								textTransform: 'uppercase',
-								letterSpacing: '0.06em',
-							}}
-						>
+						<div className='text-smoke font-mono text-[11px] tracking-[0.06em] uppercase'>
 							{type}
 						</div>
-						<div style={{ ...MONO, fontSize: 11, color: 'var(--smoke)' }}>—</div>
-						<div
-							style={{
-								...MONO,
-								fontSize: 12,
-								color: 'var(--cobalt-700)',
-								fontWeight: 500,
-							}}
-						>
-							{doc.chunkCount}
-						</div>
-						<div style={{ ...MONO, fontSize: 11, color: 'var(--smoke)' }}>—</div>
-						<div style={{ ...MONO, fontSize: 11, color: 'var(--smoke) ' }}>Just now</div>
+						<div className='text-smoke font-mono text-[11px]'>—</div>
+						<div className='text-cobalt-700 font-mono text-xs font-medium'>{doc.chunkCount}</div>
+						<div className='text-smoke font-mono text-[11px]'>—</div>
+						<div className='text-smoke font-mono text-[11px]'>Just now</div>
 						{onDelete && (
 							<button
+								type='button'
 								onClick={e => {
 									e.stopPropagation();
 									void onDelete(doc.documentId);
 								}}
 								title='Delete document'
-								style={{
-									background: 'none',
-									border: 'none',
-									cursor: 'pointer',
-									color: 'var(--smoke)',
-									fontSize: 18,
-									lineHeight: 1,
-									padding: 0,
-								}}
-								onMouseEnter={e => (e.currentTarget.style.color = 'var(--terracotta-600)')}
-								onMouseLeave={e => (e.currentTarget.style.color = 'var(--smoke)')}
+								className='text-smoke hover:text-terracotta-600 cursor-pointer border-none bg-transparent p-0 text-lg leading-none'
 							>
 								×
 							</button>
