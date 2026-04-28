@@ -46,6 +46,38 @@
 	--radius-2xl: calc(var(--radius) * 1.8);
 	--radius-3xl: calc(var(--radius) * 2.2);
 	--radius-4xl: calc(var(--radius) * 2.6);
+
+	/* Design palette — exposes bg-/text-/border- utilities */
+	--color-cobalt-950: #0a1428;
+	--color-cobalt-900: #12203f;
+	--color-cobalt-800: #1a2e5c;
+	--color-cobalt-700: #284685;
+	--color-cobalt-500: #4b6cb7;
+	--color-powder-600: #6b8cae;
+	--color-powder-400: #9db5cc;
+	--color-powder-300: #b8cbdd;
+	--color-powder-200: #d4e0ec;
+	--color-powder-100: #e8eff6;
+	--color-terracotta-700: #a84a1f;
+	--color-terracotta-600: #c85a2c;
+	--color-terracotta-500: #e06b38;
+	--color-terracotta-300: #f2b090;
+	--color-sand: #f4ede0;
+	--color-paper: #faf6ed;
+	--color-ink: #0f1419;
+	--color-smoke: #6b7280;
+
+	/* Fonts — enables font-serif / font-mono */
+	--font-serif: var(--font-fraunces);
+	--font-mono: var(--font-jetbrains-mono);
+
+	/* Animations — enables animate-pulse-dot / animate-fade-up / animate-slide-in */
+	--animate-pulse-dot: pulse-dot 2.5s ease-in-out infinite;
+	--animate-fade-up: fade-up 0.35s ease both;
+	--animate-slide-in: slide-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+
+	/* Custom breakpoint — enables desk: variant */
+	--breakpoint-desk: 900px;
 }
 
 :root {
