@@ -78,10 +78,7 @@ export function CitationModel({ data }: CitationModelProps) {
 						<span className='text-smoke font-mono text-[11px]'>{totalReqs} req · 100%</span>
 					</div>
 					<div className='bg-powder-100 h-1.5 overflow-hidden rounded-[3px]'>
-						<div
-							className='bg-cobalt-700 h-full rounded-[3px] transition-[width] duration-700 [transition-timing-function:cubic-bezier(0.2,0.8,0.2,1)]'
-							style={{ width: '100%' }}
-						/>
+						<div className='bg-cobalt-700 h-full w-full rounded-[3px] transition-[width] duration-700 [transition-timing-function:cubic-bezier(0.2,0.8,0.2,1)]' />
 					</div>
 				</div>
 			</div>
