@@ -17,28 +17,17 @@ function BarChart({
 }) {
 	const max = Math.max(...data.map(d => d.requests), 1);
 	return (
-		<div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height, paddingTop: 8 }}>
+		<div className='flex items-end gap-1.5 pt-2' style={{ height }}>
 			{data.map((d, i) => {
 				const h = Math.round((d.requests / max) * (height - 16));
 				return (
-					<div
-						key={d.day}
-						style={{
-							flex: 1,
-							display: 'flex',
-							flexDirection: 'column',
-							alignItems: 'center',
-							gap: 4,
-						}}
-					>
+					<div key={d.day} className='flex flex-1 flex-col items-center gap-1'>
 						<div
+							className='w-full rounded-[3px_3px_0_0] transition-[height] duration-500 [transition-timing-function:cubic-bezier(0.2,0.8,0.2,1)]'
 							style={{
-								width: '100%',
 								height: h,
 								background: color,
-								borderRadius: '3px 3px 0 0',
 								opacity: i === data.length - 1 ? 0.5 : 1,
-								transition: 'height 0.5s cubic-bezier(0.2,0.8,0.2,1)',
 							}}
 						/>
 					</div>
@@ -79,7 +68,7 @@ function LineChart({
 			height={height}
 			viewBox={`0 0 ${w} ${height}`}
 			preserveAspectRatio='none'
-			style={{ overflow: 'visible' }}
+			className='overflow-visible'
 		>
 			<path d={area} fill={color} fillOpacity='0.12' />
 			<path d={line} fill='none' stroke={color} strokeWidth='1.5' />
@@ -94,18 +83,9 @@ function LineChart({
 
 function DayLabels({ data }: { data: DailyData[] }) {
 	return (
-		<div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
+		<div className='mt-1.5 flex justify-between'>
 			{data.map(d => (
-				<div
-					key={d.day}
-					style={{
-						fontFamily: 'var(--font-jetbrains-mono), monospace',
-						fontSize: 9,
-						color: 'var(--smoke)',
-						textAlign: 'center',
-						flex: 1,
-					}}
-				>
+				<div key={d.day} className='text-smoke flex-1 text-center font-mono text-[9px]'>
 					{d.day.split(' ')[1] ?? d.day}
 				</div>
 			))}
@@ -121,137 +101,45 @@ interface ChartsRowProps {
 
 export function ChartsRow({ data, totalRequests, avgLatencyMs }: ChartsRowProps) {
 	return (
-		<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-			{/* Requests bar chart */}
-			<div
-				style={{
-					background: 'var(--paper)',
-					border: '1px solid var(--powder-200)',
-					borderRadius: 10,
-					padding: '18px 20px',
-					animation: 'fade-up 0.4s ease 0.1s both',
-				}}
-			>
-				<div
-					style={{
-						display: 'flex',
-						justifyContent: 'space-between',
-						alignItems: 'flex-start',
-						marginBottom: 16,
-					}}
-				>
+		<div className='desk:grid-cols-2 desk:gap-4 grid grid-cols-1 gap-4'>
+			<div className='border-powder-200 bg-paper min-w-0 animate-[fade-up_0.4s_ease_0.1s_both] rounded-[10px] border px-5 py-4'>
+				<div className='mb-4 flex items-start justify-between'>
 					<div>
-						<div
-							style={{
-								fontFamily: 'var(--font-jetbrains-mono), monospace',
-								fontSize: 9,
-								letterSpacing: '0.15em',
-								textTransform: 'uppercase',
-								color: 'var(--smoke)',
-								marginBottom: 4,
-							}}
-						>
+						<div className='text-smoke mb-1 font-mono text-[9px] tracking-[0.15em] uppercase'>
 							Requests / day
 						</div>
-						<div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-							<span
-								style={{
-									fontFamily: 'var(--font-fraunces), serif',
-									fontSize: 22,
-									fontWeight: 300,
-									color: 'var(--cobalt-800)',
-								}}
-							>
+						<div className='flex items-baseline gap-1.5'>
+							<span className='text-cobalt-800 font-serif text-[22px] font-light'>
 								{totalRequests}
 							</span>
-							<span
-								style={{
-									fontFamily: 'var(--font-jetbrains-mono), monospace',
-									fontSize: 10,
-									color: 'var(--smoke)',
-								}}
-							>
-								total
-							</span>
+							<span className='text-smoke font-mono text-[10px]'>total</span>
 						</div>
 					</div>
-					<div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-						<div
-							style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--cobalt-700)' }}
-						/>
-						<span
-							style={{
-								fontFamily: 'var(--font-jetbrains-mono), monospace',
-								fontSize: 10,
-								color: 'var(--smoke)',
-							}}
-						>
-							queries
-						</span>
+					<div className='flex items-center gap-1.5'>
+						<div className='bg-cobalt-700 h-2 w-2 rounded-[2px]' />
+						<span className='text-smoke font-mono text-[10px]'>queries</span>
 					</div>
 				</div>
 				<BarChart data={data} color='var(--cobalt-700)' height={100} />
 				<DayLabels data={data} />
 			</div>
 
-			{/* Latency line chart */}
-			<div
-				style={{
-					background: 'var(--paper)',
-					border: '1px solid var(--powder-200)',
-					borderRadius: 10,
-					padding: '18px 20px',
-					animation: 'fade-up 0.4s ease 0.15s both',
-				}}
-			>
-				<div
-					style={{
-						display: 'flex',
-						justifyContent: 'space-between',
-						alignItems: 'flex-start',
-						marginBottom: 16,
-					}}
-				>
+			<div className='border-powder-200 bg-paper min-w-0 animate-[fade-up_0.4s_ease_0.15s_both] rounded-[10px] border px-5 py-4'>
+				<div className='mb-4 flex items-start justify-between'>
 					<div>
-						<div
-							style={{
-								fontFamily: 'var(--font-jetbrains-mono), monospace',
-								fontSize: 9,
-								letterSpacing: '0.15em',
-								textTransform: 'uppercase',
-								color: 'var(--smoke)',
-								marginBottom: 4,
-							}}
-						>
+						<div className='text-smoke mb-1 font-mono text-[9px] tracking-[0.15em] uppercase'>
 							Avg Latency (ms)
 						</div>
-						<div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-							<span
-								style={{
-									fontFamily: 'var(--font-fraunces), serif',
-									fontSize: 22,
-									fontWeight: 300,
-									color: 'var(--cobalt-800)',
-								}}
-							>
+						<div className='flex items-baseline gap-1.5'>
+							<span className='text-cobalt-800 font-serif text-[22px] font-light'>
 								{avgLatencyMs}
-								<span style={{ fontSize: 14 }}>ms</span>
+								<span className='text-sm'>ms</span>
 							</span>
 						</div>
 					</div>
-					<div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-						<div
-							style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--powder-600)' }}
-						/>
-						<span
-							style={{
-								fontFamily: 'var(--font-jetbrains-mono), monospace',
-								fontSize: 10,
-								color: 'var(--smoke)',
-							}}
-						>
-							p50
-						</span>
+					<div className='flex items-center gap-1.5'>
+						<div className='bg-powder-600 h-2 w-2 rounded-[2px]' />
+						<span className='text-smoke font-mono text-[10px]'>p50</span>
 					</div>
 				</div>
 				<LineChart data={data} valueKey='latency' color='var(--powder-600)' height={100} />

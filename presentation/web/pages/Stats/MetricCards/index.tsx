@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+
 interface KpiData {
 	requests: number;
 	avgLatencyMs: number;
@@ -18,14 +20,12 @@ function DeltaBadge({ delta }: { delta?: number }) {
 	const positive = delta > 0;
 	return (
 		<span
-			style={{
-				fontFamily: 'var(--font-jetbrains-mono), monospace',
-				fontSize: 10,
-				color: positive ? '#2d8a4e' : 'var(--terracotta-600)',
-				background: positive ? 'rgba(45,138,78,0.1)' : 'rgba(200,90,44,0.1)',
-				padding: '1px 6px',
-				borderRadius: 3,
-			}}
+			className={clsx(
+				'rounded-[3px] px-1.5 py-px font-mono text-[10px]',
+				positive
+					? 'bg-[rgba(45,138,78,0.1)] text-[#2d8a4e]'
+					: 'text-terracotta-600 bg-[rgba(200,90,44,0.1)]',
+			)}
 		>
 			{positive ? '↑' : '↓'} {Math.abs(delta)}%
 		</span>
@@ -36,64 +36,34 @@ function StatCard({
 	label,
 	value,
 	sub,
-	accent,
+	accentClass,
 	delay,
 	delta,
 }: {
 	label: string;
 	value: string;
 	sub: string;
-	accent?: string;
+	accentClass?: string;
 	delay: number;
 	delta?: number;
 }) {
 	return (
 		<div
-			className='stat-card'
-			style={{
-				background: 'var(--paper)',
-				border: '1px solid var(--powder-200)',
-				borderRadius: 10,
-				padding: '22px 24px',
-				display: 'flex',
-				flexDirection: 'column',
-				gap: 6,
-				animationDelay: `${delay}s`,
-			}}
+			className='stat-card border-powder-200 bg-paper desk:p-5 flex flex-col gap-1.5 rounded-[10px] border p-4'
+			style={{ animationDelay: `${delay}s` }}
 		>
+			<div className='text-smoke font-mono text-[9px] tracking-[0.15em] uppercase'>{label}</div>
 			<div
-				style={{
-					fontFamily: 'var(--font-jetbrains-mono), monospace',
-					fontSize: 9,
-					letterSpacing: '0.15em',
-					textTransform: 'uppercase',
-					color: 'var(--smoke)',
-				}}
-			>
-				{label}
-			</div>
-			<div
-				style={{
-					fontFamily: 'var(--font-fraunces), serif',
-					fontSize: 32,
-					fontWeight: 300,
-					color: accent ?? 'var(--cobalt-800)',
-					lineHeight: 1,
-				}}
+				className={clsx(
+					'desk:text-[32px] font-serif text-2xl leading-none font-light',
+					accentClass ?? 'text-cobalt-800',
+				)}
 			>
 				{value}
 			</div>
-			<div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+			<div className='flex items-center gap-1.5'>
 				<DeltaBadge delta={delta} />
-				<span
-					style={{
-						fontFamily: 'var(--font-jetbrains-mono), monospace',
-						fontSize: 10,
-						color: 'var(--smoke)',
-					}}
-				>
-					{sub}
-				</span>
+				<span className='text-smoke font-mono text-[10px]'>{sub}</span>
 			</div>
 		</div>
 	);
@@ -101,7 +71,7 @@ function StatCard({
 
 export function MetricCards({ kpi }: MetricCardsProps) {
 	return (
-		<div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
+		<div className='desk:grid-cols-4 desk:gap-4 grid grid-cols-2 gap-3'>
 			<StatCard
 				label='Total Requests'
 				value={String(kpi.requests)}
@@ -115,7 +85,7 @@ export function MetricCards({ kpi }: MetricCardsProps) {
 				sub='p50 · all models'
 				delta={kpi.deltaLatency}
 				delay={0.05}
-				accent='var(--cobalt-700)'
+				accentClass='text-cobalt-700'
 			/>
 			<StatCard
 				label='Total Cost'
@@ -123,7 +93,7 @@ export function MetricCards({ kpi }: MetricCardsProps) {
 				sub='gemini-2.5-flash'
 				delta={kpi.deltaCost}
 				delay={0.1}
-				accent='var(--terracotta-600)'
+				accentClass='text-terracotta-600'
 			/>
 			<StatCard
 				label='Citation Rate'
@@ -131,7 +101,7 @@ export function MetricCards({ kpi }: MetricCardsProps) {
 				sub='responses with sources'
 				delta={kpi.deltaCitation}
 				delay={0.15}
-				accent='var(--cobalt-500)'
+				accentClass='text-cobalt-500'
 			/>
 		</div>
 	);

@@ -1,4 +1,5 @@
 'use client';
+import clsx from 'clsx';
 import { useEffect, useMemo, useState } from 'react';
 import { llmOpsApi } from '@/client/infrastructure/container';
 import { LLMOpsLogEntry, LLMOpsStats } from '@/client/application/api/ILLMOpsApi';
@@ -123,7 +124,6 @@ export function StatsPage() {
 			.catch(() => setError('Failed to load stats. Admin access required.'));
 	}, []);
 
-	// write today's stats to sidebar store once data loads
 	useEffect(() => {
 		if (!data?.logs.length) return;
 		const today = new Date().toISOString().slice(0, 10);
@@ -151,44 +151,16 @@ export function StatsPage() {
 
 	if (error) {
 		return (
-			<div
-				style={{
-					display: 'flex',
-					height: '100%',
-					alignItems: 'center',
-					justifyContent: 'center',
-				}}
-			>
-				<p
-					style={{
-						fontFamily: 'var(--font-jetbrains-mono), monospace',
-						fontSize: 13,
-						color: 'var(--smoke)',
-					}}
-				>
-					{error}
-				</p>
+			<div className='flex h-full items-center justify-center'>
+				<p className='text-smoke font-mono text-[13px]'>{error}</p>
 			</div>
 		);
 	}
 
 	if (!data || !kpi) {
 		return (
-			<div
-				style={{
-					display: 'flex',
-					height: '100%',
-					alignItems: 'center',
-					justifyContent: 'center',
-				}}
-			>
-				<p
-					style={{
-						fontFamily: 'var(--font-jetbrains-mono), monospace',
-						fontSize: 13,
-						color: 'var(--smoke)',
-					}}
-				>
+			<div className='flex h-full items-center justify-center'>
+				<p className='text-smoke font-mono text-[13px]'>
 					{!data ? 'Loading LLMOps data…' : 'No data for this period.'}
 				</p>
 			</div>
@@ -196,75 +168,32 @@ export function StatsPage() {
 	}
 
 	return (
-		<div
-			style={{
-				display: 'flex',
-				flexDirection: 'column',
-				height: '100%',
-				overflow: 'hidden',
-				background: 'var(--paper)',
-			}}
-		>
-			{/* ── Header ── */}
-			<div
-				style={{
-					padding: '18px 28px',
-					borderBottom: '1px solid var(--powder-200)',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'space-between',
-					flexShrink: 0,
-					background: 'var(--paper)',
-					gap: 12,
-				}}
-			>
-				<div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+		<div className='bg-paper flex h-full flex-col overflow-hidden'>
+			<div className='border-powder-200 bg-paper desk:px-7 desk:py-[18px] flex flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b px-4 py-3'>
+				<div className='flex min-w-0 items-center gap-3'>
 					<MobileMenuButton />
-					<div>
-						<h1
-							style={{
-								fontFamily: 'var(--font-fraunces), serif',
-								fontWeight: 300,
-								fontSize: 22,
-								color: 'var(--cobalt-800)',
-								letterSpacing: '-0.01em',
-								fontStyle: 'italic',
-							}}
-						>
+					<div className='min-w-0'>
+						<h1 className='text-cobalt-800 desk:text-[22px] m-0 font-serif text-xl font-light tracking-[-0.01em] italic'>
 							Observability
 						</h1>
-						<div
-							style={{
-								fontFamily: 'var(--font-jetbrains-mono), monospace',
-								fontSize: 10,
-								color: 'var(--smoke)',
-								letterSpacing: '0.1em',
-								textTransform: 'uppercase',
-								marginTop: 2,
-							}}
-						>
+						<div className='text-smoke mt-0.5 font-mono text-[10px] tracking-[0.1em] uppercase'>
 							{dateLabel}
 						</div>
 					</div>
 				</div>
 
-				<div style={{ display: 'flex', gap: 6 }}>
+				<div className='flex gap-1.5'>
 					{(['1d', '7d', '30d'] as TimeRange[]).map(r => (
 						<button
 							key={r}
+							type='button'
 							onClick={() => setTimeRange(r)}
-							style={{
-								padding: '6px 12px',
-								background: timeRange === r ? 'var(--cobalt-800)' : 'var(--paper)',
-								color: timeRange === r ? 'var(--paper)' : 'var(--smoke)',
-								border: `1px solid ${timeRange === r ? 'var(--cobalt-800)' : 'var(--powder-300)'}`,
-								borderRadius: 7,
-								fontFamily: 'var(--font-jetbrains-mono), monospace',
-								fontSize: 11,
-								cursor: 'pointer',
-								letterSpacing: '0.05em',
-								transition: 'all 0.15s',
-							}}
+							className={clsx(
+								'cursor-pointer rounded-md border px-3 py-1.5 font-mono text-[11px] tracking-[0.05em] transition-colors',
+								timeRange === r
+									? 'border-cobalt-800 bg-cobalt-800 text-paper'
+									: 'border-powder-300 bg-paper text-smoke hover:border-cobalt-700',
+							)}
 						>
 							{r}
 						</button>
@@ -272,17 +201,7 @@ export function StatsPage() {
 				</div>
 			</div>
 
-			{/* ── Scrollable content ── */}
-			<div
-				style={{
-					flex: 1,
-					overflowY: 'auto',
-					padding: '24px 28px',
-					display: 'flex',
-					flexDirection: 'column',
-					gap: 20,
-				}}
-			>
+			<div className='desk:px-7 desk:py-6 desk:gap-8 flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-5'>
 				<MetricCards kpi={kpi} />
 
 				{dailyData.length >= 2 && (
@@ -296,17 +215,7 @@ export function StatsPage() {
 					</>
 				)}
 
-				<div>
-					<div
-						style={{
-							display: 'flex',
-							justifyContent: 'space-between',
-							alignItems: 'center',
-							marginBottom: 0,
-						}}
-					/>
-					<QueryLogTable logs={filteredLogs.slice().reverse().slice(0, 20)} showCost={showCost} />
-				</div>
+				<QueryLogTable logs={filteredLogs.slice().reverse().slice(0, 20)} showCost={showCost} />
 			</div>
 		</div>
 	);
