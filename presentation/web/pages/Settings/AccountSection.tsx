@@ -1,10 +1,8 @@
 'use client';
+import clsx from 'clsx';
 import { useState } from 'react';
 import { signOut, useSession } from 'next-auth/react';
 import { ConfirmDialog } from '@/presentation/web/components/ConfirmDialog';
-
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-jetbrains-mono), monospace' };
-const SERIF: React.CSSProperties = { fontFamily: 'var(--font-fraunces), serif' };
 
 export function AccountSection() {
 	const { data: session } = useSession();
@@ -34,178 +32,56 @@ export function AccountSection() {
 	};
 
 	return (
-		<section id='account' style={{ marginBottom: 56, scrollMarginTop: 24 }}>
-			<header style={{ marginBottom: 20 }}>
-				<h2
-					style={{
-						...SERIF,
-						fontStyle: 'italic',
-						fontWeight: 300,
-						fontSize: 26,
-						color: 'var(--cobalt-900)',
-						letterSpacing: '-0.01em',
-						margin: 0,
-					}}
-				>
+		<section id='account' className='scroll-mt-6'>
+			<header className='mb-5'>
+				<h2 className='text-cobalt-900 desk:text-[26px] m-0 font-serif text-2xl font-light tracking-[-0.01em] italic'>
 					Account
 				</h2>
-				<div
-					style={{
-						...MONO,
-						fontSize: 10,
-						color: 'var(--smoke)',
-						letterSpacing: '0.12em',
-						textTransform: 'uppercase',
-						marginTop: 4,
-					}}
-				>
+				<div className='text-smoke mt-1 font-mono text-[10px] tracking-[0.12em] uppercase'>
 					Profile · Danger zone
 				</div>
 			</header>
 
-			{/* Profile card */}
-			<div
-				style={{
-					border: '1px solid var(--powder-200)',
-					borderRadius: 10,
-					padding: 20,
-					background: 'var(--paper)',
-					display: 'flex',
-					alignItems: 'center',
-					gap: 18,
-					marginBottom: 28,
-				}}
-			>
-				<div
-					style={{
-						width: 56,
-						height: 56,
-						borderRadius: '50%',
-						background: 'var(--cobalt-700)',
-						color: 'var(--paper)',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						...SERIF,
-						fontSize: 22,
-						fontWeight: 400,
-						overflow: 'hidden',
-						flexShrink: 0,
-					}}
-				>
+			<div className='border-powder-200 bg-paper mb-7 flex flex-wrap items-center gap-4 rounded-[10px] border p-5'>
+				<div className='bg-cobalt-700 text-paper flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-full font-serif text-[22px]'>
 					{user.image ? (
 						// eslint-disable-next-line @next/next/no-img-element
-						<img
-							src={user.image}
-							alt=''
-							style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-						/>
+						<img src={user.image} alt='' className='h-full w-full object-cover' />
 					) : (
 						(user.name?.[0] ?? user.email?.[0] ?? 'U').toUpperCase()
 					)}
 				</div>
-				<div style={{ flex: 1, minWidth: 0 }}>
-					<div
-						style={{
-							fontSize: 15,
-							fontWeight: 500,
-							color: 'var(--cobalt-900)',
-							marginBottom: 2,
-							overflow: 'hidden',
-							textOverflow: 'ellipsis',
-							whiteSpace: 'nowrap',
-						}}
-					>
+				<div className='min-w-0 flex-1'>
+					<div className='text-cobalt-900 mb-0.5 truncate text-[15px] font-medium'>
 						{user.name ?? '—'}
 					</div>
-					<div
-						style={{
-							fontSize: 13,
-							color: 'var(--smoke)',
-							overflow: 'hidden',
-							textOverflow: 'ellipsis',
-							whiteSpace: 'nowrap',
-						}}
-					>
-						{user.email}
-					</div>
+					<div className='text-smoke truncate text-[13px]'>{user.email}</div>
 				</div>
 				<div
-					style={{
-						...MONO,
-						fontSize: 10,
-						letterSpacing: '0.14em',
-						textTransform: 'uppercase',
-						padding: '4px 10px',
-						borderRadius: 6,
-						background: user.role === 'ADMIN' ? 'rgba(214,93,77,0.12)' : 'var(--sand)',
-						color: user.role === 'ADMIN' ? 'var(--terracotta-600)' : 'var(--cobalt-700)',
-						border:
-							user.role === 'ADMIN'
-								? '1px solid rgba(214,93,77,0.25)'
-								: '1px solid var(--powder-300)',
-						flexShrink: 0,
-					}}
+					className={clsx(
+						'flex-shrink-0 rounded-md border px-2.5 py-1 font-mono text-[10px] tracking-[0.14em] uppercase',
+						user.role === 'ADMIN'
+							? 'border-terracotta-500/25 bg-terracotta-500/[0.12] text-terracotta-600'
+							: 'border-powder-300 bg-sand text-cobalt-700',
+					)}
 				>
 					{user.role}
 				</div>
 			</div>
 
-			{/* Danger zone */}
-			<div
-				style={{
-					border: '1px solid rgba(214,93,77,0.35)',
-					borderRadius: 10,
-					padding: 20,
-					background: 'rgba(214,93,77,0.04)',
-				}}
-			>
-				<div
-					style={{
-						...MONO,
-						fontSize: 10,
-						letterSpacing: '0.16em',
-						textTransform: 'uppercase',
-						color: 'var(--terracotta-600)',
-						marginBottom: 8,
-					}}
-				>
+			<div className='border-terracotta-500/35 bg-terracotta-500/[0.04] rounded-[10px] border p-5'>
+				<div className='text-terracotta-600 mb-2 font-mono text-[10px] tracking-[0.16em] uppercase'>
 					Danger zone
 				</div>
-				<div
-					style={{
-						fontSize: 14,
-						fontWeight: 500,
-						color: 'var(--cobalt-900)',
-						marginBottom: 6,
-					}}
-				>
-					Delete account
-				</div>
-				<p
-					style={{
-						margin: 0,
-						fontSize: 13,
-						lineHeight: 1.55,
-						color: 'var(--cobalt-700)',
-						marginBottom: 14,
-					}}
-				>
+				<div className='text-cobalt-900 mb-1.5 text-sm font-medium'>Delete account</div>
+				<p className='text-cobalt-700 m-0 mb-3.5 text-[13px] leading-[1.55]'>
 					Permanently delete your account, all chat sessions, documents, messages, and per-query
 					logs. Aggregate platform usage stats are preserved anonymously. This action cannot be
 					undone.
 				</p>
 
-				<label
-					style={{
-						display: 'block',
-						fontSize: 12,
-						color: 'var(--smoke)',
-						marginBottom: 6,
-					}}
-				>
-					Type <span style={{ ...MONO, color: 'var(--cobalt-800)' }}>{user.email}</span> to enable
-					deletion:
+				<label className='text-smoke mb-1.5 block text-xs'>
+					Type <span className='text-cobalt-800 font-mono'>{user.email}</span> to enable deletion:
 				</label>
 				<input
 					type='text'
@@ -214,54 +90,24 @@ export function AccountSection() {
 					placeholder={user.email ?? ''}
 					autoComplete='off'
 					disabled={deleting}
-					style={{
-						width: '100%',
-						maxWidth: 360,
-						padding: '8px 12px',
-						fontFamily: 'inherit',
-						fontSize: 13,
-						color: 'var(--cobalt-900)',
-						background: 'var(--paper)',
-						border: '1px solid var(--powder-300)',
-						borderRadius: 7,
-						outline: 'none',
-						marginBottom: 14,
-					}}
+					className='border-powder-300 bg-paper text-cobalt-900 focus:border-cobalt-700 mb-3.5 w-full max-w-[360px] rounded-md border px-3 py-2 text-[13px] outline-none disabled:opacity-50'
 				/>
 
-				<div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+				<div className='flex flex-wrap items-center gap-3'>
 					<button
+						type='button'
 						onClick={() => setConfirmOpen(true)}
 						disabled={!emailMatches || deleting}
-						style={{
-							...MONO,
-							padding: '9px 18px',
-							fontSize: 11,
-							letterSpacing: '0.12em',
-							textTransform: 'uppercase',
-							background: emailMatches && !deleting ? 'var(--terracotta-500)' : 'var(--powder-200)',
-							color: emailMatches && !deleting ? 'var(--paper)' : 'var(--smoke)',
-							border: `1px solid ${
-								emailMatches && !deleting ? 'var(--terracotta-500)' : 'var(--powder-300)'
-							}`,
-							borderRadius: 7,
-							cursor: emailMatches && !deleting ? 'pointer' : 'not-allowed',
-							transition: 'background 0.15s',
-						}}
+						className={clsx(
+							'rounded-md border px-[18px] py-2.5 font-mono text-[11px] tracking-[0.12em] uppercase transition-colors',
+							emailMatches && !deleting
+								? 'border-terracotta-500 bg-terracotta-500 text-paper hover:bg-terracotta-600 hover:border-terracotta-600 cursor-pointer'
+								: 'border-powder-300 bg-powder-200 text-smoke cursor-not-allowed',
+						)}
 					>
 						{deleting ? 'Deleting…' : 'Delete account'}
 					</button>
-					{error && (
-						<span
-							style={{
-								...MONO,
-								fontSize: 11,
-								color: 'var(--terracotta-600)',
-							}}
-						>
-							{error}
-						</span>
-					)}
+					{error && <span className='text-terracotta-600 font-mono text-[11px]'>{error}</span>}
 				</div>
 			</div>
 
