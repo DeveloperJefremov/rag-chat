@@ -25,7 +25,7 @@ export function AdvancedControls() {
 			</button>
 
 			{open && (
-				<div className='grid grid-cols-3 gap-4 px-4 pb-3 text-xs'>
+				<div className='desk:grid-cols-3 grid grid-cols-1 gap-4 px-4 pb-3 text-xs'>
 					{/* Chunking Strategy */}
 					<div className='space-y-1'>
 						<Label className='text-muted-foreground text-xs'>Chunking Strategy</Label>

@@ -12,8 +12,6 @@ import { MobileMenuButton } from '@/presentation/web/components/MobileMenuButton
 import { AttachmentChips } from './AttachmentChips';
 import { AddFromLibraryDialog } from './AddFromLibraryDialog';
 
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-jetbrains-mono), monospace' };
-
 export function ChatPage() {
 	const { sessions, activeSessionId, fetchSessions, createSession } = useSessionStore();
 	const { messages, citationsByMessageId, isStreaming, sendMessage } = useChatStore();
@@ -57,46 +55,12 @@ export function ChatPage() {
 	const sourcesCount = Object.values(citationsByMessageId).reduce((s, c) => s + c.length, 0);
 
 	return (
-		<div
-			style={{
-				display: 'flex',
-				flexDirection: 'column',
-				height: '100%',
-				background: 'var(--paper)',
-				overflow: 'hidden',
-			}}
-		>
-			<div
-				style={{
-					padding: '14px 24px',
-					borderBottom: '1px solid var(--powder-200)',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'space-between',
-					background: 'var(--paper)',
-					flexShrink: 0,
-					gap: 12,
-				}}
-			>
-				<div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+		<div className='bg-paper flex h-full flex-col overflow-hidden'>
+			<div className='border-powder-200 bg-paper desk:px-6 desk:py-3.5 flex flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b px-4 py-3'>
+				<div className='flex min-w-0 flex-wrap items-center gap-3'>
 					<MobileMenuButton />
-					<div
-						style={{
-							width: 8,
-							height: 8,
-							borderRadius: '50%',
-							background: 'var(--terracotta-500)',
-							animation: 'pulse-dot 2.5s ease-in-out infinite',
-						}}
-					/>
-					<span
-						style={{
-							fontFamily: 'var(--font-fraunces), serif',
-							fontSize: 18,
-							fontWeight: 300,
-							color: 'var(--cobalt-800)',
-						}}
-					>
+					<div className='animate-pulse-dot bg-terracotta-500 h-2 w-2 rounded-full' />
+					<span className='text-cobalt-800 desk:text-[18px] font-serif text-lg font-light'>
 						Knowledge Assistant
 					</span>
 
@@ -108,55 +72,33 @@ export function ChatPage() {
 					/>
 
 					<button
+						type='button'
 						onClick={() => setLibraryOpen(true)}
 						disabled={!sessionId}
-						className='cursor-pointer text-xs underline'
-						style={{ color: 'var(--cobalt-700)' }}
+						className='text-cobalt-700 cursor-pointer text-xs underline disabled:cursor-not-allowed disabled:opacity-50'
 					>
 						+ Add from library
 					</button>
 				</div>
 
-				<div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+				<div className='flex items-center gap-3'>
 					<LimitBadge remaining={null} />
-					<div
-						style={{
-							...MONO,
-							fontSize: 10,
-							letterSpacing: '0.15em',
-							textTransform: 'uppercase',
-							color: 'var(--smoke)',
-						}}
-					>
+					<div className='text-smoke font-mono text-[10px] tracking-[0.15em] uppercase'>
 						{sourcesCount} sources · {activeIds.length} active
 					</div>
 				</div>
 			</div>
 
 			{attached.length === 0 ? (
-				<div
-					style={{
-						flex: 1,
-						display: 'flex',
-						flexDirection: 'column',
-						alignItems: 'center',
-						justifyContent: 'center',
-						gap: 12,
-						padding: 40,
-					}}
-				>
-					<div
-						style={{
-							fontFamily: 'var(--font-fraunces), serif',
-							fontStyle: 'italic',
-							fontSize: 24,
-							color: 'var(--cobalt-800)',
-							opacity: 0.6,
-						}}
-					>
+				<div className='desk:p-10 flex flex-1 flex-col items-center justify-center gap-3 p-6'>
+					<div className='text-cobalt-800/60 desk:text-2xl text-center font-serif text-xl italic'>
 						No documents attached to this chat
 					</div>
-					<button onClick={() => setLibraryOpen(true)} className='cursor-pointer text-xs underline'>
+					<button
+						type='button'
+						onClick={() => setLibraryOpen(true)}
+						className='cursor-pointer text-xs underline'
+					>
 						+ Add from library
 					</button>
 				</div>

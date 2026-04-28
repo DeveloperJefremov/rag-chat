@@ -1,4 +1,5 @@
 'use client';
+import clsx from 'clsx';
 import { IngestResponseDto } from '@/shared/dtos/IngestResponseDto';
 
 interface Props {
@@ -16,16 +17,17 @@ export function AttachmentChips({ docs, active, onToggle, onDetach }: Props) {
 				return (
 					<span
 						key={d.documentId}
-						className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs ${
+						className={clsx(
+							'desk:max-w-none inline-flex max-w-[160px] items-center gap-1 rounded-full border px-2 py-0.5 text-xs',
 							isActive
-								? 'border-primary/40 bg-primary/10 text-primary'
-								: 'border-border bg-muted text-muted-foreground'
-						}`}
+								? 'border-cobalt-800 bg-cobalt-800 text-paper'
+								: 'border-powder-300 bg-paper text-cobalt-800',
+						)}
 					>
 						<button
 							type='button'
 							onClick={() => onToggle(d.documentId)}
-							className='cursor-pointer'
+							className='desk:max-w-none max-w-[120px] cursor-pointer truncate'
 							title={isActive ? 'Deactivate (will not be searched)' : 'Activate'}
 						>
 							{d.name}
@@ -33,7 +35,12 @@ export function AttachmentChips({ docs, active, onToggle, onDetach }: Props) {
 						<button
 							type='button'
 							onClick={() => onDetach(d.documentId)}
-							className='text-muted-foreground hover:text-destructive cursor-pointer'
+							className={clsx(
+								'cursor-pointer transition-colors',
+								isActive
+									? 'text-paper/70 hover:text-paper'
+									: 'text-smoke hover:text-terracotta-600',
+							)}
 							title='Detach from chat'
 						>
 							×

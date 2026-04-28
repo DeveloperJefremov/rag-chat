@@ -34,37 +34,40 @@ export function AddFromLibraryDialog({ sessionId, open, onClose }: Props) {
 
 	return (
 		<div
-			className='fixed inset-0 z-50 flex items-center justify-center bg-black/40'
+			className='bg-cobalt-950/40 fixed inset-0 z-50 flex items-center justify-center p-4'
 			onClick={onClose}
 		>
 			<div
-				className='bg-background w-[420px] max-w-[92vw] rounded-md border p-4 shadow-lg'
+				className='border-powder-200 bg-paper w-[min(420px,calc(100vw-32px))] rounded-lg border p-4 shadow-[0_12px_32px_rgba(0,0,0,0.18)]'
 				onClick={e => e.stopPropagation()}
 			>
 				<div className='mb-3 flex items-center justify-between'>
-					<h3 className='text-sm font-semibold'>Add from library</h3>
-					<button onClick={onClose} className='text-muted-foreground hover:text-foreground text-xs'>
+					<h3 className='text-cobalt-900 text-sm font-semibold'>Add from library</h3>
+					<button
+						type='button'
+						onClick={onClose}
+						className='text-smoke hover:text-cobalt-800 cursor-pointer text-xs'
+					>
 						Close
 					</button>
 				</div>
 				{documents.length === 0 ? (
-					<p className='text-muted-foreground py-6 text-center text-xs'>
-						No documents in your library yet.
-					</p>
+					<p className='text-smoke py-6 text-center text-xs'>No documents in your library yet.</p>
 				) : (
-					<ul className='max-h-[60vh] space-y-1 overflow-auto'>
+					<ul className='max-h-[60vh] space-y-1 overflow-y-auto'>
 						{documents.map(d => {
 							const already = attachedIds.has(d.documentId);
 							return (
 								<li
 									key={d.documentId}
-									className='hover:bg-muted flex items-center justify-between gap-2 rounded px-2 py-1.5 text-xs'
+									className='hover:bg-sand text-cobalt-900 flex items-center justify-between gap-2 rounded px-2 py-1.5 text-xs'
 								>
 									<span className='truncate'>{d.name}</span>
 									<button
+										type='button'
 										disabled={already || busyId === d.documentId}
 										onClick={() => handleAttach(d.documentId)}
-										className='text-primary disabled:text-muted-foreground cursor-pointer disabled:cursor-default'
+										className='text-cobalt-700 disabled:text-smoke cursor-pointer disabled:cursor-default'
 									>
 										{already ? 'Attached' : busyId === d.documentId ? '…' : 'Attach'}
 									</button>
