@@ -157,12 +157,10 @@ export function StatsPage() {
 		);
 	}
 
-	if (!data || !kpi) {
+	if (!data) {
 		return (
 			<div className='flex h-full items-center justify-center'>
-				<p className='text-smoke font-mono text-[13px]'>
-					{!data ? 'Loading LLMOps data…' : 'No data for this period.'}
-				</p>
+				<p className='text-smoke font-mono text-[13px]'>Loading LLMOps data…</p>
 			</div>
 		);
 	}
@@ -201,22 +199,28 @@ export function StatsPage() {
 				</div>
 			</div>
 
-			<div className='desk:px-7 desk:py-6 desk:gap-8 flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-5'>
-				<MetricCards kpi={kpi} />
+			{kpi ? (
+				<div className='desk:px-7 desk:py-6 desk:gap-8 flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-5'>
+					<MetricCards kpi={kpi} />
 
-				{dailyData.length >= 2 && (
-					<>
-						<ChartsRow
-							data={dailyData}
-							totalRequests={kpi.requests}
-							avgLatencyMs={kpi.avgLatencyMs}
-						/>
-						<CitationModel data={dailyData} />
-					</>
-				)}
+					{dailyData.length >= 2 && (
+						<>
+							<ChartsRow
+								data={dailyData}
+								totalRequests={kpi.requests}
+								avgLatencyMs={kpi.avgLatencyMs}
+							/>
+							<CitationModel data={dailyData} />
+						</>
+					)}
 
-				<QueryLogTable logs={filteredLogs.slice().reverse().slice(0, 20)} showCost={showCost} />
-			</div>
+					<QueryLogTable logs={filteredLogs.slice().reverse().slice(0, 20)} showCost={showCost} />
+				</div>
+			) : (
+				<div className='flex flex-1 items-center justify-center'>
+					<p className='text-smoke font-mono text-[13px]'>No data for this period.</p>
+				</div>
+			)}
 		</div>
 	);
 }
