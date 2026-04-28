@@ -1,4 +1,5 @@
 'use client';
+import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
@@ -67,7 +68,7 @@ const NAV = [
 	},
 ];
 
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-jetbrains-mono), monospace' };
+const SECTION_LABEL_CLASS = 'font-mono text-[9px] uppercase tracking-[0.15em] text-powder-600/70';
 
 function formatRelative(iso: string): string {
 	const diff = Date.now() - new Date(iso).getTime();
@@ -118,52 +119,20 @@ function ChatSection() {
 
 	return (
 		<>
-			<div style={{ padding: '0 20px 14px' }}>
+			<div className='px-5 pb-3.5'>
 				<button
+					type='button'
 					onClick={() => createSession()}
-					style={{
-						width: '100%',
-						padding: '9px 14px',
-						background: 'transparent',
-						border: '1px solid var(--cobalt-700)',
-						borderRadius: 8,
-						color: 'var(--paper)',
-						fontFamily: 'inherit',
-						fontSize: 13,
-						cursor: 'pointer',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						gap: 8,
-						transition: 'background 0.15s',
-					}}
-					onMouseEnter={e => (e.currentTarget.style.background = 'var(--cobalt-800)')}
-					onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+					className='border-cobalt-700 text-paper hover:bg-cobalt-800 flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border bg-transparent py-2.5 text-[13px] transition-colors'
 				>
-					<span style={{ fontSize: 16, lineHeight: 1 }}>+</span> New chat
+					<span className='text-base leading-none'>+</span> New chat
 				</button>
 			</div>
 
-			<div style={{ flex: 1, overflowY: 'auto', padding: '0 0 10px' }}>
-				<div
-					style={{
-						padding: '6px 20px 8px',
-						...MONO,
-						fontSize: 9,
-						letterSpacing: '0.15em',
-						textTransform: 'uppercase',
-						color: 'var(--powder-600)',
-						opacity: 0.7,
-					}}
-				>
-					Recent
-				</div>
+			<div className='flex-1 overflow-y-auto pb-2.5'>
+				<div className={clsx(SECTION_LABEL_CLASS, 'px-5 pt-1.5 pb-2')}>Recent</div>
 				{sessions.length === 0 && (
-					<div
-						style={{ padding: '6px 20px', fontSize: 12, color: 'var(--powder-600)', opacity: 0.6 }}
-					>
-						No chats yet
-					</div>
+					<div className='text-powder-600/60 px-5 py-1.5 text-xs'>No chats yet</div>
 				)}
 				<ConfirmDialog
 					open={pendingDelete !== null}
@@ -185,80 +154,26 @@ function ChatSection() {
 						<div
 							key={s.id}
 							onClick={() => setActiveSession(s.id)}
-							style={{
-								padding: '9px 20px',
-								cursor: 'pointer',
-								borderLeft: isActive ? '2px solid var(--terracotta-500)' : '2px solid transparent',
-								background: isActive ? 'var(--cobalt-800)' : 'transparent',
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'flex-start',
-								gap: 8,
-								transition: 'background 0.15s',
-							}}
-							onMouseEnter={e => {
-								if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-							}}
-							onMouseLeave={e => {
-								if (!isActive) e.currentTarget.style.background = 'transparent';
-							}}
+							className={clsx(
+								'flex cursor-pointer items-start justify-between gap-2 border-l-2 px-5 py-2.5 transition-colors',
+								isActive
+									? 'border-terracotta-500 bg-cobalt-800'
+									: 'border-transparent hover:bg-white/[0.04]',
+							)}
 						>
-							<span
-								style={{
-									fontFamily: 'inherit',
-									fontSize: 13,
-									color: 'var(--powder-300)',
-									lineHeight: 1.4,
-									flex: 1,
-									overflow: 'hidden',
-									display: '-webkit-box',
-									WebkitLineClamp: 2,
-									WebkitBoxOrient: 'vertical',
-								}}
-							>
+							<span className='text-powder-300 line-clamp-2 flex-1 text-[13px] leading-[1.4]'>
 								{s.title ?? 'New conversation'}
 							</span>
-							<div
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: 6,
-									flexShrink: 0,
-									marginTop: 1,
-								}}
-							>
-								<span
-									style={{
-										...MONO,
-										fontSize: 10,
-										color: 'var(--smoke)',
-									}}
-								>
+							<div className='mt-px flex flex-shrink-0 items-center gap-1.5'>
+								<span className='text-smoke font-mono text-[10px]'>
 									{formatRelative(s.createdAt)}
 								</span>
 								<button
+									type='button'
 									onClick={e => requestDelete(e, s.id, s.title)}
 									title='Delete chat'
 									aria-label='Delete chat'
-									style={{
-										background: 'none',
-										border: 'none',
-										padding: 2,
-										cursor: 'pointer',
-										color: 'var(--powder-600)',
-										display: 'flex',
-										alignItems: 'center',
-										opacity: 0.6,
-										transition: 'opacity 0.15s, color 0.15s',
-									}}
-									onMouseEnter={e => {
-										e.currentTarget.style.opacity = '1';
-										e.currentTarget.style.color = 'var(--terracotta-500)';
-									}}
-									onMouseLeave={e => {
-										e.currentTarget.style.opacity = '0.6';
-										e.currentTarget.style.color = 'var(--powder-600)';
-									}}
+									className='text-powder-600 hover:text-terracotta-500 flex cursor-pointer items-center border-none bg-transparent p-0.5 opacity-60 transition-[color,opacity] hover:opacity-100'
 								>
 									<svg
 										width='12'
@@ -286,52 +201,21 @@ function ChatSection() {
 function DocumentsSection() {
 	const { documents } = useUploadStore();
 	return (
-		<div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
-			<div
-				style={{
-					...MONO,
-					fontSize: 9,
-					letterSpacing: '0.15em',
-					textTransform: 'uppercase',
-					color: 'var(--powder-600)',
-					opacity: 0.7,
-					marginBottom: 10,
-				}}
-			>
-				Knowledge Base
-			</div>
-			{documents.length === 0 && (
-				<div style={{ fontSize: 12, color: 'var(--powder-600)', opacity: 0.6 }}>No documents</div>
-			)}
-			<div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+		<div className='flex-1 overflow-y-auto px-5 py-4'>
+			<div className={clsx(SECTION_LABEL_CLASS, 'mb-2.5')}>Knowledge Base</div>
+			{documents.length === 0 && <div className='text-powder-600/60 text-xs'>No documents</div>}
+			<div className='flex flex-col gap-0.5'>
 				{documents.map(d => {
 					const isPdf = d.name.toLowerCase().endsWith('.pdf');
 					return (
-						<div
-							key={d.documentId}
-							style={{ padding: '6px 0', display: 'flex', alignItems: 'center', gap: 8 }}
-						>
+						<div key={d.documentId} className='flex items-center gap-2 py-1.5'>
 							<div
-								style={{
-									width: 6,
-									height: 6,
-									borderRadius: 1,
-									background: isPdf ? 'var(--terracotta-600)' : 'var(--cobalt-500)',
-									flexShrink: 0,
-								}}
+								className={clsx(
+									'h-1.5 w-1.5 flex-shrink-0 rounded-[1px]',
+									isPdf ? 'bg-terracotta-600' : 'bg-cobalt-500',
+								)}
 							/>
-							<span
-								style={{
-									fontFamily: 'inherit',
-									fontSize: 12,
-									color: 'var(--powder-300)',
-									overflow: 'hidden',
-									textOverflow: 'ellipsis',
-									whiteSpace: 'nowrap',
-								}}
-							>
-								{d.name}
-							</span>
+							<span className='text-powder-300 truncate text-xs'>{d.name}</span>
 						</div>
 					);
 				})}
@@ -343,39 +227,18 @@ function DocumentsSection() {
 function StatsSection() {
 	const todayStats = useSidebarStore(s => s.todayStats);
 	return (
-		<div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-			<div
-				style={{
-					...MONO,
-					fontSize: 9,
-					letterSpacing: '0.15em',
-					textTransform: 'uppercase',
-					color: 'var(--powder-600)',
-					opacity: 0.7,
-					marginBottom: 10,
-				}}
-			>
-				Today
-			</div>
-			{!todayStats && (
-				<div style={{ fontSize: 12, color: 'var(--powder-600)', opacity: 0.6 }}>—</div>
-			)}
+		<div className='border-b border-white/[0.06] px-5 py-4'>
+			<div className={clsx(SECTION_LABEL_CLASS, 'mb-2.5')}>Today</div>
+			{!todayStats && <div className='text-powder-600/60 text-xs'>—</div>}
 			{todayStats &&
 				[
 					{ label: 'Requests', value: String(todayStats.requests) },
 					{ label: 'Avg latency', value: `${todayStats.avgLatencyMs}ms` },
 					{ label: 'Citation rate', value: `${Math.round(todayStats.citationRate * 100)}%` },
 				].map(m => (
-					<div
-						key={m.label}
-						style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}
-					>
-						<span style={{ fontFamily: 'inherit', fontSize: 12, color: 'var(--powder-400)' }}>
-							{m.label}
-						</span>
-						<span style={{ ...MONO, fontSize: 12, color: 'var(--paper)', fontWeight: 500 }}>
-							{m.value}
-						</span>
+					<div key={m.label} className='mb-2 flex justify-between text-xs'>
+						<span className='text-powder-400'>{m.label}</span>
+						<span className='text-paper font-mono font-medium'>{m.value}</span>
 					</div>
 				))}
 		</div>
@@ -407,40 +270,13 @@ function UserMenu({ name, role }: { name: string; role: string }) {
 	const initial = (name?.[0] ?? 'U').toUpperCase();
 
 	return (
-		<div ref={wrapperRef} style={{ position: 'relative' }}>
+		<div ref={wrapperRef} className='relative'>
 			{open && (
-				<div
-					style={{
-						position: 'absolute',
-						bottom: 'calc(100% + 8px)',
-						left: 0,
-						right: 0,
-						background: 'var(--cobalt-900)',
-						border: '1px solid var(--cobalt-800)',
-						borderRadius: 8,
-						boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
-						padding: 6,
-						display: 'flex',
-						flexDirection: 'column',
-						gap: 2,
-						zIndex: 50,
-					}}
-				>
+				<div className='bg-cobalt-900 border-cobalt-800 absolute right-0 bottom-[calc(100%+8px)] left-0 z-50 flex flex-col gap-0.5 rounded-lg border p-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.35)]'>
 					<Link
 						href='/settings'
 						onClick={() => setOpen(false)}
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: 10,
-							padding: '8px 10px',
-							borderRadius: 6,
-							textDecoration: 'none',
-							color: 'var(--powder-300)',
-							transition: 'background 0.12s',
-						}}
-						onMouseEnter={e => (e.currentTarget.style.background = 'var(--cobalt-800)')}
-						onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+						className='text-powder-300 hover:bg-cobalt-800 flex items-center gap-2.5 rounded-md px-2.5 py-2 no-underline transition-colors'
 					>
 						<svg
 							width='14'
@@ -453,41 +289,18 @@ function UserMenu({ name, role }: { name: string; role: string }) {
 							<circle cx='12' cy='12' r='3' />
 							<path d='M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42' />
 						</svg>
-						<span
-							style={{
-								...MONO,
-								fontSize: 11,
-								letterSpacing: '0.1em',
-								textTransform: 'uppercase',
-							}}
-						>
-							Settings
-						</span>
+						<span className='font-mono text-[11px] tracking-[0.1em] uppercase'>Settings</span>
 					</Link>
 
-					<div style={{ height: 1, background: 'var(--cobalt-800)', margin: '2px 4px' }} />
+					<div className='bg-cobalt-800 mx-1 h-px' />
 
 					<button
+						type='button'
 						onClick={() => {
 							setOpen(false);
 							void signOut({ callbackUrl: '/signin' });
 						}}
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: 10,
-							padding: '8px 10px',
-							borderRadius: 6,
-							background: 'transparent',
-							border: 'none',
-							cursor: 'pointer',
-							color: 'var(--terracotta-500)',
-							width: '100%',
-							textAlign: 'left',
-							transition: 'background 0.12s',
-						}}
-						onMouseEnter={e => (e.currentTarget.style.background = 'rgba(214,93,77,0.1)')}
-						onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+						className='text-terracotta-500 hover:bg-terracotta-500/10 flex w-full cursor-pointer items-center gap-2.5 rounded-md border-none bg-transparent px-2.5 py-2 text-left transition-colors'
 					>
 						<svg
 							width='14'
@@ -501,86 +314,27 @@ function UserMenu({ name, role }: { name: string; role: string }) {
 							<polyline points='16 17 21 12 16 7' />
 							<line x1='21' y1='12' x2='9' y2='12' />
 						</svg>
-						<span
-							style={{
-								...MONO,
-								fontSize: 11,
-								letterSpacing: '0.1em',
-								textTransform: 'uppercase',
-							}}
-						>
-							Sign out
-						</span>
+						<span className='font-mono text-[11px] tracking-[0.1em] uppercase'>Sign out</span>
 					</button>
 				</div>
 			)}
 
 			<button
+				type='button'
 				onClick={() => setOpen(o => !o)}
 				aria-haspopup='menu'
 				aria-expanded={open}
-				style={{
-					display: 'flex',
-					alignItems: 'center',
-					gap: 10,
-					width: '100%',
-					padding: '8px 10px',
-					background: open ? 'var(--cobalt-800)' : 'transparent',
-					border: 'none',
-					borderRadius: 7,
-					cursor: 'pointer',
-					textAlign: 'left',
-					transition: 'background 0.12s',
-				}}
-				onMouseEnter={e => {
-					if (!open) e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-				}}
-				onMouseLeave={e => {
-					if (!open) e.currentTarget.style.background = 'transparent';
-				}}
+				className={clsx(
+					'flex w-full cursor-pointer items-center gap-2.5 rounded-md border-none px-2.5 py-2 text-left transition-colors',
+					open ? 'bg-cobalt-800' : 'bg-transparent hover:bg-white/[0.04]',
+				)}
 			>
-				<div
-					style={{
-						width: 26,
-						height: 26,
-						borderRadius: '50%',
-						background: 'var(--cobalt-700)',
-						color: 'var(--paper)',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						fontFamily: 'var(--font-fraunces), serif',
-						fontSize: 13,
-						fontWeight: 400,
-						flexShrink: 0,
-					}}
-				>
+				<div className='bg-cobalt-700 text-paper flex h-[26px] w-[26px] flex-shrink-0 items-center justify-center rounded-full font-serif text-[13px] font-normal'>
 					{initial}
 				</div>
-				<div style={{ flex: 1, minWidth: 0 }}>
-					<div
-						style={{
-							...MONO,
-							fontSize: 11,
-							color: 'var(--paper)',
-							letterSpacing: '0.02em',
-							overflow: 'hidden',
-							textOverflow: 'ellipsis',
-							whiteSpace: 'nowrap',
-						}}
-					>
-						{name}
-					</div>
-					<div
-						style={{
-							...MONO,
-							fontSize: 9,
-							color: 'var(--powder-600)',
-							letterSpacing: '0.12em',
-							textTransform: 'uppercase',
-							marginTop: 2,
-						}}
-					>
+				<div className='min-w-0 flex-1'>
+					<div className='text-paper truncate font-mono text-[11px] tracking-[0.02em]'>{name}</div>
+					<div className='text-powder-600 mt-0.5 font-mono text-[9px] tracking-[0.12em] uppercase'>
 						{role}
 					</div>
 				</div>
@@ -589,13 +343,12 @@ function UserMenu({ name, role }: { name: string; role: string }) {
 					height='12'
 					viewBox='0 0 24 24'
 					fill='none'
-					stroke='var(--powder-600)'
+					stroke='currentColor'
 					strokeWidth='2'
-					style={{
-						flexShrink: 0,
-						transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
-						transition: 'transform 0.15s',
-					}}
+					className={clsx(
+						'text-powder-600 flex-shrink-0 transition-transform duration-150',
+						open && 'rotate-180',
+					)}
 				>
 					<polyline points='6 9 12 15 18 9' />
 				</svg>
@@ -607,6 +360,21 @@ function UserMenu({ name, role }: { name: string; role: string }) {
 export function Sidebar() {
 	const pathname = usePathname();
 	const { data: session } = useSession();
+	const mobileOpen = useSidebarStore(s => s.mobileOpen);
+	const closeMobile = useSidebarStore(s => s.closeMobile);
+
+	useEffect(() => {
+		closeMobile();
+	}, [pathname, closeMobile]);
+
+	useEffect(() => {
+		if (!mobileOpen) return;
+		const onKey = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') closeMobile();
+		};
+		document.addEventListener('keydown', onKey);
+		return () => document.removeEventListener('keydown', onKey);
+	}, [mobileOpen, closeMobile]);
 
 	if (pathname?.startsWith('/signin')) return null;
 
@@ -620,66 +388,64 @@ export function Sidebar() {
 					: 'chat';
 
 	return (
-		<aside
-			style={{
-				width: 260,
-				minWidth: 260,
-				height: '100vh',
-				background: 'var(--cobalt-950)',
-				display: 'flex',
-				flexDirection: 'column',
-				overflow: 'hidden',
-			}}
-		>
-			<div style={{ padding: '22px 20px 18px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-				<div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
-					<div
-						style={{
-							width: 8,
-							height: 8,
-							borderRadius: '50%',
-							background: 'var(--terracotta-500)',
-							animation: 'pulse-dot 2.5s ease-in-out infinite',
-							flexShrink: 0,
-						}}
-					/>
-					<span
-						style={{
-							fontFamily: 'var(--font-fraunces), serif',
-							fontWeight: 300,
-							fontSize: 20,
-							color: 'var(--paper)',
-							letterSpacing: '-0.01em',
-						}}
+		<>
+			{mobileOpen && (
+				<button
+					type='button'
+					aria-label='Close sidebar'
+					onClick={closeMobile}
+					className='bg-cobalt-950/40 desk:hidden fixed inset-0 z-30 cursor-pointer'
+				/>
+			)}
+			<aside
+				data-open={mobileOpen}
+				className={clsx(
+					'bg-cobalt-950 fixed inset-y-0 left-0 z-40 flex h-screen w-[280px] flex-col overflow-hidden',
+					'-translate-x-full transition-transform duration-200 ease-out',
+					'data-[open=true]:translate-x-0',
+					'desk:static desk:w-[260px] desk:min-w-[260px] desk:translate-x-0',
+				)}
+			>
+				<div className='flex items-center justify-between border-b border-white/[0.06] px-5 pt-[22px] pb-[18px]'>
+					<div className='flex items-center gap-2.5'>
+						<div className='animate-pulse-dot bg-terracotta-500 h-2 w-2 flex-shrink-0 rounded-full' />
+						<span className='text-paper font-serif text-[20px] font-light tracking-[-0.01em]'>
+							RAG Chat
+						</span>
+					</div>
+					<button
+						type='button'
+						aria-label='Close sidebar'
+						onClick={closeMobile}
+						className='text-powder-400 hover:bg-cobalt-800 hover:text-paper desk:hidden -mr-2 cursor-pointer rounded p-1.5'
 					>
-						RAG Chat
-					</span>
+						<svg
+							width='16'
+							height='16'
+							viewBox='0 0 24 24'
+							fill='none'
+							stroke='currentColor'
+							strokeWidth='2'
+						>
+							<line x1='18' y1='6' x2='6' y2='18' />
+							<line x1='6' y1='6' x2='18' y2='18' />
+						</svg>
+					</button>
 				</div>
 
-				<nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+				<nav className='flex flex-col gap-0.5 px-5 pt-3.5 pb-4'>
 					{NAV.map(item => {
 						const isActive = item.id === activeId;
 						return (
 							<Link
 								key={item.id}
 								href={item.href}
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: 10,
-									padding: '8px 12px',
-									borderRadius: 7,
-									background: isActive ? 'var(--cobalt-800)' : 'transparent',
-									color: isActive ? 'var(--paper)' : 'var(--powder-400)',
-									textDecoration: 'none',
-									fontFamily: 'inherit',
-									fontSize: 13,
-									fontWeight: isActive ? 500 : 400,
-									borderLeft: isActive
-										? '2px solid var(--terracotta-500)'
-										: '2px solid transparent',
-									transition: 'background 0.15s, color 0.15s',
-								}}
+								className={clsx(
+									'flex items-center gap-2.5 rounded-md border-l-2 px-3 py-2 text-[13px] no-underline transition-[background,color] duration-150',
+									isActive
+										? 'border-terracotta-500 bg-cobalt-800 text-paper font-medium'
+										: 'text-powder-400 border-transparent hover:bg-white/[0.04]',
+								)}
 							>
 								{item.icon}
 								{item.label}
@@ -687,25 +453,25 @@ export function Sidebar() {
 						);
 					})}
 				</nav>
-			</div>
 
-			{activeId === 'chat' && <ChatSection />}
-			{activeId === 'documents' && <DocumentsSection />}
-			{activeId === 'stats' && (
-				<>
-					<StatsSection />
-					<div style={{ flex: 1 }} />
-				</>
-			)}
-
-			<div style={{ borderTop: '1px solid var(--cobalt-800)', padding: '10px 12px' }}>
-				{session?.user && (
-					<UserMenu
-						name={session.user.name ?? session.user.email ?? 'User'}
-						role={session.user.role?.toLowerCase() ?? 'user'}
-					/>
+				{activeId === 'chat' && <ChatSection />}
+				{activeId === 'documents' && <DocumentsSection />}
+				{activeId === 'stats' && (
+					<>
+						<StatsSection />
+						<div className='flex-1' />
+					</>
 				)}
-			</div>
-		</aside>
+
+				<div className='border-cobalt-800 border-t px-3 py-2.5'>
+					{session?.user && (
+						<UserMenu
+							name={session.user.name ?? session.user.email ?? 'User'}
+							role={session.user.role?.toLowerCase() ?? 'user'}
+						/>
+					)}
+				</div>
+			</aside>
+		</>
 	);
 }
