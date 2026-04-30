@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { MessageDto } from '@/shared/dtos/MessageDto';
 import { CitationDto } from '@/shared/dtos/CitationDto';
 import { CitationList } from '@/presentation/web/components/CitationList';
+import { StreamingText } from '@/presentation/web/components/StreamingText';
 
 interface MessageListProps {
 	messages: MessageDto[];
@@ -33,26 +34,6 @@ function TypingIndicator() {
 			<span className='dot-3 bg-terracotta-500 inline-block h-1.5 w-1.5 rounded-full' />
 		</div>
 	);
-}
-
-function renderText(text: string) {
-	const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
-	return parts.map((p, i) => {
-		if (p.startsWith('**') && p.endsWith('**')) {
-			return <strong key={i}>{p.slice(2, -2)}</strong>;
-		}
-		if (p.startsWith('`') && p.endsWith('`')) {
-			return (
-				<code
-					key={i}
-					className='text-cobalt-700 rounded-[3px] bg-[rgba(26,46,92,0.08)] px-1.5 py-px font-mono text-[0.88em]'
-				>
-					{p.slice(1, -1)}
-				</code>
-			);
-		}
-		return <span key={i}>{p}</span>;
-	});
 }
 
 function formatTime(iso: string): string {
@@ -88,9 +69,13 @@ export function MessageList({ messages, citationsByMessageId, isStreaming }: Mes
 
 	return (
 		<div className='desk:px-6 desk:py-6 desk:gap-[22px] flex flex-1 flex-col gap-5 overflow-y-auto px-3 py-4'>
-			{messages.map(msg => {
+			{messages.map((msg, idx) => {
 				const isUser = msg.role === 'USER';
 				const citations = citationsByMessageId[msg.id] ?? [];
+				const isLast = idx === messages.length - 1;
+				const isStreamingThis = isStreaming && !isUser && isLast;
+				const isThinking = isStreamingThis && msg.content === '';
+				const animateTokens = isStreamingThis && !isThinking;
 				return (
 					<div
 						key={msg.id}
@@ -107,9 +92,14 @@ export function MessageList({ messages, citationsByMessageId, isStreaming }: Mes
 									isUser
 										? 'bg-cobalt-800 text-paper rounded-[12px_12px_2px_12px]'
 										: 'bg-powder-100 text-ink rounded-[12px_12px_12px_2px]',
+									isThinking && 'thinking-bubble',
 								)}
 							>
-								{renderText(msg.content)}
+								{isThinking ? (
+									<TypingIndicator />
+								) : (
+									<StreamingText text={msg.content} animate={animateTokens} />
+								)}
 							</div>
 							{!isUser && citations.length > 0 && <CitationList citations={citations} />}
 							<div className='text-smoke mt-0.5 font-mono text-[10px] tracking-[0.1em] uppercase'>

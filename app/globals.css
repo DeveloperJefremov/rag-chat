@@ -232,6 +232,59 @@
 	animation: slide-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
+@keyframes token-in {
+	from {
+		opacity: 0;
+		filter: blur(4px);
+		transform: translateY(3px);
+	}
+	to {
+		opacity: 1;
+		filter: blur(0);
+		transform: translateY(0);
+	}
+}
+
+.token-in {
+	display: inline-block;
+	animation: token-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+	white-space: pre;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.token-in {
+		animation: none;
+	}
+}
+
+@keyframes thinking-shimmer {
+	0% {
+		background-position: 200% 0;
+	}
+	100% {
+		background-position: -200% 0;
+	}
+}
+
+.thinking-bubble {
+	background-image: linear-gradient(
+		90deg,
+		var(--powder-100) 0%,
+		var(--powder-100) 35%,
+		rgba(26, 46, 92, 0.06) 50%,
+		var(--powder-100) 65%,
+		var(--powder-100) 100%
+	);
+	background-size: 200% 100%;
+	animation: thinking-shimmer 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.thinking-bubble {
+		animation: none;
+	}
+}
+
 ::-webkit-scrollbar {
 	width: 4px;
 }
