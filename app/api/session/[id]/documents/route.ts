@@ -20,6 +20,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 			documentId: d.id,
 			name: d.name,
 			chunkCount: 0,
+			createdAt: d.createdAt.toISOString(),
 			chunkingStrategy: d.chunkingStrategy,
 		}));
 		return NextResponse.json(dtos);

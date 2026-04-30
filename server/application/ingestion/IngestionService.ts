@@ -71,6 +71,11 @@ export class IngestionService {
 			await this.documentRepo.attachToSession(params.attachToSession, document.id);
 		}
 
-		return { documentId: document.id, chunkCount: chunkTexts.length, name: params.fileName };
+		return {
+			documentId: document.id,
+			chunkCount: chunkTexts.length,
+			name: params.fileName,
+			createdAt: document.createdAt.toISOString(),
+		};
 	}
 }

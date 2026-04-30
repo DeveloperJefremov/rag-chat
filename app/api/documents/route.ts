@@ -17,6 +17,7 @@ export async function GET() {
 			documentId: d.id,
 			name: d.name,
 			chunkCount: d._count.chunks,
+			createdAt: d.createdAt.toISOString(),
 			chunkingStrategy: d.chunkingStrategy,
 		}));
 

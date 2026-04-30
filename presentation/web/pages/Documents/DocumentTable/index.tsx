@@ -33,6 +33,19 @@ function fileType(name: string): 'pdf' | 'md' | 'txt' | 'docx' {
 	return 'txt';
 }
 
+function formatRelative(iso: string): string {
+	const diff = Date.now() - new Date(iso).getTime();
+	const mins = Math.floor(diff / 60000);
+	if (mins < 1) return 'now';
+	if (mins < 60) return `${mins}m ago`;
+	const hrs = Math.floor(mins / 60);
+	if (hrs < 24) return `${hrs}h ago`;
+	const days = Math.floor(hrs / 24);
+	if (days === 1) return 'Yesterday';
+	if (days < 7) return `${days}d ago`;
+	return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
 export function DocumentTable({
 	documents,
 	selectedId,
@@ -101,7 +114,12 @@ export function DocumentTable({
 						<div className='text-smoke font-mono text-[11px]'>—</div>
 						<div className='text-cobalt-700 font-mono text-xs font-medium'>{doc.chunkCount}</div>
 						<div className='text-smoke font-mono text-[11px]'>—</div>
-						<div className='text-smoke font-mono text-[11px]'>Just now</div>
+						<div
+							className='text-smoke font-mono text-[11px]'
+							title={new Date(doc.createdAt).toLocaleString()}
+						>
+							{formatRelative(doc.createdAt)}
+						</div>
 						{onDelete && (
 							<button
 								type='button'
