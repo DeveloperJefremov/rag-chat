@@ -102,12 +102,13 @@ export const useChatStore = create<ChatState>(set => ({
 			onTitle: (sessionId, title) => {
 				useSessionStore.getState().updateSessionTitle(sessionId, title);
 			},
-			onError: error => {
+			onError: (error, message) => {
+				const display = message ? `⚠ ${error}: ${message}` : `⚠ ${error}`;
 				set(state => {
 					const msgs = [...state.messages];
 					const last = msgs[msgs.length - 1];
 					if (last && last.role === 'ASSISTANT' && last.content === '') {
-						msgs[msgs.length - 1] = { ...last, content: `⚠ ${error}` };
+						msgs[msgs.length - 1] = { ...last, content: display };
 					}
 					return { messages: msgs, error, isStreaming: false };
 				});

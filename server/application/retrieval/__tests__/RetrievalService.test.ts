@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { RetrievalService } from '../RetrievalService';
+import { RetrievalService, filterDocumentsByQuery } from '../RetrievalService';
 import type { IChunkRepository } from '../../repositories/IChunkRepository';
 import type { IEmbeddingClient } from '../../ports/IEmbeddingClient';
 import type { ILLMClient } from '../../ports/ILLMClient';
@@ -42,7 +42,10 @@ describe('RetrievalService', () => {
 			const service = new RetrievalService(makeDeps());
 
 			const prompt = service.buildAugmentedPrompt({
-				contextChunks: ['Chunk A content.', 'Chunk B content.'],
+				contextChunks: [
+					{ content: 'Chunk A content.', documentName: 'doc-a.txt' },
+					{ content: 'Chunk B content.', documentName: 'doc-b.txt' },
+				],
 				userMessage: 'What is in the document?',
 				history: [],
 			});
@@ -57,7 +60,7 @@ describe('RetrievalService', () => {
 			const service = new RetrievalService(makeDeps());
 
 			const prompt = service.buildAugmentedPrompt({
-				contextChunks: ['Context.'],
+				contextChunks: [{ content: 'Context.', documentName: 'doc.txt' }],
 				userMessage: 'Follow-up question',
 				history: [
 					{ role: 'USER', content: 'First question' },
@@ -67,6 +70,46 @@ describe('RetrievalService', () => {
 
 			expect(prompt).toContain('First question');
 			expect(prompt).toContain('First answer');
+		});
+	});
+
+	describe('filterDocumentsByQuery', () => {
+		const names = {
+			a: 'alpha guide.pdf',
+			b: 'beta notes.txt',
+			c: 'gamma overview.txt',
+		};
+
+		it('returns input unchanged when only one doc attached', () => {
+			expect(filterDocumentsByQuery(['a'], names, 'alpha guide')).toEqual(['a']);
+		});
+
+		it('narrows to docs whose name tokens appear in the message', () => {
+			const result = filterDocumentsByQuery(['a', 'b', 'c'], names, 'расскажи про alpha guide');
+			expect(result).toEqual(['a']);
+		});
+
+		it('falls back to all docs when no tokens overlap', () => {
+			const result = filterDocumentsByQuery(['a', 'b', 'c'], names, 'привет как дела');
+			expect(result).toEqual(['a', 'b', 'c']);
+		});
+
+		it('keeps multiple docs that tie on score', () => {
+			const result = filterDocumentsByQuery(
+				['a', 'b', 'c'],
+				{ a: 'report-q1.pdf', b: 'report-q2.pdf', c: 'unrelated.txt' },
+				'покажи report пожалуйста',
+			);
+			expect(result.sort()).toEqual(['a', 'b']);
+		});
+
+		it('ignores configured stopwords and file extensions', () => {
+			const result = filterDocumentsByQuery(
+				['a', 'b'],
+				{ a: 'alpha.pdf', b: 'beta.pdf' },
+				'покажи документ pdf',
+			);
+			expect(result.sort()).toEqual(['a', 'b']);
 		});
 	});
 

@@ -34,7 +34,7 @@ export class ChatApi implements IChatApi {
 				}
 				try {
 					const parsed = JSON.parse(data);
-					if (parsed.error) yield { type: 'error', error: parsed.error };
+					if (parsed.error) yield { type: 'error', error: parsed.error, message: parsed.message };
 					else if (parsed.type === 'sources') yield { type: 'sources', sources: parsed.sources };
 					else if (parsed.type === 'chunk') yield { type: 'chunk', text: parsed.text };
 					else if (parsed.type === 'title')

@@ -1,0 +1,28 @@
+export const DOC_FILTER_MIN_TOKEN_LENGTH = 3;
+
+export const DOC_FILTER_STOPWORDS: ReadonlySet<string> = new Set([
+	'pdf',
+	'txt',
+	'docx',
+	'doc',
+	'md',
+	'the',
+	'and',
+	'for',
+	'with',
+	'about',
+	'document',
+	'file',
+	'tell',
+	'pls',
+	'please',
+	'что',
+	'как',
+	'про',
+	'для',
+	'документ',
+	'файл',
+	'этот',
+	'этом',
+	'мне',
+]);

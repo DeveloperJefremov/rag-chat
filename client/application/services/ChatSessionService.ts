@@ -8,7 +8,7 @@ export interface StreamCallbacks {
 	onSources: (sources: CitationDto[]) => void;
 	onChunk: (text: string) => void;
 	onTitle: (sessionId: string, title: string) => void;
-	onError: (error: string) => void;
+	onError: (error: string, message?: string) => void;
 	onDone: () => void;
 }
 
@@ -37,7 +37,7 @@ export class ChatSessionService {
 			else if (event.type === 'chunk') cb.onChunk(event.text);
 			else if (event.type === 'title') cb.onTitle(event.sessionId, event.title);
 			else if (event.type === 'error') {
-				cb.onError(event.error);
+				cb.onError(event.error, event.message);
 				break;
 			} else if (event.type === 'done') {
 				cb.onDone();

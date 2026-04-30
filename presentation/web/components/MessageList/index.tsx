@@ -98,7 +98,7 @@ export function MessageList({ messages, citationsByMessageId, isStreaming }: Mes
 								{isThinking ? (
 									<TypingIndicator />
 								) : (
-									<StreamingText text={msg.content} animate={animateTokens} />
+									<StreamingText text={msg.content} animate={animateTokens} citations={citations} />
 								)}
 							</div>
 							{!isUser && citations.length > 0 && <CitationList citations={citations} />}

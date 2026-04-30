@@ -10,6 +10,10 @@ import { MessageRole } from '../../../domain/entities/Message';
 import { ChunkingStrategy } from '../../../domain/value-objects/ChunkingStrategy';
 import { CitationDto } from '../../../shared/dtos/CitationDto';
 import { TOP_K_CHUNKS, MAX_HISTORY_MESSAGES } from '../../../shared/config/constants';
+import {
+	DOC_FILTER_STOPWORDS,
+	DOC_FILTER_MIN_TOKEN_LENGTH,
+} from '../../../shared/config/docFilter';
 
 interface RetrievalServiceDeps {
 	chunkRepo: IChunkRepository;
@@ -35,12 +39,47 @@ interface StreamParams {
 }
 
 interface BuildPromptParams {
-	contextChunks: string[];
+	contextChunks: Array<{ content: string; documentName: string }>;
 	userMessage: string;
 	history: Array<{ role: MessageRole; content: string }>;
 }
 
 type StreamYield = { sources: CitationDto[] } | { title: string; sessionId: string } | string;
+
+function tokenizeForFilter(s: string): string[] {
+	const matches = s.toLowerCase().match(/[a-zа-яё0-9]+/giu);
+	if (!matches) return [];
+	return matches.filter(
+		t => t.length >= DOC_FILTER_MIN_TOKEN_LENGTH && !DOC_FILTER_STOPWORDS.has(t),
+	);
+}
+
+function nameTokens(name: string): string[] {
+	const noExt = name.replace(/\.[^.]+$/, '');
+	return tokenizeForFilter(noExt);
+}
+
+export function filterDocumentsByQuery(
+	documentIds: string[],
+	documentNames: Record<string, string>,
+	message: string,
+): string[] {
+	if (documentIds.length <= 1) return documentIds;
+
+	const queryTokens = new Set(tokenizeForFilter(message));
+	if (queryTokens.size === 0) return documentIds;
+
+	const scores = documentIds.map(id => {
+		const tokens = nameTokens(documentNames[id] ?? '');
+		let score = 0;
+		for (const t of tokens) if (queryTokens.has(t)) score++;
+		return { id, score };
+	});
+
+	const max = scores.reduce((m, s) => Math.max(m, s.score), 0);
+	if (max === 0) return documentIds;
+	return scores.filter(s => s.score === max).map(s => s.id);
+}
 
 const TITLE_PROMPT = `Generate a concise chat title in 3-5 words for the following user question.
 Reply ONLY with the title text, in the SAME language as the question, no quotes, no punctuation at the end, no prefixes like "Title:".
@@ -71,7 +110,9 @@ export class RetrievalService {
 	buildAugmentedPrompt(params: BuildPromptParams): string {
 		const { contextChunks, userMessage, history } = params;
 
-		const contextSection = contextChunks.map((c, i) => `[${i + 1}] ${c}`).join('\n---\n');
+		const contextSection = contextChunks
+			.map(c => `Source: ${c.documentName}\n${c.content}`)
+			.join('\n---\n');
 
 		const historySection =
 			history.length > 0
@@ -82,6 +123,9 @@ export class RetrievalService {
 
 		return `You are a helpful assistant. Answer questions based ONLY on the provided context.
 If the answer is not in the context, say "I don't have enough information in the uploaded documents."
+
+When referring to a source document, use its file name (e.g. "Magebit Bootcamp CV.pdf"). Do NOT use numeric references like [1], [2].
+Reply in the same language as the user's question.
 
 Context:
 ---
@@ -97,18 +141,30 @@ Current question: ${userMessage}`;
 		const topK = params.topK ?? TOP_K_CHUNKS;
 		const rerankingEnabled = params.rerankingEnabled ?? true;
 
+		const filteredDocIds = filterDocumentsByQuery(
+			params.documentIds,
+			params.documentNames,
+			params.message,
+		);
+		// eslint-disable-next-line no-console
+		console.log('[chat] doc filter', {
+			from: params.documentIds.length,
+			to: filteredDocIds.length,
+			matched: filteredDocIds.map(id => params.documentNames[id]),
+		});
+
 		// eslint-disable-next-line no-console
 		console.log('[chat] embed query');
 		const queryVector = await this.embeddingClient.embed(params.message);
 
 		// eslint-disable-next-line no-console
 		console.log('[chat] similarity search', {
-			documentIds: params.documentIds,
+			documentIds: filteredDocIds,
 			topK: rerankingEnabled ? topK * 4 : topK,
 		});
 		const candidates = await this.chunkRepo.similaritySearch({
 			queryVector,
-			documentIds: params.documentIds,
+			documentIds: filteredDocIds,
 			userId: params.userId,
 			topK: rerankingEnabled ? topK * 4 : topK,
 		});
@@ -116,18 +172,27 @@ Current question: ${userMessage}`;
 		console.log('[chat] candidates:', candidates.length);
 
 		let reranked = candidates;
+		let rerankApplied = false;
 		if (rerankingEnabled && candidates.length > 0) {
 			// eslint-disable-next-line no-console
 			console.log('[chat] reranking');
-			reranked = await this.rerankClient
-				.rerank({
+			try {
+				const results = await this.rerankClient.rerank({
 					query: params.message,
 					candidates: candidates.map((c, i) => ({ content: c.content, originalIndex: i })),
 					topN: topK,
-				})
-				.then(results => results.map(r => candidates[r.originalIndex] ?? candidates[0]));
-			// eslint-disable-next-line no-console
-			console.log('[chat] reranked:', reranked.length);
+				});
+				reranked = results.map(r => candidates[r.originalIndex] ?? candidates[0]);
+				rerankApplied = true;
+				// eslint-disable-next-line no-console
+				console.log('[chat] reranked:', reranked.length);
+			} catch (err) {
+				// eslint-disable-next-line no-console
+				console.warn('[chat] rerank failed, falling back to raw candidates:', err);
+				reranked = candidates.slice(0, topK);
+			}
+		} else {
+			reranked = candidates.slice(0, topK);
 		}
 
 		const sources: CitationDto[] = reranked.map((chunk, i) => ({
@@ -144,7 +209,10 @@ Current question: ${userMessage}`;
 			.map(m => ({ role: m.role, content: m.content }));
 
 		const prompt = this.buildAugmentedPrompt({
-			contextChunks: reranked.map(c => c.content),
+			contextChunks: reranked.map(c => ({
+				content: c.content,
+				documentName: params.documentNames[c.documentId] ?? 'Unknown',
+			})),
 			userMessage: params.message,
 			history: historyForPrompt,
 		});
@@ -194,7 +262,7 @@ Current question: ${userMessage}`;
 				completionTokens,
 				estimatedCostUsd,
 				hasCitation: sources.length > 0,
-				rerankingUsed: rerankingEnabled,
+				rerankingUsed: rerankApplied,
 				chunkingStrategy: params.chunkingStrategy ?? 'RECURSIVE',
 			});
 		}
