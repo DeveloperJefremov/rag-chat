@@ -1,4 +1,5 @@
 import { IChunkRepository } from '../repositories/IChunkRepository';
+import { IDocumentRepository } from '../repositories/IDocumentRepository';
 import { IMessageRepository } from '../repositories/IMessageRepository';
 import { IChatSessionRepository } from '../repositories/IChatSessionRepository';
 import { IEmbeddingClient } from '../ports/IEmbeddingClient';
@@ -17,6 +18,7 @@ import {
 
 interface RetrievalServiceDeps {
 	chunkRepo: IChunkRepository;
+	documentRepo: IDocumentRepository;
 	embeddingClient: IEmbeddingClient;
 	llmClient: ILLMClient;
 	messageRepo: IMessageRepository;

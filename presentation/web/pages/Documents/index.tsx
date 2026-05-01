@@ -10,11 +10,45 @@ import { DocumentCardList } from './DocumentCardList';
 import { ChunkingStrategy } from '@/domain/value-objects/ChunkingStrategy';
 import { IngestResponseDto } from '@/shared/dtos/IngestResponseDto';
 
-const STRATEGIES: Array<{ id: ChunkingStrategy; label: string; desc: string }> = [
-	{ id: 'FIXED', label: 'Fixed-size', desc: '512 tokens, 64 overlap' },
-	{ id: 'SENTENCE', label: 'Sentence', desc: 'NLTK sentence tokenizer' },
-	{ id: 'PARAGRAPH', label: 'Paragraph', desc: 'Paragraph boundaries' },
-	{ id: 'RECURSIVE', label: 'Recursive', desc: 'Hierarchical splitting' },
+const STRATEGIES: Array<{
+	id: ChunkingStrategy;
+	label: string;
+	desc: string;
+	explain: string;
+	bestFor: string;
+}> = [
+	{
+		id: 'FIXED',
+		label: 'Fixed-size',
+		desc: 'Equal-sized word windows',
+		explain:
+			'Cuts the document into windows of a fixed word count, with a small overlap so context is not lost at chunk edges.',
+		bestFor: 'Plain, unstructured text — logs, transcripts, raw notes.',
+	},
+	{
+		id: 'SENTENCE',
+		label: 'Sentence',
+		desc: 'Splits at sentence boundaries',
+		explain:
+			'Groups whole sentences together until a chunk is full. Sentences are never split in the middle.',
+		bestFor: 'Articles, FAQs, instructions — answers usually fit in a few sentences.',
+	},
+	{
+		id: 'PARAGRAPH',
+		label: 'Paragraph',
+		desc: 'Splits at paragraph breaks',
+		explain:
+			'Keeps paragraphs intact and groups them together until a chunk is full. Preserves the author’s structure.',
+		bestFor: 'Well-formatted docs — Markdown, reports, documentation.',
+	},
+	{
+		id: 'RECURSIVE',
+		label: 'Recursive',
+		desc: 'Paragraphs first, sentences when needed',
+		explain:
+			'Starts with paragraphs, then breaks oversized ones into sentences. Universal default for mixed content.',
+		bestFor: 'Mixed content — usually the safest choice.',
+	},
 ];
 
 function ChunkPreviewPanel({ doc, onClose }: { doc: IngestResponseDto; onClose: () => void }) {
@@ -151,13 +185,18 @@ export function DocumentsPage() {
 						))}
 					</div>
 
-					<div className='bg-sand flex flex-wrap items-center gap-3 rounded-lg px-4 py-2.5'>
-						<div className='bg-terracotta-500 h-1.5 w-1.5 flex-shrink-0 rounded-[1px]' />
-						<span className='text-terracotta-700 font-mono text-[10px] tracking-[0.12em] uppercase'>
-							Strategy:
-						</span>
-						<span className='text-cobalt-800 text-xs font-medium'>{activeStrategy?.label}</span>
-						<span className='text-smoke font-mono text-[11px]'>— {activeStrategy?.desc}</span>
+					<div className='bg-sand border-l-terracotta-500 flex flex-col gap-1.5 rounded-lg border-l-[3px] px-4 py-3'>
+						<div className='flex flex-wrap items-baseline gap-2'>
+							<span className='text-terracotta-700 font-mono text-[9px] tracking-[0.15em] uppercase'>
+								Applies to next upload
+							</span>
+							<span className='text-cobalt-800 text-sm font-medium'>{activeStrategy?.label}</span>
+						</div>
+						<p className='text-ink text-xs leading-[1.5]'>{activeStrategy?.explain}</p>
+						<p className='text-smoke text-[11px] leading-[1.4]'>
+							<span className='font-mono text-[9px] tracking-[0.12em] uppercase'>Best for:</span>{' '}
+							{activeStrategy?.bestFor}
+						</p>
 					</div>
 
 					<DocumentTable
