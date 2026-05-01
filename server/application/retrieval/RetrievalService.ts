@@ -279,20 +279,29 @@ Current question: ${userMessage}`;
 			const latencyMs = Date.now() - startedAt;
 			const estimatedCostUsd = (promptTokens / 1e6) * 0.075 + (completionTokens / 1e6) * 0.3;
 
-			void this.llmOpsService.log({
-				userId: params.userId,
-				sessionId: params.sessionId,
-				documentId: params.documentIds[0] ?? '',
-				query: params.message,
-				response: fullResponse,
-				latencyMs,
-				promptTokens,
-				completionTokens,
-				estimatedCostUsd,
-				hasCitation: sources.length > 0,
-				rerankingUsed: rerankApplied,
-				chunkingStrategy: params.chunkingStrategy ?? 'RECURSIVE',
-			});
+			this.llmOpsService
+				.log({
+					userId: params.userId,
+					sessionId: params.sessionId,
+					documentId: params.documentIds[0] ?? '',
+					query: params.message,
+					response: fullResponse,
+					latencyMs,
+					promptTokens,
+					completionTokens,
+					estimatedCostUsd,
+					hasCitation: sources.length > 0,
+					rerankingUsed: rerankApplied,
+					chunkingStrategy: params.chunkingStrategy ?? 'RECURSIVE',
+				})
+				.catch(err => {
+					// eslint-disable-next-line no-console
+					console.error('[llmops] log write failed', {
+						userId: params.userId,
+						sessionId: params.sessionId,
+						err: err instanceof Error ? err.message : String(err),
+					});
+				});
 		}
 
 		if (isFirstExchange) {

@@ -83,7 +83,6 @@ export async function POST(req: NextRequest) {
 		}
 		// eslint-disable-next-line no-console
 		console.error('[ingest] failed:', err);
-		const message = err instanceof Error ? err.message : String(err);
-		return NextResponse.json({ error: 'internal_error', message }, { status: 500 });
+		return NextResponse.json({ error: 'internal_error' }, { status: 500 });
 	}
 }
