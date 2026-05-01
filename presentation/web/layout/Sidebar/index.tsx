@@ -1,12 +1,11 @@
 'use client';
 import clsx from 'clsx';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import { useEffect, useRef, useState } from 'react';
 import { useSidebarStore } from '@/client/stores/sidebarStore';
 import { useSessionStore } from '@/client/stores/sessionStore';
-import { useUploadStore } from '@/client/stores/uploadStore';
 import { ConfirmDialog } from '@/presentation/web/components/ConfirmDialog';
 import { Button } from '@/presentation/components/ui/button';
 import { IconButton } from '@/presentation/web/components/ui/IconButton';
@@ -94,6 +93,9 @@ function ChatSection() {
 		fetchSessions,
 		deleteSession,
 	} = useSessionStore();
+	const router = useRouter();
+	const pathname = usePathname();
+	const onChatPage = pathname === '/';
 
 	const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string | null } | null>(
 		null,
@@ -102,6 +104,16 @@ function ChatSection() {
 	useEffect(() => {
 		fetchSessions();
 	}, [fetchSessions]);
+
+	const goToSession = (id: string) => {
+		setActiveSession(id);
+		if (!onChatPage) router.push('/');
+	};
+
+	const handleNewChat = async () => {
+		await createSession();
+		if (!onChatPage) router.push('/');
+	};
 
 	const requestDelete = (e: React.MouseEvent, id: string, title: string | null) => {
 		e.stopPropagation();
@@ -125,7 +137,7 @@ function ChatSection() {
 				<Button
 					type='button'
 					variant='ghost'
-					onClick={() => createSession()}
+					onClick={handleNewChat}
 					className='border-cobalt-700 text-paper hover:bg-cobalt-800 hover:text-paper flex h-auto w-full cursor-pointer items-center justify-center gap-2 rounded-md border bg-transparent py-2.5 text-[13px] font-normal transition-colors'
 				>
 					<span className='text-base leading-none'>+</span> New chat
@@ -156,7 +168,7 @@ function ChatSection() {
 					return (
 						<div
 							key={s.id}
-							onClick={() => setActiveSession(s.id)}
+							onClick={() => goToSession(s.id)}
 							className={clsx(
 								'flex cursor-pointer items-start justify-between gap-2 border-l-2 px-5 py-2.5 transition-colors',
 								isActive
@@ -198,53 +210,6 @@ function ChatSection() {
 				})}
 			</div>
 		</>
-	);
-}
-
-function DocumentsSection() {
-	const { documents } = useUploadStore();
-	return (
-		<div className='flex-1 overflow-y-auto px-5 py-4'>
-			<div className={clsx(SECTION_LABEL_CLASS, 'mb-2.5')}>Knowledge Base</div>
-			{documents.length === 0 && <div className='text-powder-600/60 text-xs'>No documents</div>}
-			<div className='flex flex-col gap-0.5'>
-				{documents.map(d => {
-					const isPdf = d.name.toLowerCase().endsWith('.pdf');
-					return (
-						<div key={d.documentId} className='flex items-center gap-2 py-1.5'>
-							<div
-								className={clsx(
-									'h-1.5 w-1.5 flex-shrink-0 rounded-[1px]',
-									isPdf ? 'bg-terracotta-600' : 'bg-cobalt-500',
-								)}
-							/>
-							<span className='text-powder-300 truncate text-xs'>{d.name}</span>
-						</div>
-					);
-				})}
-			</div>
-		</div>
-	);
-}
-
-function StatsSection() {
-	const todayStats = useSidebarStore(s => s.todayStats);
-	return (
-		<div className='border-b border-white/[0.06] px-5 py-4'>
-			<div className={clsx(SECTION_LABEL_CLASS, 'mb-2.5')}>Today</div>
-			{!todayStats && <div className='text-powder-600/60 text-xs'>—</div>}
-			{todayStats &&
-				[
-					{ label: 'Requests', value: String(todayStats.requests) },
-					{ label: 'Avg latency', value: `${todayStats.avgLatencyMs}ms` },
-					{ label: 'Citation rate', value: `${Math.round(todayStats.citationRate * 100)}%` },
-				].map(m => (
-					<div key={m.label} className='mb-2 flex justify-between text-xs'>
-						<span className='text-powder-400'>{m.label}</span>
-						<span className='text-paper font-mono font-medium'>{m.value}</span>
-					</div>
-				))}
-		</div>
 	);
 }
 
@@ -461,14 +426,7 @@ export function Sidebar() {
 					})}
 				</nav>
 
-				{activeId === 'chat' && <ChatSection />}
-				{activeId === 'documents' && <DocumentsSection />}
-				{activeId === 'stats' && (
-					<>
-						<StatsSection />
-						<div className='flex-1' />
-					</>
-				)}
+				<ChatSection />
 
 				<div className='border-cobalt-800 border-t px-3 py-2.5'>
 					{session?.user && (

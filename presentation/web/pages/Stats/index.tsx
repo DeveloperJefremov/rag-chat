@@ -1,9 +1,7 @@
 'use client';
-import clsx from 'clsx';
 import { useEffect, useMemo, useState } from 'react';
 import { llmOpsApi } from '@/client/infrastructure/container';
 import { LLMOpsLogEntry, LLMOpsStats } from '@/client/application/api/ILLMOpsApi';
-import { useSidebarStore } from '@/client/stores/sidebarStore';
 import { MobileMenuButton } from '@/presentation/web/components/MobileMenuButton';
 import { ToggleChip } from '@/presentation/web/components/ui/ToggleChip';
 import { MetricCards } from './MetricCards';
@@ -116,7 +114,6 @@ export function StatsPage() {
 	const [error, setError] = useState<string | null>(null);
 	const [timeRange, setTimeRange] = useState<TimeRange>('7d');
 	const showCost = true;
-	const setTodayStats = useSidebarStore(s => s.setTodayStats);
 
 	useEffect(() => {
 		llmOpsApi
@@ -124,17 +121,6 @@ export function StatsPage() {
 			.then(setData)
 			.catch(() => setError('Failed to load stats. Admin access required.'));
 	}, []);
-
-	useEffect(() => {
-		if (!data?.logs.length) return;
-		const today = new Date().toISOString().slice(0, 10);
-		const todayLogs = data.logs.filter(l => l.createdAt.startsWith(today));
-		if (!todayLogs.length) return;
-		const requests = todayLogs.length;
-		const avgLatencyMs = Math.round(todayLogs.reduce((s, l) => s + l.latencyMs, 0) / requests);
-		const citationRate = todayLogs.filter(l => l.hasCitation).length / requests;
-		setTodayStats({ requests, avgLatencyMs, citationRate });
-	}, [data, setTodayStats]);
 
 	const filteredLogs = useMemo(
 		() => (data ? filterByRange(data.logs, timeRange) : []),
