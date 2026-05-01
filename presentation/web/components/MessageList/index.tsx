@@ -149,7 +149,9 @@ export function MessageList({ messages, citationsByMessageId, isStreaming }: Mes
 									</>
 								)}
 							</div>
-							{!isUser && citations.length > 0 && <CitationList citations={citations} />}
+							{!isUser && !extracted.marker && citations.length > 0 && (
+								<CitationList citations={citations} />
+							)}
 							<div className='text-smoke mt-0.5 font-mono text-[10px] tracking-[0.1em] uppercase'>
 								{formatTime(msg.createdAt)}
 							</div>
