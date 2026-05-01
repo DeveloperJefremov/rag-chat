@@ -67,8 +67,8 @@ export function DocumentTable({
 		);
 	}
 
-	const cols = onDelete ? '2fr 80px 80px 70px 90px 80px 40px' : '2fr 80px 80px 70px 90px 80px';
-	const headers = ['Document', 'Type', 'Size', 'Chunks', 'Tokens', 'Added'];
+	const cols = onDelete ? '2fr 70px 110px 80px 40px' : '2fr 70px 110px 80px';
+	const headers = ['Document', 'Chunks', 'Strategy', 'Added'];
 	if (onDelete) headers.push('');
 
 	return (
@@ -105,16 +105,17 @@ export function DocumentTable({
 							animation: `fade-up 0.3s ease ${i * 0.04}s both`,
 						}}
 					>
-						<div className='flex items-center gap-2.5'>
+						<div className='flex min-w-0 items-center gap-2.5'>
 							<TypeIcon type={type} />
 							<span className='text-cobalt-800 truncate text-[13px] font-medium'>{doc.name}</span>
 						</div>
-						<div className='text-smoke font-mono text-[11px] tracking-[0.06em] uppercase'>
-							{type}
-						</div>
-						<div className='text-smoke font-mono text-[11px]'>—</div>
 						<div className='text-cobalt-700 font-mono text-xs font-medium'>{doc.chunkCount}</div>
-						<div className='text-smoke font-mono text-[11px]'>—</div>
+						<div
+							className='text-smoke font-mono text-[10px] tracking-[0.06em] uppercase'
+							title='Chunking strategy used at upload (not editable)'
+						>
+							{doc.chunkingStrategy ?? '—'}
+						</div>
 						<div
 							className='text-smoke font-mono text-[11px]'
 							title={new Date(doc.createdAt).toLocaleString()}

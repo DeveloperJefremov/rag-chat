@@ -296,7 +296,8 @@ function UserMenu({ name, role }: { name: string; role: string }) {
 				aria-expanded={open}
 				className={clsx(
 					'flex h-auto w-full cursor-pointer items-center justify-start gap-2.5 rounded-md border-none px-2.5 py-2 text-left font-normal transition-colors',
-					open ? 'bg-cobalt-800 hover:bg-cobalt-800' : 'bg-transparent hover:bg-white/[0.04]',
+					'bg-transparent hover:bg-white/[0.04]',
+					'aria-expanded:bg-cobalt-800 aria-expanded:hover:bg-cobalt-800',
 				)}
 			>
 				<div className='bg-cobalt-700 text-paper flex h-[26px] w-[26px] flex-shrink-0 items-center justify-center rounded-full font-serif text-[13px] font-normal'>
