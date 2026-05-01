@@ -64,8 +64,9 @@ export function MessageInput({
 				variant='ghost'
 				onClick={handleSend}
 				disabled={!canSend}
+				aria-label='Send message'
 				className={clsx(
-					'text-paper flex h-11 flex-shrink-0 items-center gap-1.5 rounded-lg border-none px-5 py-3 text-[13px] font-medium transition-colors',
+					'text-paper desk:h-11 desk:w-auto desk:rounded-lg desk:gap-1.5 desk:px-5 desk:py-3 desk:text-[13px] flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border-none p-0 font-medium transition-colors',
 					canSend
 						? 'bg-cobalt-800 hover:bg-terracotta-600 hover:text-paper cursor-pointer'
 						: 'bg-powder-300 cursor-not-allowed',
@@ -78,7 +79,24 @@ export function MessageInput({
 						<span className='dot-3 bg-paper inline-block h-[5px] w-[5px] rounded-full' />
 					</span>
 				) : (
-					'Send →'
+					<>
+						<svg
+							width='18'
+							height='18'
+							viewBox='0 0 24 24'
+							fill='none'
+							stroke='currentColor'
+							strokeWidth='2.25'
+							strokeLinecap='round'
+							strokeLinejoin='round'
+							className='desk:hidden'
+							aria-hidden='true'
+						>
+							<line x1='12' y1='19' x2='12' y2='5' />
+							<polyline points='5 12 12 5 19 12' />
+						</svg>
+						<span className='desk:inline hidden'>Send →</span>
+					</>
 				)}
 			</Button>
 		</div>
