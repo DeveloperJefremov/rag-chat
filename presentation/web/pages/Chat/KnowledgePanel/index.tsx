@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { FileText, Plus } from 'lucide-react';
 import { useAttachmentStore } from '@/client/stores/attachmentStore';
+import { Button } from '@/presentation/components/ui/button';
 
 interface KnowledgePanelProps {
 	sessionId: string | null;
@@ -36,18 +37,20 @@ export function KnowledgePanel({ sessionId, activeIds, onToggle }: KnowledgePane
 				{docs.map(doc => {
 					const isActive = activeIds.has(doc.documentId);
 					return (
-						<button
+						<Button
 							key={doc.documentId}
+							type='button'
+							variant='ghost'
 							onClick={() => onToggle(doc.documentId)}
-							className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition-colors ${
+							className={`flex h-auto w-full items-center justify-start gap-2 rounded px-2 py-1.5 text-left text-xs font-normal transition-colors ${
 								isActive
-									? 'bg-primary/10 text-primary border-primary/20 border'
-									: 'text-muted-foreground hover:bg-muted hover:text-foreground'
+									? 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/10 hover:text-primary border'
+									: 'text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent'
 							}`}
 						>
 							<FileText className='h-3 w-3 shrink-0' />
 							<span className='truncate'>{doc.name}</span>
-						</button>
+						</Button>
 					);
 				})}
 			</div>

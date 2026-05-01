@@ -1,14 +1,15 @@
 'use client';
 import { useSidebarStore } from '@/client/stores/sidebarStore';
+import { IconButton } from '@/presentation/web/components/ui/IconButton';
 
 export function MobileMenuButton() {
 	const openMobile = useSidebarStore(s => s.openMobile);
 	return (
-		<button
-			type='button'
+		<IconButton
 			aria-label='Open sidebar'
 			onClick={openMobile}
-			className='text-cobalt-800 hover:bg-powder-200 desk:hidden -ml-1 flex h-9 w-9 flex-shrink-0 cursor-pointer items-center justify-center rounded-md'
+			size='lg'
+			className='desk:hidden -ml-1'
 		>
 			<svg
 				width='18'
@@ -22,6 +23,6 @@ export function MobileMenuButton() {
 				<line x1='3' y1='12' x2='21' y2='12' />
 				<line x1='3' y1='18' x2='21' y2='18' />
 			</svg>
-		</button>
+		</IconButton>
 	);
 }

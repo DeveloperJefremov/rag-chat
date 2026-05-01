@@ -1,6 +1,7 @@
 'use client';
 import clsx from 'clsx';
 import { ChangeEvent, DragEvent, useRef, useState } from 'react';
+import { BrandInput } from '@/presentation/web/components/ui/BrandInput';
 
 const ACCEPTED = '.pdf,.txt,.docx';
 const MAX_MB = 10;
@@ -72,7 +73,7 @@ export function FileDropzone({
 				disabled && 'opacity-50',
 			)}
 		>
-			<input
+			<BrandInput
 				ref={inputRef}
 				type='file'
 				accept={ACCEPTED}

@@ -1,6 +1,7 @@
 'use client';
 import clsx from 'clsx';
 import { useEffect } from 'react';
+import { BrandButton } from '@/presentation/web/components/ui/BrandButton';
 
 interface ConfirmDialogProps {
 	open: boolean;
@@ -67,26 +68,12 @@ export function ConfirmDialog({
 				<p className='text-cobalt-700 mb-6 text-sm leading-[1.55]'>{message}</p>
 
 				<div className='flex justify-end gap-2.5'>
-					<button
-						type='button'
-						onClick={onCancel}
-						className='border-powder-300 text-cobalt-700 hover:bg-sand hover:border-cobalt-700 cursor-pointer rounded-md border bg-transparent px-[18px] py-2 font-mono text-[11px] tracking-[0.12em] uppercase transition-colors'
-					>
+					<BrandButton tone='outline' onClick={onCancel}>
 						{cancelLabel}
-					</button>
-					<button
-						type='button'
-						onClick={onConfirm}
-						autoFocus
-						className={clsx(
-							'text-paper cursor-pointer rounded-md border px-[18px] py-2 font-mono text-[11px] tracking-[0.12em] uppercase transition-colors',
-							isDanger
-								? 'border-terracotta-500 bg-terracotta-500 hover:bg-terracotta-600 hover:border-terracotta-600'
-								: 'border-cobalt-700 bg-cobalt-700 hover:bg-cobalt-800 hover:border-cobalt-800',
-						)}
-					>
+					</BrandButton>
+					<BrandButton tone={isDanger ? 'danger' : 'primary'} onClick={onConfirm} autoFocus>
 						{confirmLabel}
-					</button>
+					</BrandButton>
 				</div>
 			</div>
 		</div>

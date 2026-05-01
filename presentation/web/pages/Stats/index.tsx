@@ -5,6 +5,7 @@ import { llmOpsApi } from '@/client/infrastructure/container';
 import { LLMOpsLogEntry, LLMOpsStats } from '@/client/application/api/ILLMOpsApi';
 import { useSidebarStore } from '@/client/stores/sidebarStore';
 import { MobileMenuButton } from '@/presentation/web/components/MobileMenuButton';
+import { ToggleChip } from '@/presentation/web/components/ui/ToggleChip';
 import { MetricCards } from './MetricCards';
 import { ChartsRow, DailyData } from './ChartsRow';
 import { CitationModel } from './CitationModel';
@@ -182,19 +183,14 @@ export function StatsPage() {
 
 				<div className='flex gap-1.5'>
 					{(['1d', '7d', '30d'] as TimeRange[]).map(r => (
-						<button
+						<ToggleChip
 							key={r}
-							type='button'
+							active={timeRange === r}
 							onClick={() => setTimeRange(r)}
-							className={clsx(
-								'cursor-pointer rounded-md border px-3 py-1.5 font-mono text-[11px] tracking-[0.05em] transition-colors',
-								timeRange === r
-									? 'border-cobalt-800 bg-cobalt-800 text-paper'
-									: 'border-powder-300 bg-paper text-smoke hover:border-cobalt-700',
-							)}
+							className='px-3 py-1.5 font-mono tracking-[0.05em]'
 						>
 							{r}
-						</button>
+						</ToggleChip>
 					))}
 				</div>
 			</div>

@@ -3,6 +3,8 @@ import clsx from 'clsx';
 import { useState } from 'react';
 import { signOut, useSession } from 'next-auth/react';
 import { ConfirmDialog } from '@/presentation/web/components/ConfirmDialog';
+import { BrandButton } from '@/presentation/web/components/ui/BrandButton';
+import { BrandInput } from '@/presentation/web/components/ui/BrandInput';
 
 export function AccountSection() {
 	const { data: session } = useSession();
@@ -83,30 +85,23 @@ export function AccountSection() {
 				<label className='text-smoke mb-1.5 block text-xs'>
 					Type <span className='text-cobalt-800 font-mono'>{user.email}</span> to enable deletion:
 				</label>
-				<input
-					type='text'
+				<BrandInput
 					value={emailInput}
 					onChange={e => setEmailInput(e.target.value)}
 					placeholder={user.email ?? ''}
 					autoComplete='off'
 					disabled={deleting}
-					className='border-powder-300 bg-paper text-cobalt-900 focus:border-cobalt-700 mb-3.5 w-full max-w-[360px] rounded-md border px-3 py-2 text-[13px] outline-none disabled:opacity-50'
+					className='mb-3.5 max-w-[360px]'
 				/>
 
 				<div className='flex flex-wrap items-center gap-3'>
-					<button
-						type='button'
+					<BrandButton
+						tone='danger'
 						onClick={() => setConfirmOpen(true)}
 						disabled={!emailMatches || deleting}
-						className={clsx(
-							'rounded-md border px-[18px] py-2.5 font-mono text-[11px] tracking-[0.12em] uppercase transition-colors',
-							emailMatches && !deleting
-								? 'border-terracotta-500 bg-terracotta-500 text-paper hover:bg-terracotta-600 hover:border-terracotta-600 cursor-pointer'
-								: 'border-powder-300 bg-powder-200 text-smoke cursor-not-allowed',
-						)}
 					>
 						{deleting ? 'Deleting…' : 'Delete account'}
-					</button>
+					</BrandButton>
 					{error && <span className='text-terracotta-600 font-mono text-[11px]'>{error}</span>}
 				</div>
 			</div>

@@ -1,6 +1,7 @@
 'use client';
 import clsx from 'clsx';
 import { IngestResponseDto } from '@/shared/dtos/IngestResponseDto';
+import { IconButton } from '@/presentation/web/components/ui/IconButton';
 
 interface DocumentTableProps {
 	documents: IngestResponseDto[];
@@ -121,17 +122,19 @@ export function DocumentTable({
 							{formatRelative(doc.createdAt)}
 						</div>
 						{onDelete && (
-							<button
-								type='button'
+							<IconButton
+								tone='danger'
+								size='sm'
 								onClick={e => {
 									e.stopPropagation();
 									void onDelete(doc.documentId);
 								}}
 								title='Delete document'
-								className='text-smoke hover:text-terracotta-600 cursor-pointer border-none bg-transparent p-0 text-lg leading-none'
+								aria-label='Delete document'
+								className='text-smoke text-lg leading-none'
 							>
 								×
-							</button>
+							</IconButton>
 						)}
 					</div>
 				);

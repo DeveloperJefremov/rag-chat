@@ -1,6 +1,7 @@
 'use client';
 import clsx from 'clsx';
 import { IngestResponseDto } from '@/shared/dtos/IngestResponseDto';
+import { Button } from '@/presentation/components/ui/button';
 
 interface Props {
 	docs: IngestResponseDto[];
@@ -24,19 +25,21 @@ export function AttachmentChips({ docs, active, onToggle, onDetach }: Props) {
 								: 'border-powder-300 bg-paper text-cobalt-800',
 						)}
 					>
-						<button
+						<Button
 							type='button'
+							variant='ghost'
 							onClick={() => onToggle(d.documentId)}
-							className='desk:max-w-none max-w-[120px] cursor-pointer truncate'
+							className='desk:max-w-none h-auto max-w-[120px] cursor-pointer truncate rounded-none border-none bg-transparent p-0 text-xs font-normal hover:bg-transparent hover:text-current'
 							title={isActive ? 'Deactivate (will not be searched)' : 'Activate'}
 						>
 							{d.name}
-						</button>
-						<button
+						</Button>
+						<Button
 							type='button'
+							variant='ghost'
 							onClick={() => onDetach(d.documentId)}
 							className={clsx(
-								'cursor-pointer transition-colors',
+								'h-auto cursor-pointer rounded-none border-none bg-transparent p-0 font-normal transition-colors hover:bg-transparent',
 								isActive
 									? 'text-paper/70 hover:text-paper'
 									: 'text-smoke hover:text-terracotta-600',
@@ -44,7 +47,7 @@ export function AttachmentChips({ docs, active, onToggle, onDetach }: Props) {
 							title='Detach from chat'
 						>
 							×
-						</button>
+						</Button>
 					</span>
 				);
 			})}

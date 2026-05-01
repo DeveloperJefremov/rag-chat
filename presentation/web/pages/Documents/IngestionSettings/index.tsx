@@ -1,6 +1,7 @@
 'use client';
 import { Label } from '@/presentation/components/ui/label';
-import { Input } from '@/presentation/components/ui/input';
+import { BrandInput } from '@/presentation/web/components/ui/BrandInput';
+import { ToggleChip } from '@/presentation/web/components/ui/ToggleChip';
 import { ChunkingStrategy } from '@/domain/value-objects/ChunkingStrategy';
 
 interface IngestionSettingsValue {
@@ -25,18 +26,14 @@ export function IngestionSettings({ value, onChange }: IngestionSettingsProps) {
 				<Label className='text-xs'>Chunking Strategy</Label>
 				<div className='flex flex-wrap gap-2'>
 					{STRATEGIES.map(s => (
-						<button
+						<ToggleChip
 							key={s}
-							type='button'
+							active={value.strategy === s}
 							onClick={() => onChange({ ...value, strategy: s })}
-							className={`rounded border px-3 py-1 text-xs transition-colors ${
-								value.strategy === s
-									? 'bg-primary text-primary-foreground border-primary'
-									: 'border-input hover:bg-muted'
-							}`}
+							className='px-3 py-1 text-xs'
 						>
 							{s}
-						</button>
+						</ToggleChip>
 					))}
 				</div>
 			</div>
@@ -46,28 +43,28 @@ export function IngestionSettings({ value, onChange }: IngestionSettingsProps) {
 					<Label htmlFor='chunk-size' className='text-xs'>
 						Chunk Size (words)
 					</Label>
-					<Input
+					<BrandInput
 						id='chunk-size'
 						type='number'
 						min={50}
 						max={2000}
 						value={value.chunkSize}
 						onChange={e => onChange({ ...value, chunkSize: Number(e.target.value) })}
-						className='h-8 text-sm'
+						className='h-8'
 					/>
 				</div>
 				<div className='space-y-1.5'>
 					<Label htmlFor='overlap' className='text-xs'>
 						Overlap (words)
 					</Label>
-					<Input
+					<BrandInput
 						id='overlap'
 						type='number'
 						min={0}
 						max={200}
 						value={value.overlap}
 						onChange={e => onChange({ ...value, overlap: Number(e.target.value) })}
-						className='h-8 text-sm'
+						className='h-8'
 					/>
 				</div>
 			</div>

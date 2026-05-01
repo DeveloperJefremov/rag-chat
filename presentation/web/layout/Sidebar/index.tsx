@@ -8,6 +8,8 @@ import { useSidebarStore } from '@/client/stores/sidebarStore';
 import { useSessionStore } from '@/client/stores/sessionStore';
 import { useUploadStore } from '@/client/stores/uploadStore';
 import { ConfirmDialog } from '@/presentation/web/components/ConfirmDialog';
+import { Button } from '@/presentation/components/ui/button';
+import { IconButton } from '@/presentation/web/components/ui/IconButton';
 
 const NAV = [
 	{
@@ -120,13 +122,14 @@ function ChatSection() {
 	return (
 		<>
 			<div className='px-5 pb-3.5'>
-				<button
+				<Button
 					type='button'
+					variant='ghost'
 					onClick={() => createSession()}
-					className='border-cobalt-700 text-paper hover:bg-cobalt-800 flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border bg-transparent py-2.5 text-[13px] transition-colors'
+					className='border-cobalt-700 text-paper hover:bg-cobalt-800 hover:text-paper flex h-auto w-full cursor-pointer items-center justify-center gap-2 rounded-md border bg-transparent py-2.5 text-[13px] font-normal transition-colors'
 				>
 					<span className='text-base leading-none'>+</span> New chat
-				</button>
+				</Button>
 			</div>
 
 			<div className='flex-1 overflow-y-auto pb-2.5'>
@@ -168,12 +171,12 @@ function ChatSection() {
 								<span className='text-smoke font-mono text-[10px]'>
 									{formatRelative(s.createdAt)}
 								</span>
-								<button
-									type='button'
+								<IconButton
+									size='sm'
 									onClick={e => requestDelete(e, s.id, s.title)}
 									title='Delete chat'
 									aria-label='Delete chat'
-									className='text-powder-600 hover:text-terracotta-500 flex cursor-pointer items-center border-none bg-transparent p-0.5 opacity-60 transition-[color,opacity] hover:opacity-100'
+									className='text-powder-600 hover:text-terracotta-500 h-auto w-auto p-0.5 opacity-60 transition-[color,opacity] hover:bg-transparent hover:opacity-100'
 								>
 									<svg
 										width='12'
@@ -188,7 +191,7 @@ function ChatSection() {
 										<path d='M10 11v6M14 11v6' />
 										<path d='M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2' />
 									</svg>
-								</button>
+								</IconButton>
 							</div>
 						</div>
 					);
@@ -294,13 +297,14 @@ function UserMenu({ name, role }: { name: string; role: string }) {
 
 					<div className='bg-cobalt-800 mx-1 h-px' />
 
-					<button
+					<Button
 						type='button'
+						variant='ghost'
 						onClick={() => {
 							setOpen(false);
 							void signOut({ callbackUrl: '/signin' });
 						}}
-						className='text-terracotta-500 hover:bg-terracotta-500/10 flex w-full cursor-pointer items-center gap-2.5 rounded-md border-none bg-transparent px-2.5 py-2 text-left transition-colors'
+						className='text-terracotta-500 hover:bg-terracotta-500/10 hover:text-terracotta-500 flex h-auto w-full cursor-pointer items-center justify-start gap-2.5 rounded-md border-none bg-transparent px-2.5 py-2 text-left font-normal transition-colors'
 					>
 						<svg
 							width='14'
@@ -315,18 +319,19 @@ function UserMenu({ name, role }: { name: string; role: string }) {
 							<line x1='21' y1='12' x2='9' y2='12' />
 						</svg>
 						<span className='font-mono text-[11px] tracking-[0.1em] uppercase'>Sign out</span>
-					</button>
+					</Button>
 				</div>
 			)}
 
-			<button
+			<Button
 				type='button'
+				variant='ghost'
 				onClick={() => setOpen(o => !o)}
 				aria-haspopup='menu'
 				aria-expanded={open}
 				className={clsx(
-					'flex w-full cursor-pointer items-center gap-2.5 rounded-md border-none px-2.5 py-2 text-left transition-colors',
-					open ? 'bg-cobalt-800' : 'bg-transparent hover:bg-white/[0.04]',
+					'flex h-auto w-full cursor-pointer items-center justify-start gap-2.5 rounded-md border-none px-2.5 py-2 text-left font-normal transition-colors',
+					open ? 'bg-cobalt-800 hover:bg-cobalt-800' : 'bg-transparent hover:bg-white/[0.04]',
 				)}
 			>
 				<div className='bg-cobalt-700 text-paper flex h-[26px] w-[26px] flex-shrink-0 items-center justify-center rounded-full font-serif text-[13px] font-normal'>
@@ -352,7 +357,7 @@ function UserMenu({ name, role }: { name: string; role: string }) {
 				>
 					<polyline points='6 9 12 15 18 9' />
 				</svg>
-			</button>
+			</Button>
 		</div>
 	);
 }
@@ -390,11 +395,12 @@ export function Sidebar() {
 	return (
 		<>
 			{mobileOpen && (
-				<button
+				<Button
 					type='button'
+					variant='ghost'
 					aria-label='Close sidebar'
 					onClick={closeMobile}
-					className='bg-cobalt-950/40 desk:hidden fixed inset-0 z-30 cursor-pointer'
+					className='bg-cobalt-950/40 hover:bg-cobalt-950/40 desk:hidden fixed inset-0 z-30 h-auto cursor-pointer rounded-none'
 				/>
 			)}
 			<aside
@@ -413,11 +419,12 @@ export function Sidebar() {
 							RAG Chat
 						</span>
 					</div>
-					<button
-						type='button'
+					<IconButton
+						tone='sidebar'
+						size='sm'
 						aria-label='Close sidebar'
 						onClick={closeMobile}
-						className='text-powder-400 hover:bg-cobalt-800 hover:text-paper desk:hidden -mr-2 cursor-pointer rounded p-1.5'
+						className='desk:hidden -mr-2 p-1.5'
 					>
 						<svg
 							width='16'
@@ -430,7 +437,7 @@ export function Sidebar() {
 							<line x1='18' y1='6' x2='6' y2='18' />
 							<line x1='6' y1='6' x2='18' y2='18' />
 						</svg>
-					</button>
+					</IconButton>
 				</div>
 
 				<nav className='flex flex-col gap-0.5 px-5 pt-3.5 pb-4'>

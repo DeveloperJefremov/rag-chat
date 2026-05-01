@@ -1,6 +1,7 @@
 'use client';
 import clsx from 'clsx';
 import { IngestResponseDto } from '@/shared/dtos/IngestResponseDto';
+import { IconButton } from '@/presentation/web/components/ui/IconButton';
 
 interface Props {
 	documents: IngestResponseDto[];
@@ -50,14 +51,14 @@ export function DocumentCardList({ documents, selectedId, onSelect, onDelete, cl
 							</div>
 						</div>
 						{onDelete && (
-							<button
-								type='button'
+							<IconButton
+								tone='danger'
+								size='md'
 								aria-label='Delete document'
 								onClick={e => {
 									e.stopPropagation();
 									void onDelete(d.documentId);
 								}}
-								className='text-powder-600 hover:bg-terracotta-500/10 hover:text-terracotta-600 flex h-8 w-8 flex-shrink-0 cursor-pointer items-center justify-center rounded-md'
 							>
 								<svg
 									width='14'
@@ -72,7 +73,7 @@ export function DocumentCardList({ documents, selectedId, onSelect, onDelete, cl
 									<path d='M10 11v6M14 11v6' />
 									<path d='M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2' />
 								</svg>
-							</button>
+							</IconButton>
 						)}
 					</div>
 				);

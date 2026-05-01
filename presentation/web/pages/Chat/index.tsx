@@ -9,6 +9,7 @@ import { MessageList } from '@/presentation/web/components/MessageList';
 import { MessageInput } from '@/presentation/web/components/MessageInput';
 import { LimitBadge } from '@/presentation/web/components/LimitBadge';
 import { MobileMenuButton } from '@/presentation/web/components/MobileMenuButton';
+import { Button } from '@/presentation/components/ui/button';
 import { AttachmentChips } from './AttachmentChips';
 import { AddFromLibraryDialog } from './AddFromLibraryDialog';
 
@@ -71,14 +72,15 @@ export function ChatPage() {
 						onDetach={id => sessionId && detach(sessionId, id)}
 					/>
 
-					<button
+					<Button
 						type='button'
+						variant='ghost'
 						onClick={() => setLibraryOpen(true)}
 						disabled={!sessionId}
-						className='text-cobalt-700 cursor-pointer text-xs underline disabled:cursor-not-allowed disabled:opacity-50'
+						className='text-cobalt-700 hover:text-cobalt-700 h-auto cursor-pointer rounded-none border-none bg-transparent p-0 text-xs font-normal underline hover:bg-transparent disabled:cursor-not-allowed disabled:opacity-50'
 					>
 						+ Add from library
-					</button>
+					</Button>
 				</div>
 
 				<div className='flex items-center gap-3'>
@@ -94,13 +96,14 @@ export function ChatPage() {
 					<div className='text-cobalt-800/60 desk:text-2xl text-center font-serif text-xl italic'>
 						No documents attached to this chat
 					</div>
-					<button
+					<Button
 						type='button'
+						variant='ghost'
 						onClick={() => setLibraryOpen(true)}
-						className='cursor-pointer text-xs underline'
+						className='h-auto cursor-pointer rounded-none border-none bg-transparent p-0 text-xs font-normal underline hover:bg-transparent'
 					>
 						+ Add from library
-					</button>
+					</Button>
 				</div>
 			) : (
 				<MessageList

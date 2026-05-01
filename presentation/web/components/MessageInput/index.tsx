@@ -1,6 +1,8 @@
 'use client';
 import clsx from 'clsx';
 import { KeyboardEvent, useRef, useState } from 'react';
+import { Button } from '@/presentation/components/ui/button';
+import { BrandTextarea } from '@/presentation/web/components/ui/BrandTextarea';
 
 interface MessageInputProps {
 	onSend: (message: string) => void;
@@ -40,7 +42,7 @@ export function MessageInput({
 
 	return (
 		<div className='border-powder-200 bg-paper desk:gap-3 desk:p-4 flex flex-shrink-0 items-end gap-2.5 border-t p-3'>
-			<textarea
+			<BrandTextarea
 				ref={textareaRef}
 				value={value}
 				onChange={e => {
@@ -53,18 +55,19 @@ export function MessageInput({
 				placeholder={placeholder}
 				rows={1}
 				className={clsx(
-					'border-powder-300 text-ink focus:border-cobalt-700 max-h-[120px] flex-1 resize-none overflow-y-auto rounded-lg border px-4 py-3 text-sm leading-[1.5] transition-[border-color,background] outline-none',
+					'max-h-[120px] min-h-11 flex-1 overflow-y-auto px-4 py-3 text-sm',
 					isStreaming ? 'bg-sand/50' : 'bg-sand',
 				)}
 			/>
-			<button
+			<Button
 				type='button'
+				variant='ghost'
 				onClick={handleSend}
 				disabled={!canSend}
 				className={clsx(
 					'text-paper flex h-11 flex-shrink-0 items-center gap-1.5 rounded-lg border-none px-5 py-3 text-[13px] font-medium transition-colors',
 					canSend
-						? 'bg-cobalt-800 hover:bg-terracotta-600 cursor-pointer'
+						? 'bg-cobalt-800 hover:bg-terracotta-600 hover:text-paper cursor-pointer'
 						: 'bg-powder-300 cursor-not-allowed',
 				)}
 			>
@@ -77,7 +80,7 @@ export function MessageInput({
 				) : (
 					'Send →'
 				)}
-			</button>
+			</Button>
 		</div>
 	);
 }

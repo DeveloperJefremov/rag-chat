@@ -1,9 +1,10 @@
 'use client';
-import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 import { useUploadStore } from '@/client/stores/uploadStore';
 import { FileDropzone } from '@/presentation/web/components/FileDropzone';
 import { MobileMenuButton } from '@/presentation/web/components/MobileMenuButton';
+import { ToggleChip } from '@/presentation/web/components/ui/ToggleChip';
+import { IconButton } from '@/presentation/web/components/ui/IconButton';
 import { DocumentTable } from './DocumentTable';
 import { DocumentCardList } from './DocumentCardList';
 import { ChunkingStrategy } from '@/domain/value-objects/ChunkingStrategy';
@@ -26,10 +27,11 @@ function ChunkPreviewPanel({ doc, onClose }: { doc: IngestResponseDto; onClose: 
 						{doc.chunkCount} chunks · {doc.chunkingStrategy ?? 'default'}
 					</div>
 				</div>
-				<button
-					type='button'
+				<IconButton
 					onClick={onClose}
-					className='text-smoke hover:text-cobalt-800 cursor-pointer border-none bg-transparent p-1'
+					size='sm'
+					className='text-smoke hover:text-cobalt-800 hover:bg-transparent'
+					aria-label='Close preview'
 				>
 					<svg
 						width='16'
@@ -42,7 +44,7 @@ function ChunkPreviewPanel({ doc, onClose }: { doc: IngestResponseDto; onClose: 
 						<line x1='18' y1='6' x2='6' y2='18' />
 						<line x1='6' y1='6' x2='18' y2='18' />
 					</svg>
-				</button>
+				</IconButton>
 			</div>
 			<div className='flex flex-1 flex-col gap-2.5 overflow-y-auto px-5 py-3.5'>
 				<div className='border-l-cobalt-500 bg-sand rounded-md border-l-[3px] px-3.5 py-3'>
@@ -114,20 +116,14 @@ export function DocumentsPage() {
 				</div>
 				<div className='desk:flex hidden gap-2'>
 					{STRATEGIES.map(s => (
-						<button
+						<ToggleChip
 							key={s.id}
-							type='button'
+							active={strategy === s.id}
 							onClick={() => setStrategy(s.id)}
 							title={s.desc}
-							className={clsx(
-								'cursor-pointer rounded-md border px-3.5 py-1.5 text-xs transition-colors',
-								strategy === s.id
-									? 'border-cobalt-800 bg-cobalt-800 text-paper'
-									: 'border-powder-300 bg-paper text-smoke hover:border-cobalt-700',
-							)}
 						>
 							{s.label}
-						</button>
+						</ToggleChip>
 					))}
 				</div>
 			</div>
@@ -143,20 +139,15 @@ export function DocumentsPage() {
 
 					<div className='desk:hidden flex flex-wrap gap-2'>
 						{STRATEGIES.map(s => (
-							<button
+							<ToggleChip
 								key={s.id}
-								type='button'
+								active={strategy === s.id}
 								onClick={() => setStrategy(s.id)}
 								title={s.desc}
-								className={clsx(
-									'cursor-pointer rounded-md border px-3 py-1.5 text-xs transition-colors',
-									strategy === s.id
-										? 'border-cobalt-800 bg-cobalt-800 text-paper'
-										: 'border-powder-300 bg-paper text-smoke',
-								)}
+								className='px-3'
 							>
 								{s.label}
-							</button>
+							</ToggleChip>
 						))}
 					</div>
 

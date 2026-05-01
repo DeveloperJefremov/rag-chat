@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useUploadStore } from '@/client/stores/uploadStore';
 import { useAttachmentStore } from '@/client/stores/attachmentStore';
+import { Button } from '@/presentation/components/ui/button';
 
 interface Props {
 	sessionId: string;
@@ -43,13 +44,14 @@ export function AddFromLibraryDialog({ sessionId, open, onClose }: Props) {
 			>
 				<div className='mb-3 flex items-center justify-between'>
 					<h3 className='text-cobalt-900 text-sm font-semibold'>Add from library</h3>
-					<button
+					<Button
 						type='button'
+						variant='ghost'
 						onClick={onClose}
-						className='text-smoke hover:text-cobalt-800 cursor-pointer text-xs'
+						className='text-smoke hover:text-cobalt-800 h-auto cursor-pointer rounded-none border-none bg-transparent p-0 text-xs font-normal hover:bg-transparent'
 					>
 						Close
-					</button>
+					</Button>
 				</div>
 				{documents.length === 0 ? (
 					<p className='text-smoke py-6 text-center text-xs'>No documents in your library yet.</p>
@@ -63,14 +65,15 @@ export function AddFromLibraryDialog({ sessionId, open, onClose }: Props) {
 									className='hover:bg-sand text-cobalt-900 flex items-center justify-between gap-2 rounded px-2 py-1.5 text-xs'
 								>
 									<span className='truncate'>{d.name}</span>
-									<button
+									<Button
 										type='button'
+										variant='ghost'
 										disabled={already || busyId === d.documentId}
 										onClick={() => handleAttach(d.documentId)}
-										className='text-cobalt-700 disabled:text-smoke cursor-pointer disabled:cursor-default'
+										className='text-cobalt-700 hover:text-cobalt-700 disabled:text-smoke h-auto cursor-pointer rounded-none border-none bg-transparent p-0 text-xs font-normal hover:bg-transparent disabled:cursor-default disabled:opacity-100'
 									>
 										{already ? 'Attached' : busyId === d.documentId ? '…' : 'Attach'}
-									</button>
+									</Button>
 								</li>
 							);
 						})}

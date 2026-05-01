@@ -2,6 +2,8 @@
 import clsx from 'clsx';
 import { useControlsStore } from '@/client/stores/controlsStore';
 import { ChunkingStrategy } from '@/domain/value-objects/ChunkingStrategy';
+import { ToggleChip } from '@/presentation/web/components/ui/ToggleChip';
+import { BrandSwitch } from '@/presentation/web/components/ui/BrandSwitch';
 
 const STRATEGIES: Array<{ id: ChunkingStrategy; label: string; desc: string }> = [
 	{ id: 'FIXED', label: 'Fixed-size', desc: '512 tokens, 50 overlap' },
@@ -37,24 +39,21 @@ export function RetrievalSection() {
 						{STRATEGIES.map(s => {
 							const active = chunkingStrategy === s.id;
 							return (
-								<button
-									type='button'
+								<ToggleChip
 									key={s.id}
+									active={active}
 									onClick={() => setStrategy(s.id)}
-									className={clsx(
-										'cursor-pointer rounded-md border px-3 py-2.5 text-left transition-colors',
-										active
-											? 'border-cobalt-800 bg-cobalt-800 text-paper'
-											: 'border-powder-300 bg-paper text-cobalt-800 hover:border-cobalt-700',
-									)}
+									className='justify-start px-3 py-2.5 text-left'
 								>
-									<div className='mb-0.5 font-mono text-[11px] tracking-[0.08em] uppercase'>
-										{s.label}
+									<div className='flex flex-col items-start'>
+										<div className='mb-0.5 font-mono text-[11px] tracking-[0.08em] uppercase'>
+											{s.label}
+										</div>
+										<div className={clsx('text-[11px]', active ? 'text-paper/70' : 'text-smoke')}>
+											{s.desc}
+										</div>
 									</div>
-									<div className={clsx('text-[11px]', active ? 'text-paper/70' : 'text-smoke')}>
-										{s.desc}
-									</div>
-								</button>
+								</ToggleChip>
 							);
 						})}
 					</div>
@@ -70,24 +69,16 @@ export function RetrievalSection() {
 						</div>
 					</div>
 					<div className='flex flex-wrap gap-2'>
-						{TOP_K_OPTIONS.map(k => {
-							const active = topK === k;
-							return (
-								<button
-									type='button'
-									key={k}
-									onClick={() => setTopK(k)}
-									className={clsx(
-										'cursor-pointer rounded-md border px-[18px] py-2 font-mono text-xs transition-colors',
-										active
-											? 'border-cobalt-800 bg-cobalt-800 text-paper'
-											: 'border-powder-300 bg-paper text-cobalt-800 hover:border-cobalt-700',
-									)}
-								>
-									{k}
-								</button>
-							);
-						})}
+						{TOP_K_OPTIONS.map(k => (
+							<ToggleChip
+								key={k}
+								active={topK === k}
+								onClick={() => setTopK(k)}
+								className='px-[18px] py-2 font-mono'
+							>
+								{k}
+							</ToggleChip>
+						))}
 					</div>
 				</div>
 
@@ -100,23 +91,11 @@ export function RetrievalSection() {
 							Re-orders retrieved chunks by relevance before sending to the LLM.
 						</div>
 					</div>
-					<button
-						type='button'
-						onClick={() => setReranking(!rerankingEnabled)}
-						role='switch'
-						aria-checked={rerankingEnabled}
-						className={clsx(
-							'relative h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-none transition-colors',
-							rerankingEnabled ? 'bg-cobalt-800' : 'bg-powder-300',
-						)}
-					>
-						<span
-							className={clsx(
-								'bg-paper absolute top-0.5 h-5 w-5 rounded-full transition-[left]',
-								rerankingEnabled ? 'left-[22px]' : 'left-0.5',
-							)}
-						/>
-					</button>
+					<BrandSwitch
+						checked={rerankingEnabled}
+						onCheckedChange={setReranking}
+						aria-label='Toggle reranking'
+					/>
 				</div>
 			</div>
 		</section>
