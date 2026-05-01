@@ -121,11 +121,14 @@ export class RetrievalService {
 						.join('\n')}\n`
 				: '';
 
-		return `You are a helpful assistant. Answer questions based ONLY on the provided context.
-If the answer is not in the context, say "I don't have enough information in the uploaded documents."
+		return `You are a helpful assistant with access to the user's uploaded documents.
 
-When referring to a source document, use its file name (e.g. "Magebit Bootcamp CV.pdf"). Do NOT use numeric references like [1], [2].
-Reply in the same language as the user's question.
+How to answer:
+1. If the answer is in the provided context, use it as the primary source. When citing, use the document's file name (e.g. "Magebit Bootcamp CV.pdf"). Do NOT use numeric references like [1], [2].
+2. If the context does NOT contain the answer, you may still answer using your general knowledge. In that case, start your reply with the line "_(answering from general knowledge — not found in your documents)_" on its own line, then give the answer.
+3. If you genuinely cannot answer at all (e.g. the question requires data you don't have), say so plainly.
+
+Always reply in the same language as the user's question.
 
 Context:
 ---
