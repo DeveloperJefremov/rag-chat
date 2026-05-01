@@ -1,6 +1,7 @@
 'use client';
 import clsx from 'clsx';
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { BrandButton } from '@/presentation/web/components/ui/BrandButton';
 
 interface ConfirmDialogProps {
@@ -34,11 +35,11 @@ export function ConfirmDialog({
 		return () => window.removeEventListener('keydown', onKey);
 	}, [open, onCancel, onConfirm]);
 
-	if (!open) return null;
+	if (!open || typeof document === 'undefined') return null;
 
 	const isDanger = tone === 'danger';
 
-	return (
+	return createPortal(
 		<div
 			role='dialog'
 			aria-modal='true'
@@ -76,6 +77,7 @@ export function ConfirmDialog({
 					</BrandButton>
 				</div>
 			</div>
-		</div>
+		</div>,
+		document.body,
 	);
 }
