@@ -49,6 +49,7 @@ export const ingestionService = new IngestionService({
 
 export const retrievalService = new RetrievalService({
 	chunkRepo,
+	documentRepo,
 	embeddingClient,
 	llmClient,
 	messageRepo,

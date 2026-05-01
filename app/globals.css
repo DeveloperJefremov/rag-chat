@@ -252,8 +252,21 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+	.token-in,
+	.msg-animated,
+	.stat-card,
+	.dot-1,
+	.dot-2,
+	.dot-3 {
+		animation: none !important;
+	}
 	.token-in {
-		animation: none;
+		filter: none !important;
+		opacity: 1 !important;
+		transform: none !important;
+	}
+	html {
+		scroll-behavior: auto !important;
 	}
 }
 

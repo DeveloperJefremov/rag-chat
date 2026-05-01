@@ -82,12 +82,15 @@ export async function POST(req: NextRequest) {
 						controller.enqueue(
 							encoder.encode(`data: ${JSON.stringify({ error: 'limit_reached' })}\n\n`),
 						);
+					} else if (err instanceof Error && err.message === 'document_not_found') {
+						controller.enqueue(
+							encoder.encode(`data: ${JSON.stringify({ error: 'document_not_found' })}\n\n`),
+						);
 					} else {
 						// eslint-disable-next-line no-console
 						console.error('[chat] stream failed:', err);
-						const message = err instanceof Error ? err.message : String(err);
 						controller.enqueue(
-							encoder.encode(`data: ${JSON.stringify({ error: 'internal_error', message })}\n\n`),
+							encoder.encode(`data: ${JSON.stringify({ error: 'internal_error' })}\n\n`),
 						);
 					}
 				} finally {

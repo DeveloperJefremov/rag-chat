@@ -90,6 +90,7 @@ Question: `;
 
 export class RetrievalService {
 	private chunkRepo: IChunkRepository;
+	private documentRepo: IDocumentRepository;
 	private embeddingClient: IEmbeddingClient;
 	private llmClient: ILLMClient;
 	private messageRepo: IMessageRepository;
@@ -100,6 +101,7 @@ export class RetrievalService {
 
 	constructor(deps: RetrievalServiceDeps) {
 		this.chunkRepo = deps.chunkRepo;
+		this.documentRepo = deps.documentRepo;
 		this.embeddingClient = deps.embeddingClient;
 		this.llmClient = deps.llmClient;
 		this.messageRepo = deps.messageRepo;
@@ -146,6 +148,16 @@ Current question: ${userMessage}`;
 		const topK = params.topK ?? TOP_K_CHUNKS;
 		const rerankingEnabled = params.rerankingEnabled ?? true;
 
+		const ownedDocs = await this.documentRepo.findByIds(params.documentIds, params.userId);
+		if (ownedDocs.length !== params.documentIds.length) {
+			const ownedIds = new Set(ownedDocs.map(d => d.id));
+			const missing = params.documentIds.filter(id => !ownedIds.has(id));
+			// eslint-disable-next-line no-console
+			console.error('[chat] document ownership violation', { userId: params.userId, missing });
+			throw new Error('document_not_found');
+		}
+		const allowedDocIds = new Set(params.documentIds);
+
 		const filteredDocIds = filterDocumentsByQuery(
 			params.documentIds,
 			params.documentNames,
@@ -173,6 +185,17 @@ Current question: ${userMessage}`;
 			userId: params.userId,
 			topK: rerankingEnabled ? topK * 4 : topK,
 		});
+		for (const c of candidates) {
+			if (!allowedDocIds.has(c.documentId)) {
+				// eslint-disable-next-line no-console
+				console.error('[chat] chunk leaked from foreign document', {
+					userId: params.userId,
+					chunkId: c.id,
+					documentId: c.documentId,
+				});
+				throw new Error('document_not_found');
+			}
+		}
 		// eslint-disable-next-line no-console
 		console.log('[chat] candidates:', candidates.length);
 

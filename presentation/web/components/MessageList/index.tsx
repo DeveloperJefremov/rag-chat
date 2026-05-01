@@ -66,10 +66,23 @@ function Avatar({ role }: { role: 'USER' | 'ASSISTANT' }) {
 
 function TypingIndicator() {
 	return (
-		<div className='flex items-center gap-1 px-0.5 py-1'>
-			<span className='dot-1 bg-terracotta-500 inline-block h-1.5 w-1.5 rounded-full' />
-			<span className='dot-2 bg-terracotta-500 inline-block h-1.5 w-1.5 rounded-full' />
-			<span className='dot-3 bg-terracotta-500 inline-block h-1.5 w-1.5 rounded-full' />
+		<div
+			className='flex items-center gap-1 px-0.5 py-1'
+			role='status'
+			aria-label='Assistant is typing'
+		>
+			<span
+				className='dot-1 bg-terracotta-500 inline-block h-1.5 w-1.5 rounded-full'
+				aria-hidden='true'
+			/>
+			<span
+				className='dot-2 bg-terracotta-500 inline-block h-1.5 w-1.5 rounded-full'
+				aria-hidden='true'
+			/>
+			<span
+				className='dot-3 bg-terracotta-500 inline-block h-1.5 w-1.5 rounded-full'
+				aria-hidden='true'
+			/>
 		</div>
 	);
 }
@@ -86,7 +99,12 @@ export function MessageList({ messages, citationsByMessageId, isStreaming }: Mes
 	const bottomRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+		const prefersReducedMotion =
+			typeof window !== 'undefined' &&
+			window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+		bottomRef.current?.scrollIntoView({
+			behavior: prefersReducedMotion ? 'auto' : 'smooth',
+		});
 	}, [messages]);
 
 	if (messages.length === 0 && !isStreaming) {
@@ -135,6 +153,9 @@ export function MessageList({ messages, citationsByMessageId, isStreaming }: Mes
 										: 'bg-powder-100 text-ink rounded-[12px_12px_12px_2px]',
 									isThinking && 'thinking-bubble',
 								)}
+								{...(isStreamingThis
+									? { role: 'status', 'aria-live': 'polite', 'aria-atomic': false }
+									: {})}
 							>
 								{isThinking ? (
 									<TypingIndicator />

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { RetrievalService, filterDocumentsByQuery } from '../RetrievalService';
 import type { IChunkRepository } from '../../repositories/IChunkRepository';
+import type { IDocumentRepository } from '../../repositories/IDocumentRepository';
 import type { IEmbeddingClient } from '../../ports/IEmbeddingClient';
 import type { ILLMClient } from '../../ports/ILLMClient';
 import type { IMessageRepository } from '../../repositories/IMessageRepository';
@@ -11,6 +12,11 @@ import type { LLMOpsService } from '../../llmops/LLMOpsService';
 
 const makeDeps = (overrides: Partial<ConstructorParameters<typeof RetrievalService>[0]> = {}) => ({
 	chunkRepo: { similaritySearch: vi.fn().mockResolvedValue([]) } as unknown as IChunkRepository,
+	documentRepo: {
+		findByIds: vi
+			.fn()
+			.mockImplementation(async (ids: string[]) => ids.map(id => ({ id, userId: 'u' }))),
+	} as unknown as IDocumentRepository,
 	embeddingClient: { embed: vi.fn().mockResolvedValue([0.1, 0.2]) } as unknown as IEmbeddingClient,
 	llmClient: {
 		streamMessage: vi.fn(),

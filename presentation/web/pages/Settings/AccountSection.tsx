@@ -5,6 +5,7 @@ import { signOut, useSession } from 'next-auth/react';
 import { ConfirmDialog } from '@/presentation/web/components/ConfirmDialog';
 import { BrandButton } from '@/presentation/web/components/ui/BrandButton';
 import { BrandInput } from '@/presentation/web/components/ui/BrandInput';
+import { accountApi } from '@/client/infrastructure/container';
 
 export function AccountSection() {
 	const { data: session } = useSession();
@@ -24,8 +25,7 @@ export function AccountSection() {
 		setDeleting(true);
 		setError(null);
 		try {
-			const res = await fetch('/api/account', { method: 'DELETE' });
-			if (!res.ok) throw new Error('failed');
+			await accountApi.deleteAccount();
 			await signOut({ callbackUrl: '/signin' });
 		} catch {
 			setError('Could not delete account. Please try again.');
