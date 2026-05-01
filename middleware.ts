@@ -3,18 +3,18 @@ import type { NextRequest } from 'next/server';
 import { auth } from './auth';
 import { checkIpRateLimit } from './shared/lib/rateLimit';
 
-export default auth((request: NextRequest) => {
+export default auth(async (request: NextRequest) => {
 	const { pathname } = request.nextUrl;
 	const session = (request as NextRequest & { auth: unknown }).auth;
 
-	// IP rate limit on all API routes
-	if (pathname.startsWith('/api/')) {
+	// IP rate limit on /api/* (except /api/auth/*, which NextAuth handles itself).
+	if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth/')) {
 		const ip =
 			request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
 			request.headers.get('x-real-ip') ??
 			'127.0.0.1';
 
-		const { allowed, remaining } = checkIpRateLimit(ip);
+		const { allowed, remaining } = await checkIpRateLimit(ip);
 
 		if (!allowed) {
 			return NextResponse.json(
