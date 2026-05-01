@@ -53,7 +53,7 @@ describe('RetrievalService', () => {
 			expect(prompt).toContain('Chunk A content.');
 			expect(prompt).toContain('Chunk B content.');
 			expect(prompt).toContain('What is in the document?');
-			expect(prompt).toContain('answering from general knowledge');
+			expect(prompt).toContain('[GENERAL_KNOWLEDGE]');
 		});
 
 		it('includes chat history when provided', () => {

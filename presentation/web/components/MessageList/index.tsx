@@ -6,6 +6,44 @@ import { CitationDto } from '@/shared/dtos/CitationDto';
 import { CitationList } from '@/presentation/web/components/CitationList';
 import { StreamingText } from '@/presentation/web/components/StreamingText';
 
+const GK_SENTINEL = '[GENERAL_KNOWLEDGE]';
+
+function extractGeneralKnowledge(content: string): { marker: boolean; body: string } {
+	const trimmedStart = content.replace(/^\s+/, '');
+	if (trimmedStart.startsWith(GK_SENTINEL)) {
+		const after = trimmedStart.slice(GK_SENTINEL.length).replace(/^\n/, '');
+		return { marker: true, body: after };
+	}
+	if (GK_SENTINEL.startsWith(trimmedStart) && trimmedStart.length > 0) {
+		return { marker: true, body: '' };
+	}
+	return { marker: false, body: content };
+}
+
+function GeneralKnowledgeBadge() {
+	return (
+		<div className='border-terracotta-500/30 bg-terracotta-500/[0.08] mb-2.5 flex items-center gap-2 rounded-md border px-2.5 py-1.5'>
+			<svg
+				width='12'
+				height='12'
+				viewBox='0 0 24 24'
+				fill='none'
+				stroke='currentColor'
+				strokeWidth='2'
+				className='text-terracotta-600 flex-shrink-0'
+				aria-hidden='true'
+			>
+				<circle cx='12' cy='12' r='10' />
+				<line x1='12' y1='8' x2='12' y2='12' />
+				<line x1='12' y1='16' x2='12.01' y2='16' />
+			</svg>
+			<span className='text-terracotta-700 font-mono text-[9px] leading-none tracking-[0.15em] uppercase'>
+				General knowledge · not from your documents
+			</span>
+		</div>
+	);
+}
+
 interface MessageListProps {
 	messages: MessageDto[];
 	citationsByMessageId: Record<string, CitationDto[]>;
@@ -76,6 +114,9 @@ export function MessageList({ messages, citationsByMessageId, isStreaming }: Mes
 				const isStreamingThis = isStreaming && !isUser && isLast;
 				const isThinking = isStreamingThis && msg.content === '';
 				const animateTokens = isStreamingThis && !isThinking;
+				const extracted = !isUser
+					? extractGeneralKnowledge(msg.content)
+					: { marker: false, body: msg.content };
 				return (
 					<div
 						key={msg.id}
@@ -98,7 +139,14 @@ export function MessageList({ messages, citationsByMessageId, isStreaming }: Mes
 								{isThinking ? (
 									<TypingIndicator />
 								) : (
-									<StreamingText text={msg.content} animate={animateTokens} citations={citations} />
+									<>
+										{extracted.marker && <GeneralKnowledgeBadge />}
+										<StreamingText
+											text={extracted.body}
+											animate={animateTokens}
+											citations={citations}
+										/>
+									</>
 								)}
 							</div>
 							{!isUser && citations.length > 0 && <CitationList citations={citations} />}

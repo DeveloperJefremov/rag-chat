@@ -125,10 +125,10 @@ export class RetrievalService {
 
 How to answer:
 1. If the answer is in the provided context, use it as the primary source. When citing, use the document's file name (e.g. "Magebit Bootcamp CV.pdf"). Do NOT use numeric references like [1], [2].
-2. If the context does NOT contain the answer, you may still answer using your general knowledge. In that case, start your reply with the line "_(answering from general knowledge — not found in your documents)_" on its own line, then give the answer.
-3. If you genuinely cannot answer at all (e.g. the question requires data you don't have), say so plainly.
+2. If the context does NOT contain the answer, you may still answer using your general knowledge. In that case, your VERY FIRST output token must be the literal sentinel "[GENERAL_KNOWLEDGE]" on its own line, immediately followed by a newline, then the answer. Do not translate, paraphrase, or wrap the sentinel in any markup — output it exactly as shown.
+3. If you genuinely cannot answer at all (e.g. the question requires data you don't have), say so plainly without the sentinel.
 
-Always reply in the same language as the user's question.
+Always reply in the same language as the user's question (the sentinel itself stays in English).
 
 Context:
 ---
