@@ -282,7 +282,7 @@ export function StatsPage() {
 						</>
 					)}
 
-					<QueryLogTable logs={filteredLogs.slice().reverse().slice(0, 20)} showCost={showCost} />
+					<QueryLogTable logs={filteredLogs.slice().reverse()} showCost={showCost} />
 				</div>
 			) : (
 				<div className='flex flex-1 items-center justify-center'>
