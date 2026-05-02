@@ -2,6 +2,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { llmOpsApi } from '@/client/infrastructure/container';
+import { UnauthenticatedError } from '@/client/infrastructure/http/apiFetch';
+import { toast } from '@/client/stores/toastStore';
 import { LLMOpsLogEntry, LLMOpsStats } from '@/client/application/api/ILLMOpsApi';
 import { MobileMenuButton } from '@/presentation/web/components/MobileMenuButton';
 import { ToggleChip } from '@/presentation/web/components/ui/ToggleChip';
@@ -198,7 +200,12 @@ export function StatsPage() {
 		llmOpsApi
 			.getStats()
 			.then(setData)
-			.catch(() => setError('Failed to load stats. Admin access required.'));
+			.catch(e => {
+				if (e instanceof UnauthenticatedError) return;
+				const message = 'Failed to load stats. Admin access required.';
+				toast.error('Stats unavailable', message);
+				setError(message);
+			});
 	}, []);
 
 	const filteredLogs = useMemo(

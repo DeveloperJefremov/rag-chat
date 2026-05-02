@@ -6,6 +6,8 @@ import { ConfirmDialog } from '@/presentation/web/components/ConfirmDialog';
 import { BrandButton } from '@/presentation/web/components/ui/BrandButton';
 import { BrandInput } from '@/presentation/web/components/ui/BrandInput';
 import { accountApi } from '@/client/infrastructure/container';
+import { UnauthenticatedError } from '@/client/infrastructure/http/apiFetch';
+import { toast } from '@/client/stores/toastStore';
 
 export function AccountSection() {
 	const { data: session } = useSession();
@@ -27,8 +29,13 @@ export function AccountSection() {
 		try {
 			await accountApi.deleteAccount();
 			await signOut({ callbackUrl: '/signin' });
-		} catch {
+		} catch (e) {
+			if (e instanceof UnauthenticatedError) {
+				setDeleting(false);
+				return;
+			}
 			setError('Could not delete account. Please try again.');
+			toast.error('Could not delete account', 'Please try again.');
 			setDeleting(false);
 		}
 	};

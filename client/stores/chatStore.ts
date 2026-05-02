@@ -4,6 +4,8 @@ import { MessageDto } from '../../shared/dtos/MessageDto';
 import { CitationDto } from '../../shared/dtos/CitationDto';
 import { ChunkingStrategy } from '../../domain/value-objects/ChunkingStrategy';
 import { chatSessionService } from '../infrastructure/container';
+import { UnauthenticatedError } from '../infrastructure/http/apiFetch';
+import { toast } from './toastStore';
 import { useSessionStore } from './sessionStore';
 
 interface SendMessageParams {
@@ -60,10 +62,13 @@ export const useChatStore = create<ChatState>(set => ({
 			}));
 			set({ messages: stripped, citationsByMessageId, isLoadingHistory: false });
 		} catch (e: unknown) {
-			set({
-				error: e instanceof Error ? e.message : 'history_load_failed',
-				isLoadingHistory: false,
-			});
+			if (e instanceof UnauthenticatedError) {
+				set({ isLoadingHistory: false });
+				return;
+			}
+			const msg = e instanceof Error ? e.message : 'history_load_failed';
+			toast.error('Could not load history', msg);
+			set({ error: msg, isLoadingHistory: false });
 		}
 	},
 
@@ -104,6 +109,7 @@ export const useChatStore = create<ChatState>(set => ({
 			},
 			onError: (error, message) => {
 				const display = message ? `⚠ ${error}: ${message}` : `⚠ ${error}`;
+				toast.error(error === 'limit_reached' ? 'Daily limit reached' : 'Chat error', message);
 				set(state => {
 					const msgs = [...state.messages];
 					const last = msgs[msgs.length - 1];

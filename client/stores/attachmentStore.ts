@@ -2,6 +2,8 @@
 import { create } from 'zustand';
 import { IngestResponseDto } from '../../shared/dtos/IngestResponseDto';
 import { ingestionApi } from '../infrastructure/container';
+import { UnauthenticatedError } from '../infrastructure/http/apiFetch';
+import { toast } from './toastStore';
 
 interface AttachmentState {
 	attachedBySession: Record<string, IngestResponseDto[]>;
@@ -35,7 +37,10 @@ export const useAttachmentStore = create<AttachmentState>((set, get) => ({
 				loadedSessions: new Set([...state.loadedSessions, sessionId]),
 			}));
 		} catch (e: unknown) {
-			set({ error: e instanceof Error ? e.message : 'attached_fetch_failed' });
+			if (e instanceof UnauthenticatedError) return;
+			const msg = e instanceof Error ? e.message : 'attached_fetch_failed';
+			toast.error('Could not load attached documents', msg);
+			set({ error: msg });
 		}
 	},
 
@@ -56,7 +61,10 @@ export const useAttachmentStore = create<AttachmentState>((set, get) => ({
 				};
 			});
 		} catch (e: unknown) {
-			set({ error: e instanceof Error ? e.message : 'attach_failed' });
+			if (e instanceof UnauthenticatedError) return;
+			const msg = e instanceof Error ? e.message : 'attach_failed';
+			toast.error('Could not attach document', msg);
+			set({ error: msg });
 		}
 	},
 
@@ -76,7 +84,10 @@ export const useAttachmentStore = create<AttachmentState>((set, get) => ({
 				};
 			});
 		} catch (e: unknown) {
-			set({ error: e instanceof Error ? e.message : 'detach_failed' });
+			if (e instanceof UnauthenticatedError) return;
+			const msg = e instanceof Error ? e.message : 'detach_failed';
+			toast.error('Could not detach document', msg);
+			set({ error: msg });
 		}
 	},
 
