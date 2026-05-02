@@ -1,13 +1,21 @@
 import { IChatApi, StreamChatParams, ChatStreamEvent } from '../../application/api/IChatApi';
 import { MessageDto } from '../../../shared/dtos/MessageDto';
+import { apiFetch, UnauthenticatedError } from './apiFetch';
 
 export class ChatApi implements IChatApi {
 	async *streamChat(params: StreamChatParams): AsyncGenerator<ChatStreamEvent> {
-		const res = await fetch('/api/chat', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(params),
-		});
+		let res: Response;
+		try {
+			res = await apiFetch('/api/chat', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(params),
+			});
+		} catch (e) {
+			if (e instanceof UnauthenticatedError) return;
+			yield { type: 'error', error: 'chat_request_failed' };
+			return;
+		}
 
 		if (!res.ok || !res.body) {
 			yield { type: 'error', error: 'chat_request_failed' };
@@ -48,7 +56,7 @@ export class ChatApi implements IChatApi {
 	}
 
 	async getHistory(sessionId: string): Promise<MessageDto[]> {
-		const res = await fetch(`/api/session/${sessionId}/messages`);
+		const res = await apiFetch(`/api/session/${sessionId}/messages`);
 		if (!res.ok) throw new Error('history_fetch_failed');
 		return (await res.json()) as MessageDto[];
 	}

@@ -4,7 +4,20 @@ import { Aurora } from '@/presentation/web/components/Aurora';
 const MONO: React.CSSProperties = { fontFamily: 'var(--font-jetbrains-mono), monospace' };
 const SERIF: React.CSSProperties = { fontFamily: 'var(--font-fraunces), serif' };
 
-export default function SignInPage() {
+function safeRedirectTarget(raw: string | string[] | undefined): string {
+	const value = Array.isArray(raw) ? raw[0] : raw;
+	if (!value) return '/';
+	if (!value.startsWith('/') || value.startsWith('//')) return '/';
+	return value;
+}
+
+export default async function SignInPage({
+	searchParams,
+}: {
+	searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+	const params = await searchParams;
+	const redirectTo = safeRedirectTarget(params.from);
 	return (
 		<div
 			style={{
@@ -131,7 +144,7 @@ export default function SignInPage() {
 				<form
 					action={async () => {
 						'use server';
-						await signIn('google', { redirectTo: '/' });
+						await signIn('google', { redirectTo });
 					}}
 				>
 					<button

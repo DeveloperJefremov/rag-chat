@@ -1,21 +1,22 @@
 import { ISessionApi } from '../../application/api/ISessionApi';
 import { SessionDto } from '../../../shared/dtos/SessionDto';
+import { apiFetch } from './apiFetch';
 
 export class SessionApi implements ISessionApi {
 	async getSessions(): Promise<SessionDto[]> {
-		const res = await fetch('/api/session');
+		const res = await apiFetch('/api/session');
 		if (!res.ok) throw new Error('session_fetch_failed');
 		return res.json();
 	}
 
 	async createSession(): Promise<SessionDto> {
-		const res = await fetch('/api/session', { method: 'POST' });
+		const res = await apiFetch('/api/session', { method: 'POST' });
 		if (!res.ok) throw new Error('session_create_failed');
 		return res.json();
 	}
 
 	async deleteSession(id: string): Promise<void> {
-		const res = await fetch(`/api/session/${encodeURIComponent(id)}`, { method: 'DELETE' });
+		const res = await apiFetch(`/api/session/${encodeURIComponent(id)}`, { method: 'DELETE' });
 		if (!res.ok) throw new Error('session_delete_failed');
 	}
 }
