@@ -109,17 +109,26 @@ export function DocumentsPage() {
 	const { documents, status, loaded, upload, fetchDocuments, removeDocument } = useUploadStore();
 	const [strategy, setStrategy] = useState<ChunkingStrategy>('RECURSIVE');
 	const [selected, setSelected] = useState<IngestResponseDto | null>(null);
+	const [batchInProgress, setBatchInProgress] = useState(false);
 
 	useEffect(() => {
 		fetchDocuments();
 	}, [fetchDocuments]);
 
-	const handleFile = async (file: File) => {
-		await upload(file, { chunkingStrategy: strategy });
+	const handleFiles = async (files: File[]) => {
+		if (files.length === 0) return;
+		setBatchInProgress(true);
+		try {
+			for (const file of files) {
+				await upload(file, { chunkingStrategy: strategy });
+			}
+		} finally {
+			setBatchInProgress(false);
+		}
 	};
 
 	const totalChunks = documents.reduce((a, d) => a + d.chunkCount, 0);
-	const uploading = status === 'uploading';
+	const uploading = batchInProgress || status === 'uploading';
 	const activeStrategy = STRATEGIES.find(s => s.id === strategy);
 
 	return (
@@ -152,7 +161,7 @@ export function DocumentsPage() {
 
 			<div className='flex flex-1 overflow-hidden'>
 				<div className='desk:px-7 desk:py-6 flex flex-1 flex-col gap-5 overflow-y-auto px-4 py-5'>
-					<FileDropzone onFile={handleFile} disabled={uploading} uploading={uploading} />
+					<FileDropzone onFiles={handleFiles} disabled={uploading} uploading={uploading} />
 
 					<div className='desk:hidden flex flex-wrap gap-2'>
 						{STRATEGIES.map(s => (

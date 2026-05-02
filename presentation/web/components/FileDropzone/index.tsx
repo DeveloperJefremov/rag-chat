@@ -7,47 +7,53 @@ const ACCEPTED = '.pdf,.txt,.docx';
 const MAX_MB = 10;
 
 interface FileDropzoneProps {
-	onFile: (file: File) => void;
+	onFiles: (files: File[]) => void;
 	disabled?: boolean;
 	uploading?: boolean;
 }
 
-export function FileDropzone({ onFile, disabled = false, uploading = false }: FileDropzoneProps) {
+interface RejectedFile {
+	name: string;
+	reason: string;
+}
+
+function validate(file: File): string | null {
+	const ext = file.name.split('.').pop()?.toLowerCase();
+	if (!['pdf', 'txt', 'docx'].includes(ext ?? '')) {
+		return 'unsupported type';
+	}
+	if (file.size > MAX_MB * 1024 * 1024) {
+		return `larger than ${MAX_MB} MB`;
+	}
+	return null;
+}
+
+export function FileDropzone({ onFiles, disabled = false, uploading = false }: FileDropzoneProps) {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [dragging, setDragging] = useState(false);
-	const [validationError, setValidationError] = useState<string | null>(null);
+	const [rejected, setRejected] = useState<RejectedFile[]>([]);
 
-	const validate = (file: File): string | null => {
-		const ext = file.name.split('.').pop()?.toLowerCase();
-		if (!['pdf', 'txt', 'docx'].includes(ext ?? '')) {
-			return 'Only PDF, TXT, and DOCX files are supported.';
+	const handleFiles = (list: FileList | null) => {
+		if (!list || list.length === 0) return;
+		const accepted: File[] = [];
+		const errs: RejectedFile[] = [];
+		for (const f of Array.from(list)) {
+			const err = validate(f);
+			if (err) errs.push({ name: f.name, reason: err });
+			else accepted.push(f);
 		}
-		if (file.size > MAX_MB * 1024 * 1024) {
-			return `File must be smaller than ${MAX_MB} MB.`;
-		}
-		return null;
-	};
-
-	const handleFile = (file: File) => {
-		const err = validate(file);
-		if (err) {
-			setValidationError(err);
-			return;
-		}
-		setValidationError(null);
-		onFile(file);
+		setRejected(errs);
+		if (accepted.length > 0) onFiles(accepted);
 	};
 
 	const handleDrop = (e: DragEvent<HTMLDivElement>) => {
 		e.preventDefault();
 		setDragging(false);
-		const file = e.dataTransfer.files[0];
-		if (file) handleFile(file);
+		handleFiles(e.dataTransfer.files);
 	};
 
 	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0];
-		if (file) handleFile(file);
+		handleFiles(e.target.files);
 		e.target.value = '';
 	};
 
@@ -71,6 +77,7 @@ export function FileDropzone({ onFile, disabled = false, uploading = false }: Fi
 				ref={inputRef}
 				type='file'
 				accept={ACCEPTED}
+				multiple
 				onChange={handleChange}
 				className='hidden'
 			/>
@@ -109,13 +116,20 @@ export function FileDropzone({ onFile, disabled = false, uploading = false }: Fi
 							Drop files here, or click to browse
 						</div>
 						<div className='text-smoke font-mono text-[10px] tracking-[0.1em] uppercase'>
-							PDF · TXT · DOCX — up to {MAX_MB} MB
+							PDF · TXT · DOCX — up to {MAX_MB} MB · multiple supported
 						</div>
 					</div>
-					{validationError && (
-						<div className='text-terracotta-600 font-mono text-[10px] tracking-[0.08em]'>
-							{validationError}
-						</div>
+					{rejected.length > 0 && (
+						<ul
+							className='text-terracotta-600 flex max-w-full flex-col gap-0.5 font-mono text-[10px] tracking-[0.04em]'
+							aria-live='polite'
+						>
+							{rejected.map(r => (
+								<li key={r.name} className='truncate'>
+									{r.name} — {r.reason}
+								</li>
+							))}
+						</ul>
 					)}
 				</>
 			)}
