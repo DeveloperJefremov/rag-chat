@@ -270,6 +270,47 @@
 	}
 }
 
+@keyframes indeterminate {
+	0% {
+		left: -40%;
+		width: 40%;
+	}
+	60% {
+		left: 100%;
+		width: 40%;
+	}
+	100% {
+		left: 100%;
+		width: 40%;
+	}
+}
+
+.progress-indeterminate {
+	position: relative;
+	overflow: hidden;
+}
+
+.progress-indeterminate::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -40%;
+	height: 100%;
+	width: 40%;
+	background: var(--terracotta-500);
+	border-radius: 2px;
+	animation: indeterminate 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.progress-indeterminate::after {
+		animation: none;
+		left: 0;
+		width: 100%;
+		opacity: 0.4;
+	}
+}
+
 @keyframes thinking-shimmer {
 	0% {
 		background-position: 200% 0;

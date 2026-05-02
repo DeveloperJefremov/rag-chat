@@ -5,6 +5,7 @@ import { useChatStore } from '@/client/stores/chatStore';
 import { useControlsStore } from '@/client/stores/controlsStore';
 import { useAttachmentStore } from '@/client/stores/attachmentStore';
 import { useUploadStore } from '@/client/stores/uploadStore';
+import { useUsageStore } from '@/client/stores/usageStore';
 import { MessageList } from '@/presentation/web/components/MessageList';
 import { MessageInput } from '@/presentation/web/components/MessageInput';
 import { LimitBadge } from '@/presentation/web/components/LimitBadge';
@@ -15,9 +16,11 @@ import { AddFromLibraryDialog } from './AddFromLibraryDialog';
 
 export function ChatPage() {
 	const { sessions, activeSessionId, fetchSessions, createSession } = useSessionStore();
-	const { messages, citationsByMessageId, isStreaming, sendMessage } = useChatStore();
+	const { messages, citationsByMessageId, isStreaming, sendMessage, stopStreaming } =
+		useChatStore();
 	const { chunkingStrategy, topK, rerankingEnabled } = useControlsStore();
 	const { fetchDocuments } = useUploadStore();
+	const { remaining, fetchUsage } = useUsageStore();
 	const { attachedBySession, activeBySession, loadAttached, toggleActive, detach } =
 		useAttachmentStore();
 	const [libraryOpen, setLibraryOpen] = useState(false);
@@ -30,7 +33,8 @@ export function ChatPage() {
 	useEffect(() => {
 		fetchSessions();
 		fetchDocuments();
-	}, [fetchSessions, fetchDocuments]);
+		fetchUsage();
+	}, [fetchSessions, fetchDocuments, fetchUsage]);
 
 	useEffect(() => {
 		if (sessionId) void loadAttached(sessionId);
@@ -84,7 +88,7 @@ export function ChatPage() {
 				</div>
 
 				<div className='flex items-center gap-3'>
-					<LimitBadge remaining={null} />
+					<LimitBadge remaining={remaining} />
 					<div className='text-smoke font-mono text-[10px] tracking-[0.15em] uppercase'>
 						{sourcesCount} sources · {activeIds.length} active
 					</div>
@@ -115,6 +119,7 @@ export function ChatPage() {
 
 			<MessageInput
 				onSend={handleSend}
+				onStop={stopStreaming}
 				disabled={activeIds.length === 0}
 				isStreaming={isStreaming}
 				placeholder={

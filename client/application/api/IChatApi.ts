@@ -19,6 +19,6 @@ export type ChatStreamEvent =
 	| { type: 'done' };
 
 export interface IChatApi {
-	streamChat(params: StreamChatParams): AsyncGenerator<ChatStreamEvent>;
+	streamChat(params: StreamChatParams, signal?: AbortSignal): AsyncGenerator<ChatStreamEvent>;
 	getHistory(sessionId: string): Promise<MessageDto[]>;
 }

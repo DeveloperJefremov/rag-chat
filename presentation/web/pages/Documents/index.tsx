@@ -109,25 +109,13 @@ export function DocumentsPage() {
 	const { documents, status, loaded, upload, fetchDocuments, removeDocument } = useUploadStore();
 	const [strategy, setStrategy] = useState<ChunkingStrategy>('RECURSIVE');
 	const [selected, setSelected] = useState<IngestResponseDto | null>(null);
-	const [progress, setProgress] = useState(0);
 
 	useEffect(() => {
 		fetchDocuments();
 	}, [fetchDocuments]);
 
 	const handleFile = async (file: File) => {
-		setProgress(10);
-		const progressInterval = setInterval(() => {
-			setProgress(p => Math.min(p + Math.random() * 12, 90));
-		}, 200);
-
-		try {
-			await upload(file, { chunkingStrategy: strategy });
-			setProgress(100);
-		} finally {
-			clearInterval(progressInterval);
-			setTimeout(() => setProgress(0), 600);
-		}
+		await upload(file, { chunkingStrategy: strategy });
 	};
 
 	const totalChunks = documents.reduce((a, d) => a + d.chunkCount, 0);
@@ -164,12 +152,7 @@ export function DocumentsPage() {
 
 			<div className='flex flex-1 overflow-hidden'>
 				<div className='desk:px-7 desk:py-6 flex flex-1 flex-col gap-5 overflow-y-auto px-4 py-5'>
-					<FileDropzone
-						onFile={handleFile}
-						disabled={uploading}
-						uploading={uploading}
-						progress={Math.round(progress)}
-					/>
+					<FileDropzone onFile={handleFile} disabled={uploading} uploading={uploading} />
 
 					<div className='desk:hidden flex flex-wrap gap-2'>
 						{STRATEGIES.map(s => (

@@ -10,15 +10,9 @@ interface FileDropzoneProps {
 	onFile: (file: File) => void;
 	disabled?: boolean;
 	uploading?: boolean;
-	progress?: number;
 }
 
-export function FileDropzone({
-	onFile,
-	disabled = false,
-	uploading = false,
-	progress = 0,
-}: FileDropzoneProps) {
+export function FileDropzone({ onFile, disabled = false, uploading = false }: FileDropzoneProps) {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [dragging, setDragging] = useState(false);
 	const [validationError, setValidationError] = useState<string | null>(null);
@@ -83,15 +77,16 @@ export function FileDropzone({
 			{uploading ? (
 				<>
 					<div className='border-powder-200 border-t-cobalt-700 h-9 w-9 animate-[spin_0.8s_linear_infinite] rounded-full border-[3px]' />
-					<div className='text-cobalt-800 text-[13px] font-medium'>Indexing…</div>
-					<div className='bg-powder-200 h-1 w-[180px] overflow-hidden rounded-[2px]'>
-						<div
-							className='bg-terracotta-500 h-full rounded-[2px] transition-[width] duration-200'
-							style={{ width: `${progress}%` }}
-						/>
+					<div className='text-cobalt-800 text-[13px] font-medium' aria-live='polite'>
+						Indexing…
 					</div>
+					<div
+						className='bg-powder-200 progress-indeterminate h-1 w-[180px] rounded-[2px]'
+						role='progressbar'
+						aria-label='Uploading and indexing'
+					/>
 					<div className='text-smoke font-mono text-[10px] tracking-[0.1em]'>
-						{progress}% · chunking · embedding
+						chunking · embedding
 					</div>
 				</>
 			) : (

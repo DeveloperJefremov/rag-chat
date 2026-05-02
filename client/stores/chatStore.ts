@@ -7,6 +7,7 @@ import { chatSessionService } from '../infrastructure/container';
 import { UnauthenticatedError } from '../infrastructure/http/apiFetch';
 import { toast } from './toastStore';
 import { useSessionStore } from './sessionStore';
+import { useUsageStore } from './usageStore';
 
 interface SendMessageParams {
 	message: string;
@@ -23,26 +24,38 @@ interface ChatState {
 	isStreaming: boolean;
 	isLoadingHistory: boolean;
 	error: string | null;
+	abortController: AbortController | null;
 	sendMessage: (params: SendMessageParams) => Promise<void>;
+	stopStreaming: () => void;
 	loadHistory: (sessionId: string) => Promise<void>;
 	reset: () => void;
 }
 
-export const useChatStore = create<ChatState>(set => ({
+export const useChatStore = create<ChatState>((set, get) => ({
 	messages: [],
 	citationsByMessageId: {},
 	isStreaming: false,
 	isLoadingHistory: false,
 	error: null,
+	abortController: null,
 
-	reset: () =>
+	reset: () => {
+		const c = get().abortController;
+		if (c) c.abort();
 		set({
 			messages: [],
 			citationsByMessageId: {},
 			error: null,
 			isStreaming: false,
 			isLoadingHistory: false,
-		}),
+			abortController: null,
+		});
+	},
+
+	stopStreaming: () => {
+		const c = get().abortController;
+		if (c) c.abort();
+	},
 
 	loadHistory: async (sessionId: string) => {
 		set({ isLoadingHistory: true, error: null });
@@ -73,53 +86,62 @@ export const useChatStore = create<ChatState>(set => ({
 	},
 
 	sendMessage: async params => {
-		set({ isStreaming: true, error: null });
+		const controller = new AbortController();
+		set({ isStreaming: true, error: null, abortController: controller });
 
 		let currentAssistantId: string | null = null;
 
-		await chatSessionService.send(params, {
-			onUserMessage: msg => {
-				set(state => ({ messages: [...state.messages, msg] }));
+		await chatSessionService.send(
+			params,
+			{
+				onUserMessage: msg => {
+					set(state => ({ messages: [...state.messages, msg] }));
+				},
+				onAssistantStart: msg => {
+					currentAssistantId = msg.id;
+					set(state => ({ messages: [...state.messages, msg] }));
+				},
+				onSources: sources => {
+					if (!currentAssistantId) return;
+					set(state => ({
+						citationsByMessageId: {
+							...state.citationsByMessageId,
+							[currentAssistantId!]: sources,
+						},
+					}));
+				},
+				onChunk: text => {
+					set(state => {
+						const msgs = [...state.messages];
+						const last = msgs[msgs.length - 1];
+						if (last && last.role === 'ASSISTANT') {
+							msgs[msgs.length - 1] = { ...last, content: last.content + text };
+						}
+						return { messages: msgs };
+					});
+				},
+				onTitle: (sessionId, title) => {
+					useSessionStore.getState().updateSessionTitle(sessionId, title);
+				},
+				onError: (error, message) => {
+					const display = message ? `⚠ ${error}: ${message}` : `⚠ ${error}`;
+					toast.error(error === 'limit_reached' ? 'Daily limit reached' : 'Chat error', message);
+					if (error === 'limit_reached') useUsageStore.getState().setExhausted();
+					set(state => {
+						const msgs = [...state.messages];
+						const last = msgs[msgs.length - 1];
+						if (last && last.role === 'ASSISTANT' && last.content === '') {
+							msgs[msgs.length - 1] = { ...last, content: display };
+						}
+						return { messages: msgs, error, isStreaming: false, abortController: null };
+					});
+				},
+				onDone: () => {
+					if (!controller.signal.aborted) useUsageStore.getState().decrement();
+					set({ isStreaming: false, abortController: null });
+				},
 			},
-			onAssistantStart: msg => {
-				currentAssistantId = msg.id;
-				set(state => ({ messages: [...state.messages, msg] }));
-			},
-			onSources: sources => {
-				if (!currentAssistantId) return;
-				set(state => ({
-					citationsByMessageId: {
-						...state.citationsByMessageId,
-						[currentAssistantId!]: sources,
-					},
-				}));
-			},
-			onChunk: text => {
-				set(state => {
-					const msgs = [...state.messages];
-					const last = msgs[msgs.length - 1];
-					if (last && last.role === 'ASSISTANT') {
-						msgs[msgs.length - 1] = { ...last, content: last.content + text };
-					}
-					return { messages: msgs };
-				});
-			},
-			onTitle: (sessionId, title) => {
-				useSessionStore.getState().updateSessionTitle(sessionId, title);
-			},
-			onError: (error, message) => {
-				const display = message ? `⚠ ${error}: ${message}` : `⚠ ${error}`;
-				toast.error(error === 'limit_reached' ? 'Daily limit reached' : 'Chat error', message);
-				set(state => {
-					const msgs = [...state.messages];
-					const last = msgs[msgs.length - 1];
-					if (last && last.role === 'ASSISTANT' && last.content === '') {
-						msgs[msgs.length - 1] = { ...last, content: display };
-					}
-					return { messages: msgs, error, isStreaming: false };
-				});
-			},
-			onDone: () => set({ isStreaming: false }),
-		});
+			controller.signal,
+		);
 	},
 }));

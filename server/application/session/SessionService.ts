@@ -52,6 +52,13 @@ export class SessionService {
 		await this.userUsageRepo.increment(userId);
 	}
 
+	async getRemaining(userId: string, role: UserRole): Promise<number | null> {
+		const limit = LIMITS_BY_ROLE[role].queriesPerDay;
+		if (limit === Infinity) return null;
+		const used = await this.userUsageRepo.getTodayCount(userId);
+		return Math.max(0, limit - used);
+	}
+
 	async delete(userId: string, sessionId: string): Promise<void> {
 		const ok = await this.chatSessionRepo.delete(sessionId, userId);
 		if (!ok) throw new Error('session_not_found');

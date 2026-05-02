@@ -15,7 +15,7 @@ export interface StreamCallbacks {
 export class ChatSessionService {
 	constructor(private api: IChatApi) {}
 
-	async send(params: StreamChatParams, cb: StreamCallbacks): Promise<void> {
+	async send(params: StreamChatParams, cb: StreamCallbacks, signal?: AbortSignal): Promise<void> {
 		const now = new Date().toISOString();
 
 		cb.onUserMessage({
@@ -32,7 +32,7 @@ export class ChatSessionService {
 			createdAt: now,
 		});
 
-		for await (const event of this.api.streamChat(params)) {
+		for await (const event of this.api.streamChat(params, signal)) {
 			if (event.type === 'sources') cb.onSources(event.sources);
 			else if (event.type === 'chunk') cb.onChunk(event.text);
 			else if (event.type === 'title') cb.onTitle(event.sessionId, event.title);
