@@ -6,7 +6,7 @@ import {
 	chatSessionRepo,
 } from '@/server/infrastructure/http/container';
 import { ChatRequestDto } from '@/shared/dtos/ChatRequestDto';
-import { TOP_K_CHUNKS } from '@/shared/config/constants';
+import { TOP_K_CHUNKS, MAX_CHAT_MESSAGE_CHARS } from '@/shared/config/constants';
 
 export async function POST(req: NextRequest) {
 	try {
@@ -14,12 +14,20 @@ export async function POST(req: NextRequest) {
 		const body: ChatRequestDto = await req.json();
 
 		if (
-			!body.message ||
+			typeof body.message !== 'string' ||
+			body.message.trim().length === 0 ||
 			!body.sessionId ||
 			!Array.isArray(body.documentIds) ||
 			body.documentIds.length === 0
 		) {
 			return new Response(JSON.stringify({ error: 'missing_fields' }), { status: 400 });
+		}
+
+		if (body.message.length > MAX_CHAT_MESSAGE_CHARS) {
+			return new Response(
+				JSON.stringify({ error: 'message_too_long', maxChars: MAX_CHAT_MESSAGE_CHARS }),
+				{ status: 413 },
+			);
 		}
 
 		const session = await chatSessionRepo.findById(body.sessionId, user.id);

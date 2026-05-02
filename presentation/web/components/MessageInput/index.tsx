@@ -3,6 +3,9 @@ import clsx from 'clsx';
 import { KeyboardEvent, useRef, useState } from 'react';
 import { Button } from '@/presentation/components/ui/button';
 import { BrandTextarea } from '@/presentation/web/components/ui/BrandTextarea';
+import { MAX_CHAT_MESSAGE_CHARS } from '@/shared/config/constants';
+
+const COUNTER_THRESHOLD = MAX_CHAT_MESSAGE_CHARS * 0.8;
 
 interface MessageInputProps {
 	onSend: (message: string) => void;
@@ -24,7 +27,7 @@ export function MessageInput({
 
 	const handleSend = () => {
 		const trimmed = value.trim();
-		if (!trimmed || disabled) return;
+		if (!trimmed || disabled || trimmed.length > MAX_CHAT_MESSAGE_CHARS) return;
 		onSend(trimmed);
 		setValue('');
 		if (textareaRef.current) {
@@ -40,27 +43,45 @@ export function MessageInput({
 		}
 	};
 
-	const canSend = !disabled && value.trim().length > 0;
+	const trimmedLen = value.trim().length;
+	const tooLong = trimmedLen > MAX_CHAT_MESSAGE_CHARS;
+	const showCounter = value.length >= COUNTER_THRESHOLD;
+	const canSend = !disabled && trimmedLen > 0 && !tooLong;
 
 	return (
 		<div className='border-powder-200 bg-paper desk:gap-3 desk:p-4 flex flex-shrink-0 items-end gap-2.5 border-t p-3'>
-			<BrandTextarea
-				ref={textareaRef}
-				value={value}
-				onChange={e => {
-					setValue(e.target.value);
-					e.target.style.height = 'auto';
-					e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
-				}}
-				onKeyDown={handleKey}
-				disabled={isStreaming}
-				placeholder={placeholder}
-				rows={1}
-				className={clsx(
-					'max-h-[120px] min-h-11 flex-1 overflow-y-auto px-4 py-3 text-sm',
-					isStreaming ? 'bg-sand/50' : 'bg-sand',
+			<div className='relative flex-1'>
+				<BrandTextarea
+					ref={textareaRef}
+					value={value}
+					onChange={e => {
+						setValue(e.target.value);
+						e.target.style.height = 'auto';
+						e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+					}}
+					onKeyDown={handleKey}
+					disabled={isStreaming}
+					placeholder={placeholder}
+					rows={1}
+					maxLength={MAX_CHAT_MESSAGE_CHARS}
+					aria-invalid={tooLong || undefined}
+					className={clsx(
+						'max-h-[120px] min-h-11 w-full overflow-y-auto px-4 py-3 text-sm',
+						isStreaming ? 'bg-sand/50' : 'bg-sand',
+					)}
+				/>
+				{showCounter && (
+					<span
+						aria-live='polite'
+						className={clsx(
+							'pointer-events-none absolute right-2 bottom-1 font-mono text-[10px] tracking-[0.05em]',
+							tooLong ? 'text-terracotta-600' : 'text-smoke',
+						)}
+					>
+						{trimmedLen}/{MAX_CHAT_MESSAGE_CHARS}
+					</span>
 				)}
-			/>
+			</div>
 			{isStreaming ? (
 				<Button
 					type='button'

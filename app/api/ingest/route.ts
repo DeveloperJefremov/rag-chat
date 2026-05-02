@@ -9,6 +9,7 @@ import {
 import { FileType } from '@/domain/value-objects/FileType';
 import { ChunkingStrategy } from '@/domain/value-objects/ChunkingStrategy';
 import { MAX_FILE_SIZE_MB, SUPPORTED_FILE_TYPES } from '@/shared/config/constants';
+import { verifyFileSignature } from '@/shared/lib/fileSignature';
 
 const EXT_TO_FILE_TYPE: Record<string, FileType> = {
 	pdf: 'PDF',
@@ -60,6 +61,13 @@ export async function POST(req: NextRequest) {
 
 		const buffer = Buffer.from(await file.arrayBuffer());
 		const fileType = EXT_TO_FILE_TYPE[ext];
+
+		if (!verifyFileSignature(buffer, fileType)) {
+			return NextResponse.json(
+				{ error: 'file_signature_mismatch', expected: fileType },
+				{ status: 400 },
+			);
+		}
 
 		const result = await ingestionService.ingest({
 			buffer,
