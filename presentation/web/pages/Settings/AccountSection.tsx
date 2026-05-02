@@ -1,6 +1,7 @@
 'use client';
 import clsx from 'clsx';
 import { useState } from 'react';
+import Image from 'next/image';
 import { signOut, useSession } from 'next-auth/react';
 import { ConfirmDialog } from '@/presentation/web/components/ConfirmDialog';
 import { BrandButton } from '@/presentation/web/components/ui/BrandButton';
@@ -52,10 +53,16 @@ export function AccountSection() {
 			</header>
 
 			<div className='border-powder-200 bg-paper mb-7 flex flex-wrap items-center gap-4 rounded-[10px] border p-5'>
-				<div className='bg-cobalt-700 text-paper flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-full font-serif text-[22px]'>
+				<div className='bg-cobalt-700 text-paper relative flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-full font-serif text-[22px]'>
 					{user.image ? (
-						// eslint-disable-next-line @next/next/no-img-element
-						<img src={user.image} alt='' className='h-full w-full object-cover' />
+						<Image
+							src={user.image}
+							alt=''
+							width={56}
+							height={56}
+							sizes='56px'
+							className='h-full w-full object-cover'
+						/>
 					) : (
 						(user.name?.[0] ?? user.email?.[0] ?? 'U').toUpperCase()
 					)}

@@ -49,6 +49,12 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
 	serverExternalPackages: ['@huggingface/transformers', 'onnxruntime-node'],
+	images: {
+		remotePatterns: [
+			{ protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+			{ protocol: 'https', hostname: '*.googleusercontent.com' },
+		],
+	},
 	async headers() {
 		return [
 			{
