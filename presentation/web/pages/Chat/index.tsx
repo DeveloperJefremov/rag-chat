@@ -13,13 +13,14 @@ import { MobileMenuButton } from '@/presentation/web/components/MobileMenuButton
 import { Button } from '@/presentation/components/ui/button';
 import { AttachmentChips } from './AttachmentChips';
 import { AddFromLibraryDialog } from './AddFromLibraryDialog';
+import { OnboardingHero } from './OnboardingHero';
 
 export function ChatPage() {
 	const { sessions, activeSessionId, fetchSessions, createSession } = useSessionStore();
 	const { messages, citationsByMessageId, isStreaming, sendMessage, stopStreaming } =
 		useChatStore();
 	const { chunkingStrategy, topK, rerankingEnabled } = useControlsStore();
-	const { fetchDocuments } = useUploadStore();
+	const { documents, loaded: documentsLoaded, fetchDocuments } = useUploadStore();
 	const { remaining, fetchUsage } = useUsageStore();
 	const { attachedBySession, activeBySession, loadAttached, toggleActive, detach } =
 		useAttachmentStore();
@@ -95,7 +96,9 @@ export function ChatPage() {
 				</div>
 			</div>
 
-			{attached.length === 0 ? (
+			{documentsLoaded && documents.length === 0 ? (
+				<OnboardingHero />
+			) : attached.length === 0 ? (
 				<div className='desk:p-10 flex flex-1 flex-col items-center justify-center gap-3 p-6'>
 					<div className='text-cobalt-800/60 desk:text-2xl text-center font-serif text-xl italic'>
 						No documents attached to this chat
@@ -117,17 +120,19 @@ export function ChatPage() {
 				/>
 			)}
 
-			<MessageInput
-				onSend={handleSend}
-				onStop={stopStreaming}
-				disabled={activeIds.length === 0}
-				isStreaming={isStreaming}
-				placeholder={
-					activeIds.length === 0
-						? 'Attach or activate a document first…'
-						: 'Ask anything about your knowledge base…'
-				}
-			/>
+			{!(documentsLoaded && documents.length === 0) && (
+				<MessageInput
+					onSend={handleSend}
+					onStop={stopStreaming}
+					disabled={activeIds.length === 0}
+					isStreaming={isStreaming}
+					placeholder={
+						activeIds.length === 0
+							? 'Attach or activate a document first…'
+							: 'Ask anything about your knowledge base…'
+					}
+				/>
+			)}
 
 			{sessionId && (
 				<AddFromLibraryDialog
