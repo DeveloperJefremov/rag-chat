@@ -2,12 +2,14 @@
 import clsx from 'clsx';
 import { IngestResponseDto } from '@/shared/dtos/IngestResponseDto';
 import { IconButton } from '@/presentation/web/components/ui/IconButton';
+import { Skeleton } from '@/presentation/components/ui/skeleton';
 
 interface DocumentTableProps {
 	documents: IngestResponseDto[];
 	selectedId: string | null;
 	onSelect: (doc: IngestResponseDto | null) => void;
 	onDelete?: (id: string) => Promise<void> | void;
+	loading?: boolean;
 	className?: string;
 }
 
@@ -52,8 +54,54 @@ export function DocumentTable({
 	selectedId,
 	onSelect,
 	onDelete,
+	loading,
 	className,
 }: DocumentTableProps) {
+	const cols = onDelete ? '2fr 70px 110px 80px 40px' : '2fr 70px 110px 80px';
+	const headers = ['Document', 'Chunks', 'Strategy', 'Added'];
+	if (onDelete) headers.push('');
+
+	if (loading && documents.length === 0) {
+		return (
+			<div
+				className={clsx('border-powder-200 bg-paper overflow-hidden rounded-lg border', className)}
+				aria-busy='true'
+				aria-live='polite'
+				aria-label='Loading documents'
+			>
+				<div
+					className='bg-sand border-powder-200 grid border-b px-4 py-2.5'
+					style={{ gridTemplateColumns: cols }}
+				>
+					{headers.map((h, i) => (
+						<div
+							key={`${h}-${i}`}
+							className='text-smoke font-mono text-[9px] tracking-[0.15em] uppercase'
+						>
+							{h}
+						</div>
+					))}
+				</div>
+				{Array.from({ length: 4 }).map((_, i) => (
+					<div
+						key={i}
+						className={clsx('grid items-center px-4 py-3', i < 3 && 'border-powder-200 border-b')}
+						style={{ gridTemplateColumns: cols }}
+					>
+						<div className='flex min-w-0 items-center gap-2.5'>
+							<Skeleton className='h-8 w-8 flex-shrink-0 rounded-md' />
+							<Skeleton className='h-3 w-3/5' />
+						</div>
+						<Skeleton className='h-3 w-8' />
+						<Skeleton className='h-3 w-16' />
+						<Skeleton className='h-3 w-12' />
+						{onDelete && <Skeleton className='h-6 w-6 rounded' />}
+					</div>
+				))}
+			</div>
+		);
+	}
+
 	if (documents.length === 0) {
 		return (
 			<div
@@ -66,10 +114,6 @@ export function DocumentTable({
 			</div>
 		);
 	}
-
-	const cols = onDelete ? '2fr 70px 110px 80px 40px' : '2fr 70px 110px 80px';
-	const headers = ['Document', 'Chunks', 'Strategy', 'Added'];
-	if (onDelete) headers.push('');
 
 	return (
 		<div

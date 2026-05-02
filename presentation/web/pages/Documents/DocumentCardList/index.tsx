@@ -2,12 +2,14 @@
 import clsx from 'clsx';
 import { IngestResponseDto } from '@/shared/dtos/IngestResponseDto';
 import { IconButton } from '@/presentation/web/components/ui/IconButton';
+import { Skeleton } from '@/presentation/components/ui/skeleton';
 
 interface Props {
 	documents: IngestResponseDto[];
 	selectedId: string | null;
 	onSelect: (doc: IngestResponseDto | null) => void;
 	onDelete?: (id: string) => Promise<void> | void;
+	loading?: boolean;
 	className?: string;
 }
 
@@ -16,7 +18,41 @@ function fileType(name: string): string {
 	return (ext ?? 'txt').toUpperCase();
 }
 
-export function DocumentCardList({ documents, selectedId, onSelect, onDelete, className }: Props) {
+export function DocumentCardList({
+	documents,
+	selectedId,
+	onSelect,
+	onDelete,
+	loading,
+	className,
+}: Props) {
+	if (loading && documents.length === 0) {
+		return (
+			<div
+				className={clsx('flex flex-col gap-2', className)}
+				aria-busy='true'
+				aria-live='polite'
+				aria-label='Loading documents'
+			>
+				{Array.from({ length: 4 }).map((_, i) => (
+					<div
+						key={i}
+						className='border-powder-200 bg-paper flex items-start gap-3 rounded-lg border p-4'
+					>
+						<div className='min-w-0 flex-1'>
+							<div className='flex items-center gap-2'>
+								<Skeleton className='h-3.5 w-2/5' />
+								<Skeleton className='h-2.5 w-8 flex-shrink-0' />
+							</div>
+							<Skeleton className='mt-2 h-2.5 w-1/3' />
+						</div>
+						{onDelete && <Skeleton className='h-6 w-6 flex-shrink-0 rounded' />}
+					</div>
+				))}
+			</div>
+		);
+	}
+
 	if (documents.length === 0) {
 		return (
 			<div className={clsx('text-smoke py-10 text-center text-sm', className)}>

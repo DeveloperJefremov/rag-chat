@@ -9,6 +9,7 @@ import { useSessionStore } from '@/client/stores/sessionStore';
 import { ConfirmDialog } from '@/presentation/web/components/ConfirmDialog';
 import { Button } from '@/presentation/components/ui/button';
 import { IconButton } from '@/presentation/web/components/ui/IconButton';
+import { Skeleton } from '@/presentation/components/ui/skeleton';
 
 const NAV = [
 	{
@@ -84,6 +85,19 @@ function formatRelative(iso: string): string {
 	return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+function SessionListSkeleton() {
+	return (
+		<div className='flex flex-col gap-1.5 px-5 py-1.5' aria-hidden='true'>
+			{[68, 84, 60, 76, 70].map((w, i) => (
+				<div key={i} className='flex items-start justify-between gap-2 py-1'>
+					<Skeleton className='h-3 bg-white/[0.06]' style={{ width: `${w}%` }} />
+					<Skeleton className='h-2.5 w-8 flex-shrink-0 bg-white/[0.06]' />
+				</div>
+			))}
+		</div>
+	);
+}
+
 function ChatSection() {
 	const {
 		sessions,
@@ -92,6 +106,7 @@ function ChatSection() {
 		createSession,
 		fetchSessions,
 		deleteSession,
+		isLoading,
 	} = useSessionStore();
 	const router = useRouter();
 	const pathname = usePathname();
@@ -146,7 +161,8 @@ function ChatSection() {
 
 			<div className='flex-1 overflow-y-auto pb-2.5'>
 				<div className={clsx(SECTION_LABEL_CLASS, 'px-5 pt-1.5 pb-2')}>Recent</div>
-				{sessions.length === 0 && (
+				{isLoading && sessions.length === 0 && <SessionListSkeleton />}
+				{!isLoading && sessions.length === 0 && (
 					<div className='text-powder-600/60 px-5 py-1.5 text-xs'>No chats yet</div>
 				)}
 				<ConfirmDialog

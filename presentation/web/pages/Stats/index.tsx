@@ -1,9 +1,11 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
+import clsx from 'clsx';
 import { llmOpsApi } from '@/client/infrastructure/container';
 import { LLMOpsLogEntry, LLMOpsStats } from '@/client/application/api/ILLMOpsApi';
 import { MobileMenuButton } from '@/presentation/web/components/MobileMenuButton';
 import { ToggleChip } from '@/presentation/web/components/ui/ToggleChip';
+import { Skeleton } from '@/presentation/components/ui/skeleton';
 import { MetricCards } from './MetricCards';
 import { ChartsRow, DailyData } from './ChartsRow';
 import { CitationModel } from './CitationModel';
@@ -109,6 +111,83 @@ function buildDateLabel(logs: LLMOpsLogEntry[], range: TimeRange): string {
 	return `${fmt(min)} — ${fmt(max)}, ${max.getFullYear()} · ${days}`;
 }
 
+function StatsSkeleton() {
+	return (
+		<div
+			className='desk:px-7 desk:py-6 desk:gap-8 flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-5'
+			aria-busy='true'
+			aria-live='polite'
+			aria-label='Loading observability data'
+		>
+			<div className='desk:grid-cols-4 desk:gap-4 grid grid-cols-2 gap-3'>
+				{Array.from({ length: 4 }).map((_, i) => (
+					<div
+						key={i}
+						className='border-powder-200 bg-paper desk:p-5 flex flex-col gap-1.5 rounded-[10px] border p-4'
+					>
+						<Skeleton className='h-2.5 w-20' />
+						<Skeleton className='desk:h-8 mt-1 h-7 w-24' />
+						<div className='flex items-center gap-1.5'>
+							<Skeleton className='h-3 w-10' />
+							<Skeleton className='h-2.5 w-20' />
+						</div>
+					</div>
+				))}
+			</div>
+
+			<div className='desk:grid-cols-2 desk:gap-4 grid grid-cols-1 gap-4'>
+				{Array.from({ length: 2 }).map((_, i) => (
+					<div
+						key={i}
+						className='border-powder-200 bg-paper min-w-0 rounded-[10px] border px-5 py-4'
+					>
+						<div className='mb-4 flex items-start justify-between'>
+							<div className='flex flex-col gap-1.5'>
+								<Skeleton className='h-2.5 w-24' />
+								<Skeleton className='h-5 w-16' />
+							</div>
+							<Skeleton className='h-2.5 w-14' />
+						</div>
+						<Skeleton className='h-[100px] w-full rounded-md' />
+						<div className='mt-1.5 flex justify-between gap-2'>
+							{Array.from({ length: 7 }).map((_, j) => (
+								<Skeleton key={j} className='h-2 flex-1' />
+							))}
+						</div>
+					</div>
+				))}
+			</div>
+
+			<div className='border-powder-200 bg-paper overflow-hidden rounded-[10px] border'>
+				<div className='border-powder-200 flex items-center justify-between border-b px-5 py-3.5'>
+					<Skeleton className='h-2.5 w-28' />
+					<Skeleton className='h-2.5 w-20' />
+				</div>
+				<div className='bg-sand border-powder-200 grid grid-cols-[3fr_90px_180px_60px_80px] gap-4 border-b px-5 py-2'>
+					{Array.from({ length: 5 }).map((_, i) => (
+						<Skeleton key={i} className='h-2.5 w-12' />
+					))}
+				</div>
+				{Array.from({ length: 5 }).map((_, i) => (
+					<div
+						key={i}
+						className={clsx(
+							'grid grid-cols-[3fr_90px_180px_60px_80px] items-center gap-4 px-5 py-2.5',
+							i < 4 && 'border-powder-200 border-b',
+						)}
+					>
+						<Skeleton className='h-3 w-4/5' />
+						<Skeleton className='h-3 w-12' />
+						<Skeleton className='h-3 w-24' />
+						<Skeleton className='h-1.5 w-10' />
+						<Skeleton className='h-3 w-14' />
+					</div>
+				))}
+			</div>
+		</div>
+	);
+}
+
 export function StatsPage() {
 	const [data, setData] = useState<LLMOpsStats | null>(null);
 	const [error, setError] = useState<string | null>(null);
@@ -144,13 +223,7 @@ export function StatsPage() {
 		);
 	}
 
-	if (!data) {
-		return (
-			<div className='flex h-full items-center justify-center'>
-				<p className='text-smoke font-mono text-[13px]'>Loading LLMOps data…</p>
-			</div>
-		);
-	}
+	const loading = !data;
 
 	return (
 		<div className='bg-paper flex h-full flex-col overflow-hidden'>
@@ -161,9 +234,13 @@ export function StatsPage() {
 						<h1 className='text-cobalt-800 desk:text-[22px] m-0 font-serif text-xl font-light tracking-[-0.01em] italic'>
 							Observability
 						</h1>
-						<div className='text-smoke mt-0.5 font-mono text-[10px] tracking-[0.1em] uppercase'>
-							{dateLabel}
-						</div>
+						{loading ? (
+							<Skeleton className='mt-1 h-2.5 w-44' />
+						) : (
+							<div className='text-smoke mt-0.5 font-mono text-[10px] tracking-[0.1em] uppercase'>
+								{dateLabel}
+							</div>
+						)}
 					</div>
 				</div>
 
@@ -181,7 +258,9 @@ export function StatsPage() {
 				</div>
 			</div>
 
-			{kpi ? (
+			{loading ? (
+				<StatsSkeleton />
+			) : kpi ? (
 				<div className='desk:px-7 desk:py-6 desk:gap-8 flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-5'>
 					<MetricCards kpi={kpi} />
 

@@ -106,7 +106,7 @@ function ChunkPreviewPanel({ doc, onClose }: { doc: IngestResponseDto; onClose: 
 }
 
 export function DocumentsPage() {
-	const { documents, status, upload, fetchDocuments, removeDocument } = useUploadStore();
+	const { documents, status, loaded, upload, fetchDocuments, removeDocument } = useUploadStore();
 	const [strategy, setStrategy] = useState<ChunkingStrategy>('RECURSIVE');
 	const [selected, setSelected] = useState<IngestResponseDto | null>(null);
 	const [progress, setProgress] = useState(0);
@@ -205,6 +205,7 @@ export function DocumentsPage() {
 						selectedId={selected?.documentId ?? null}
 						onSelect={setSelected}
 						onDelete={removeDocument}
+						loading={!loaded}
 					/>
 					<DocumentCardList
 						className='desk:hidden'
@@ -212,6 +213,7 @@ export function DocumentsPage() {
 						selectedId={selected?.documentId ?? null}
 						onSelect={setSelected}
 						onDelete={removeDocument}
+						loading={!loaded}
 					/>
 				</div>
 
