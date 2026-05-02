@@ -71,4 +71,11 @@ export class PrismaChatSessionRepository implements IChatSessionRepository {
 		if (result.count === 0) return null;
 		return this.findById(id, userId);
 	}
+
+	async deleteExpired(now: Date): Promise<number> {
+		const result = await prisma.chatSession.deleteMany({
+			where: { expiresAt: { lt: now } },
+		});
+		return result.count;
+	}
 }

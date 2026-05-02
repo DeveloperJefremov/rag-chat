@@ -8,3 +8,4 @@ export const IP_RATE_LIMIT_RPM = 60;
 export const SUPPORTED_FILE_TYPES = ['pdf', 'txt', 'docx'] as const;
 export const MAX_HISTORY_MESSAGES = 10;
 export const MAX_CHAT_MESSAGE_CHARS = 4000;
+export const LLMLOG_RETENTION_DAYS = 90;

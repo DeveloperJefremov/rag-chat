@@ -82,4 +82,11 @@ export class PrismaLLMLogRepository implements ILLMLogRepository {
 			},
 		});
 	}
+
+	async deleteOlderThan(cutoff: Date): Promise<number> {
+		const result = await prisma.lLMLog.deleteMany({
+			where: { createdAt: { lt: cutoff } },
+		});
+		return result.count;
+	}
 }

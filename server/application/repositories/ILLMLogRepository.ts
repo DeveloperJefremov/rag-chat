@@ -28,4 +28,5 @@ export interface ILLMLogRepository {
 	getRecent(limit: number): Promise<LLMLog[]>;
 	aggregateByUser(userId: string): Promise<UserLLMStats>;
 	anonymizeByUser(userId: string): Promise<void>;
+	deleteOlderThan(cutoff: Date): Promise<number>;
 }

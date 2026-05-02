@@ -19,6 +19,7 @@ import { IngestionService } from '../../application/ingestion/IngestionService';
 import { RetrievalService } from '../../application/retrieval/RetrievalService';
 import { LLMOpsService } from '../../application/llmops/LLMOpsService';
 import { AccountService } from '../../application/account/AccountService';
+import { CleanupService } from '../../application/cleanup/CleanupService';
 import { CHUNK_SIZE, CHUNK_OVERLAP } from '../../../shared/config/constants';
 
 const chatSessionRepo = new PrismaChatSessionRepository();
@@ -70,3 +71,5 @@ export const accountService = new AccountService(
 	llmLogRepo,
 	deletedUserAuditRepo,
 );
+
+export const cleanupService = new CleanupService(chatSessionRepo, llmLogRepo);

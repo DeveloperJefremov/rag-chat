@@ -17,4 +17,5 @@ export interface IChatSessionRepository {
 	create(data: CreateChatSessionData): Promise<ChatSession>;
 	update(id: string, userId: string, data: UpdateChatSessionData): Promise<ChatSession | null>;
 	delete(id: string, userId: string): Promise<boolean>;
+	deleteExpired(now: Date): Promise<number>;
 }

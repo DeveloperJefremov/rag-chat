@@ -21,6 +21,7 @@ const makeSessionRepo = (
 	create: vi.fn(),
 	update: vi.fn(),
 	delete: vi.fn(),
+	deleteExpired: vi.fn(),
 	...overrides,
 });
 
