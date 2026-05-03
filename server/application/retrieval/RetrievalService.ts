@@ -17,6 +17,7 @@ import {
 	COST_USD_PER_M_GEMINI_INPUT_TOKENS,
 	COST_USD_PER_M_GEMINI_OUTPUT_TOKENS,
 	COST_USD_PER_RERANK_CALL,
+	RERANK_CANDIDATE_MULTIPLIER,
 } from '../../../shared/config/constants';
 import {
 	DOC_FILTER_STOPWORDS,
@@ -185,13 +186,13 @@ Current question: ${userMessage}`;
 		// eslint-disable-next-line no-console
 		console.log('[chat] similarity search', {
 			documentIds: filteredDocIds,
-			topK: rerankingEnabled ? topK * 4 : topK,
+			topK: rerankingEnabled ? topK * RERANK_CANDIDATE_MULTIPLIER : topK,
 		});
 		const candidates = await this.chunkRepo.similaritySearch({
 			queryVector,
 			documentIds: filteredDocIds,
 			userId: params.userId,
-			topK: rerankingEnabled ? topK * 4 : topK,
+			topK: rerankingEnabled ? topK * RERANK_CANDIDATE_MULTIPLIER : topK,
 		});
 		for (const c of candidates) {
 			if (!allowedDocIds.has(c.documentId)) {

@@ -14,3 +14,9 @@ export const COST_USD_PER_M_EMBED_TOKENS = 0.01;
 export const COST_USD_PER_M_GEMINI_INPUT_TOKENS = 0.075;
 export const COST_USD_PER_M_GEMINI_OUTPUT_TOKENS = 0.3;
 export const COST_USD_PER_RERANK_CALL = 0.002;
+
+// How many candidates the vector search returns per final slot before rerank.
+// Higher = better recall but more tokens to rerank; lower = cheaper but risks
+// dropping relevant chunks before the reranker sees them. Tune with offline
+// recall@k measurements before changing.
+export const RERANK_CANDIDATE_MULTIPLIER = 3;
