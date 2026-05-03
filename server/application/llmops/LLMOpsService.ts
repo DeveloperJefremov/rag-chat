@@ -39,6 +39,7 @@ export class LLMOpsService {
 				chunkingStrategy: l.chunkingStrategy,
 				hasCitation: l.hasCitation,
 				rerankingUsed: l.rerankingUsed,
+				retrievedChunks: l.retrievedChunks,
 				createdAt: l.createdAt.toISOString(),
 			})),
 		};

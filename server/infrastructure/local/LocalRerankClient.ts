@@ -1,4 +1,8 @@
-import { IRerankClient, RerankCandidate } from '../../application/ports/IRerankClient';
+import {
+	IRerankClient,
+	RerankCandidate,
+	RerankResult,
+} from '../../application/ports/IRerankClient';
 import type { PreTrainedTokenizer, PreTrainedModel } from '@huggingface/transformers';
 
 const MODEL_ID = 'Xenova/bge-reranker-base';
@@ -34,7 +38,7 @@ export class LocalRerankClient implements IRerankClient {
 		query: string;
 		candidates: RerankCandidate[];
 		topN: number;
-	}): Promise<RerankCandidate[]> {
+	}): Promise<RerankResult[]> {
 		if (params.candidates.length === 0) return [];
 
 		const { tokenizer, model } = await load();
@@ -51,12 +55,9 @@ export class LocalRerankClient implements IRerankClient {
 		const output = (await model(inputs)) as { logits: { tolist: () => number[][] } };
 		const scores = output.logits.tolist().map(row => row[0] ?? 0);
 
-		const ranked = params.candidates
-			.map((candidate, i) => ({ candidate, score: scores[i] ?? -Infinity }))
+		return params.candidates
+			.map((candidate, i) => ({ ...candidate, score: scores[i] ?? -Infinity }))
 			.sort((a, b) => b.score - a.score)
-			.slice(0, params.topN)
-			.map(({ candidate }) => candidate);
-
-		return ranked;
+			.slice(0, params.topN);
 	}
 }

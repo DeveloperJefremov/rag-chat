@@ -3,4 +3,5 @@ export interface Chunk {
 	content: string;
 	embedding: number[];
 	documentId: string;
+	similarityScore?: number;
 }

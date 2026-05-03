@@ -13858,6 +13858,7 @@ export namespace Prisma {
     hasCitation: number
     rerankingUsed: number
     chunkingStrategy: number
+    retrievedChunks: number
     createdAt: number
     anonymizedAt: number
     _all: number
@@ -13928,6 +13929,7 @@ export namespace Prisma {
     hasCitation?: true
     rerankingUsed?: true
     chunkingStrategy?: true
+    retrievedChunks?: true
     createdAt?: true
     anonymizedAt?: true
     _all?: true
@@ -14033,6 +14035,7 @@ export namespace Prisma {
     hasCitation: boolean
     rerankingUsed: boolean
     chunkingStrategy: $Enums.ChunkingStrategy
+    retrievedChunks: JsonValue | null
     createdAt: Date
     anonymizedAt: Date | null
     _count: LLMLogCountAggregateOutputType | null
@@ -14070,6 +14073,7 @@ export namespace Prisma {
     hasCitation?: boolean
     rerankingUsed?: boolean
     chunkingStrategy?: boolean
+    retrievedChunks?: boolean
     createdAt?: boolean
     anonymizedAt?: boolean
   }, ExtArgs["result"]["lLMLog"]>
@@ -14088,6 +14092,7 @@ export namespace Prisma {
     hasCitation?: boolean
     rerankingUsed?: boolean
     chunkingStrategy?: boolean
+    retrievedChunks?: boolean
     createdAt?: boolean
     anonymizedAt?: boolean
   }, ExtArgs["result"]["lLMLog"]>
@@ -14106,6 +14111,7 @@ export namespace Prisma {
     hasCitation?: boolean
     rerankingUsed?: boolean
     chunkingStrategy?: boolean
+    retrievedChunks?: boolean
     createdAt?: boolean
     anonymizedAt?: boolean
   }, ExtArgs["result"]["lLMLog"]>
@@ -14124,11 +14130,12 @@ export namespace Prisma {
     hasCitation?: boolean
     rerankingUsed?: boolean
     chunkingStrategy?: boolean
+    retrievedChunks?: boolean
     createdAt?: boolean
     anonymizedAt?: boolean
   }
 
-  export type LLMLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "sessionId" | "documentId" | "query" | "response" | "latencyMs" | "promptTokens" | "completionTokens" | "estimatedCostUsd" | "hasCitation" | "rerankingUsed" | "chunkingStrategy" | "createdAt" | "anonymizedAt", ExtArgs["result"]["lLMLog"]>
+  export type LLMLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "sessionId" | "documentId" | "query" | "response" | "latencyMs" | "promptTokens" | "completionTokens" | "estimatedCostUsd" | "hasCitation" | "rerankingUsed" | "chunkingStrategy" | "retrievedChunks" | "createdAt" | "anonymizedAt", ExtArgs["result"]["lLMLog"]>
 
   export type $LLMLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "LLMLog"
@@ -14147,6 +14154,7 @@ export namespace Prisma {
       hasCitation: boolean
       rerankingUsed: boolean
       chunkingStrategy: $Enums.ChunkingStrategy
+      retrievedChunks: Prisma.JsonValue | null
       createdAt: Date
       anonymizedAt: Date | null
     }, ExtArgs["result"]["lLMLog"]>
@@ -14585,6 +14593,7 @@ export namespace Prisma {
     readonly hasCitation: FieldRef<"LLMLog", 'Boolean'>
     readonly rerankingUsed: FieldRef<"LLMLog", 'Boolean'>
     readonly chunkingStrategy: FieldRef<"LLMLog", 'ChunkingStrategy'>
+    readonly retrievedChunks: FieldRef<"LLMLog", 'Json'>
     readonly createdAt: FieldRef<"LLMLog", 'DateTime'>
     readonly anonymizedAt: FieldRef<"LLMLog", 'DateTime'>
   }
@@ -15116,6 +15125,7 @@ export namespace Prisma {
     hasCitation: 'hasCitation',
     rerankingUsed: 'rerankingUsed',
     chunkingStrategy: 'chunkingStrategy',
+    retrievedChunks: 'retrievedChunks',
     createdAt: 'createdAt',
     anonymizedAt: 'anonymizedAt'
   };
@@ -15991,6 +16001,7 @@ export namespace Prisma {
     hasCitation?: BoolFilter<"LLMLog"> | boolean
     rerankingUsed?: BoolFilter<"LLMLog"> | boolean
     chunkingStrategy?: EnumChunkingStrategyFilter<"LLMLog"> | $Enums.ChunkingStrategy
+    retrievedChunks?: JsonNullableFilter<"LLMLog">
     createdAt?: DateTimeFilter<"LLMLog"> | Date | string
     anonymizedAt?: DateTimeNullableFilter<"LLMLog"> | Date | string | null
   }
@@ -16009,6 +16020,7 @@ export namespace Prisma {
     hasCitation?: SortOrder
     rerankingUsed?: SortOrder
     chunkingStrategy?: SortOrder
+    retrievedChunks?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     anonymizedAt?: SortOrderInput | SortOrder
   }
@@ -16030,6 +16042,7 @@ export namespace Prisma {
     hasCitation?: BoolFilter<"LLMLog"> | boolean
     rerankingUsed?: BoolFilter<"LLMLog"> | boolean
     chunkingStrategy?: EnumChunkingStrategyFilter<"LLMLog"> | $Enums.ChunkingStrategy
+    retrievedChunks?: JsonNullableFilter<"LLMLog">
     createdAt?: DateTimeFilter<"LLMLog"> | Date | string
     anonymizedAt?: DateTimeNullableFilter<"LLMLog"> | Date | string | null
   }, "id">
@@ -16048,6 +16061,7 @@ export namespace Prisma {
     hasCitation?: SortOrder
     rerankingUsed?: SortOrder
     chunkingStrategy?: SortOrder
+    retrievedChunks?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     anonymizedAt?: SortOrderInput | SortOrder
     _count?: LLMLogCountOrderByAggregateInput
@@ -16074,6 +16088,7 @@ export namespace Prisma {
     hasCitation?: BoolWithAggregatesFilter<"LLMLog"> | boolean
     rerankingUsed?: BoolWithAggregatesFilter<"LLMLog"> | boolean
     chunkingStrategy?: EnumChunkingStrategyWithAggregatesFilter<"LLMLog"> | $Enums.ChunkingStrategy
+    retrievedChunks?: JsonNullableWithAggregatesFilter<"LLMLog">
     createdAt?: DateTimeWithAggregatesFilter<"LLMLog"> | Date | string
     anonymizedAt?: DateTimeNullableWithAggregatesFilter<"LLMLog"> | Date | string | null
   }
@@ -16774,6 +16789,7 @@ export namespace Prisma {
     hasCitation: boolean
     rerankingUsed: boolean
     chunkingStrategy: $Enums.ChunkingStrategy
+    retrievedChunks?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     anonymizedAt?: Date | string | null
   }
@@ -16792,6 +16808,7 @@ export namespace Prisma {
     hasCitation: boolean
     rerankingUsed: boolean
     chunkingStrategy: $Enums.ChunkingStrategy
+    retrievedChunks?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     anonymizedAt?: Date | string | null
   }
@@ -16810,6 +16827,7 @@ export namespace Prisma {
     hasCitation?: BoolFieldUpdateOperationsInput | boolean
     rerankingUsed?: BoolFieldUpdateOperationsInput | boolean
     chunkingStrategy?: EnumChunkingStrategyFieldUpdateOperationsInput | $Enums.ChunkingStrategy
+    retrievedChunks?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     anonymizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -16828,6 +16846,7 @@ export namespace Prisma {
     hasCitation?: BoolFieldUpdateOperationsInput | boolean
     rerankingUsed?: BoolFieldUpdateOperationsInput | boolean
     chunkingStrategy?: EnumChunkingStrategyFieldUpdateOperationsInput | $Enums.ChunkingStrategy
+    retrievedChunks?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     anonymizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -16846,6 +16865,7 @@ export namespace Prisma {
     hasCitation: boolean
     rerankingUsed: boolean
     chunkingStrategy: $Enums.ChunkingStrategy
+    retrievedChunks?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     anonymizedAt?: Date | string | null
   }
@@ -16864,6 +16884,7 @@ export namespace Prisma {
     hasCitation?: BoolFieldUpdateOperationsInput | boolean
     rerankingUsed?: BoolFieldUpdateOperationsInput | boolean
     chunkingStrategy?: EnumChunkingStrategyFieldUpdateOperationsInput | $Enums.ChunkingStrategy
+    retrievedChunks?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     anonymizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -16882,6 +16903,7 @@ export namespace Prisma {
     hasCitation?: BoolFieldUpdateOperationsInput | boolean
     rerankingUsed?: BoolFieldUpdateOperationsInput | boolean
     chunkingStrategy?: EnumChunkingStrategyFieldUpdateOperationsInput | $Enums.ChunkingStrategy
+    retrievedChunks?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     anonymizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -17642,6 +17664,7 @@ export namespace Prisma {
     hasCitation?: SortOrder
     rerankingUsed?: SortOrder
     chunkingStrategy?: SortOrder
+    retrievedChunks?: SortOrder
     createdAt?: SortOrder
     anonymizedAt?: SortOrder
   }

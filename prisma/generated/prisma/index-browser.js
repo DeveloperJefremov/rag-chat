@@ -231,6 +231,7 @@ exports.Prisma.LLMLogScalarFieldEnum = {
   hasCitation: 'hasCitation',
   rerankingUsed: 'rerankingUsed',
   chunkingStrategy: 'chunkingStrategy',
+  retrievedChunks: 'retrievedChunks',
   createdAt: 'createdAt',
   anonymizedAt: 'anonymizedAt'
 };

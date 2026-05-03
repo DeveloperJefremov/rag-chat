@@ -1,5 +1,5 @@
 import { prisma } from './prismaClient';
-import { LLMLog } from '../../../domain/entities/LLMLog';
+import { LLMLog, RetrievedChunkLog } from '../../../domain/entities/LLMLog';
 import { ChunkingStrategy } from '../../../domain/value-objects/ChunkingStrategy';
 import {
 	CreateLLMLogData,
@@ -7,26 +7,54 @@ import {
 	UserLLMStats,
 } from '../../application/repositories/ILLMLogRepository';
 
+function mapLog(log: {
+	id: string;
+	userId: string | null;
+	sessionId: string;
+	documentId: string;
+	query: string;
+	response: string;
+	latencyMs: number;
+	promptTokens: number;
+	completionTokens: number;
+	estimatedCostUsd: number;
+	hasCitation: boolean;
+	rerankingUsed: boolean;
+	chunkingStrategy: string;
+	retrievedChunks: unknown;
+	createdAt: Date;
+	anonymizedAt: Date | null;
+}): LLMLog {
+	return {
+		id: log.id,
+		userId: log.userId,
+		sessionId: log.sessionId,
+		documentId: log.documentId,
+		query: log.query,
+		response: log.response,
+		latencyMs: log.latencyMs,
+		promptTokens: log.promptTokens,
+		completionTokens: log.completionTokens,
+		estimatedCostUsd: log.estimatedCostUsd,
+		hasCitation: log.hasCitation,
+		rerankingUsed: log.rerankingUsed,
+		chunkingStrategy: log.chunkingStrategy as ChunkingStrategy,
+		retrievedChunks: (log.retrievedChunks ?? null) as RetrievedChunkLog[] | null,
+		createdAt: log.createdAt,
+		anonymizedAt: log.anonymizedAt,
+	};
+}
+
 export class PrismaLLMLogRepository implements ILLMLogRepository {
 	async create(data: CreateLLMLogData): Promise<LLMLog> {
-		const log = await prisma.lLMLog.create({ data });
-		return {
-			id: log.id,
-			userId: log.userId,
-			sessionId: log.sessionId,
-			documentId: log.documentId,
-			query: log.query,
-			response: log.response,
-			latencyMs: log.latencyMs,
-			promptTokens: log.promptTokens,
-			completionTokens: log.completionTokens,
-			estimatedCostUsd: log.estimatedCostUsd,
-			hasCitation: log.hasCitation,
-			rerankingUsed: log.rerankingUsed,
-			chunkingStrategy: log.chunkingStrategy as ChunkingStrategy,
-			createdAt: log.createdAt,
-			anonymizedAt: log.anonymizedAt,
-		};
+		const { retrievedChunks, ...rest } = data;
+		const log = await prisma.lLMLog.create({
+			data: {
+				...rest,
+				retrievedChunks: retrievedChunks ? (retrievedChunks as unknown as object[]) : undefined,
+			},
+		});
+		return mapLog(log);
 	}
 
 	async getRecent(limit: number): Promise<LLMLog[]> {
@@ -34,23 +62,7 @@ export class PrismaLLMLogRepository implements ILLMLogRepository {
 			orderBy: { createdAt: 'desc' },
 			take: limit,
 		});
-		return logs.map(log => ({
-			id: log.id,
-			userId: log.userId,
-			sessionId: log.sessionId,
-			documentId: log.documentId,
-			query: log.query,
-			response: log.response,
-			latencyMs: log.latencyMs,
-			promptTokens: log.promptTokens,
-			completionTokens: log.completionTokens,
-			estimatedCostUsd: log.estimatedCostUsd,
-			hasCitation: log.hasCitation,
-			rerankingUsed: log.rerankingUsed,
-			chunkingStrategy: log.chunkingStrategy as ChunkingStrategy,
-			createdAt: log.createdAt,
-			anonymizedAt: log.anonymizedAt,
-		}));
+		return logs.map(mapLog);
 	}
 
 	async aggregateByUser(userId: string): Promise<UserLLMStats> {

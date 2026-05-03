@@ -10,6 +10,7 @@ import { LLMOpsService } from '../llmops/LLMOpsService';
 import { MessageRole } from '../../../domain/entities/Message';
 import { ChunkingStrategy } from '../../../domain/value-objects/ChunkingStrategy';
 import { CitationDto } from '../../../shared/dtos/CitationDto';
+import { RetrievedChunkLog } from '../../../domain/entities/LLMLog';
 import {
 	TOP_K_CHUNKS,
 	MAX_HISTORY_MESSAGES,
@@ -210,6 +211,7 @@ Current question: ${userMessage}`;
 
 		let reranked = candidates;
 		let rerankApplied = false;
+		const rerankScoreByChunkId = new Map<string, number>();
 		if (rerankingEnabled && candidates.length > 0) {
 			// eslint-disable-next-line no-console
 			console.log('[chat] reranking');
@@ -220,6 +222,10 @@ Current question: ${userMessage}`;
 					topN: topK,
 				});
 				reranked = results.map(r => candidates[r.originalIndex] ?? candidates[0]);
+				for (const r of results) {
+					const src = candidates[r.originalIndex];
+					if (src) rerankScoreByChunkId.set(src.id, r.score);
+				}
 				rerankApplied = true;
 				// eslint-disable-next-line no-console
 				console.log('[chat] reranked:', reranked.length);
@@ -231,6 +237,24 @@ Current question: ${userMessage}`;
 		} else {
 			reranked = candidates.slice(0, topK);
 		}
+
+		const retrievedChunksLog: RetrievedChunkLog[] = reranked.map((c, i) => ({
+			chunkId: c.id,
+			documentId: c.documentId,
+			similarity: c.similarityScore ?? 0,
+			rerankScore: rerankScoreByChunkId.get(c.id),
+			rank: i + 1,
+		}));
+		// eslint-disable-next-line no-console
+		console.log(
+			'[chat] retrieved chunks:',
+			retrievedChunksLog.map(r => ({
+				id: r.chunkId,
+				doc: r.documentId,
+				sim: r.similarity.toFixed(4),
+				rerank: r.rerankScore?.toFixed(4),
+			})),
+		);
 
 		const sources: CitationDto[] = reranked.map((chunk, i) => ({
 			index: i + 1,
@@ -307,6 +331,7 @@ Current question: ${userMessage}`;
 					hasCitation: sources.length > 0,
 					rerankingUsed: rerankApplied,
 					chunkingStrategy: params.chunkingStrategy ?? 'RECURSIVE',
+					retrievedChunks: retrievedChunksLog,
 				})
 				.catch(err => {
 					// eslint-disable-next-line no-console

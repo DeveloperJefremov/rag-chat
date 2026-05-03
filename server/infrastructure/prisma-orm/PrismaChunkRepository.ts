@@ -34,9 +34,10 @@ export class PrismaChunkRepository implements IChunkRepository {
 		const topK = Math.max(1, Math.floor(params.topK));
 
 		const results = await prisma.$queryRaw<
-			Array<{ id: string; content: string; documentId: string }>
+			Array<{ id: string; content: string; documentId: string; distance: number }>
 		>`
-      SELECT c.id, c.content, c."documentId"
+      SELECT c.id, c.content, c."documentId",
+             (c.embedding <=> ${vectorLiteral}::vector) AS distance
       FROM chunks c
       JOIN documents d ON d.id = c."documentId"
       WHERE c."documentId" = ANY(${params.documentIds}::text[])
@@ -50,6 +51,7 @@ export class PrismaChunkRepository implements IChunkRepository {
 			content: r.content,
 			embedding: [],
 			documentId: r.documentId,
+			similarityScore: 1 - Number(r.distance),
 		}));
 	}
 }

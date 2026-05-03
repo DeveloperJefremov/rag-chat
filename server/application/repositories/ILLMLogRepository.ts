@@ -1,4 +1,4 @@
-import { LLMLog } from '../../../domain/entities/LLMLog';
+import { LLMLog, RetrievedChunkLog } from '../../../domain/entities/LLMLog';
 import { ChunkingStrategy } from '../../../domain/value-objects/ChunkingStrategy';
 
 export interface CreateLLMLogData {
@@ -14,6 +14,7 @@ export interface CreateLLMLogData {
 	hasCitation: boolean;
 	rerankingUsed: boolean;
 	chunkingStrategy: ChunkingStrategy;
+	retrievedChunks?: RetrievedChunkLog[];
 }
 
 export interface UserLLMStats {

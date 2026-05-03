@@ -232,7 +232,10 @@ describe('RetrievalService', () => {
 				similaritySearch: vi.fn().mockResolvedValue(candidates),
 			} as unknown as IChunkRepository;
 			const rerankClient = {
-				rerank: vi.fn().mockResolvedValue([{ originalIndex: 2 }, { originalIndex: 0 }]),
+				rerank: vi.fn().mockResolvedValue([
+					{ originalIndex: 2, content: 'c', score: 0.95 },
+					{ originalIndex: 0, content: 'a', score: 0.42 },
+				]),
 			} as unknown as IRerankClient;
 			const llmClient = {
 				streamMessage: async function* () {},
@@ -309,6 +312,57 @@ describe('RetrievalService', () => {
 					citations: expect.any(Array),
 				}),
 			]);
+		});
+
+		it('logs retrievedChunks (chunkId/similarity/rerankScore/rank) to LLMOps', async () => {
+			const candidates = [
+				{ id: 'ch1', documentId: 'doc-a', content: 'a', similarityScore: 0.81 },
+				{ id: 'ch2', documentId: 'doc-b', content: 'b', similarityScore: 0.55 },
+			];
+			const chunkRepo = {
+				similaritySearch: vi.fn().mockResolvedValue(candidates),
+			} as unknown as IChunkRepository;
+			const rerankClient = {
+				rerank: vi.fn().mockResolvedValue([
+					{ originalIndex: 1, content: 'b', score: 0.92 },
+					{ originalIndex: 0, content: 'a', score: 0.31 },
+				]),
+			} as unknown as IRerankClient;
+			const llmClient = {
+				streamMessage: async function* () {
+					yield 'ok';
+				},
+				generateText: vi.fn().mockResolvedValue(''),
+			} as unknown as ILLMClient;
+			const llmOpsService = {
+				log: vi.fn().mockResolvedValue(undefined),
+			} as unknown as LLMOpsService;
+
+			const service = new RetrievalService(
+				makeDeps({ chunkRepo, rerankClient, llmClient, llmOpsService }),
+			);
+			await drainAsArray(service.stream({ ...baseParams, rerankingEnabled: true, topK: 2 }));
+
+			expect(llmOpsService.log).toHaveBeenCalledWith(
+				expect.objectContaining({
+					retrievedChunks: [
+						{
+							chunkId: 'ch2',
+							documentId: 'doc-b',
+							similarity: 0.55,
+							rerankScore: 0.92,
+							rank: 1,
+						},
+						{
+							chunkId: 'ch1',
+							documentId: 'doc-a',
+							similarity: 0.81,
+							rerankScore: 0.31,
+							rank: 2,
+						},
+					],
+				}),
+			);
 		});
 
 		it('logs to LLMOps fire-and-forget with rerankingUsed=false when no rerank', async () => {

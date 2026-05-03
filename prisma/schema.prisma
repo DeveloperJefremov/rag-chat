@@ -172,6 +172,7 @@ model LLMLog {
   hasCitation      Boolean
   rerankingUsed    Boolean
   chunkingStrategy ChunkingStrategy
+  retrievedChunks  Json?
   createdAt        DateTime         @default(now())
   anonymizedAt     DateTime?
 

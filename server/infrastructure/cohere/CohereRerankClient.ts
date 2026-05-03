@@ -1,4 +1,8 @@
-import { IRerankClient, RerankCandidate } from '../../application/ports/IRerankClient';
+import {
+	IRerankClient,
+	RerankCandidate,
+	RerankResult,
+} from '../../application/ports/IRerankClient';
 import { CohereClient } from 'cohere-ai';
 
 export class CohereRerankClient implements IRerankClient {
@@ -15,7 +19,7 @@ export class CohereRerankClient implements IRerankClient {
 		query: string;
 		candidates: RerankCandidate[];
 		topN: number;
-	}): Promise<RerankCandidate[]> {
+	}): Promise<RerankResult[]> {
 		const response = await this.client.rerank({
 			model: 'rerank-v3.5',
 			query: params.query,
@@ -23,6 +27,9 @@ export class CohereRerankClient implements IRerankClient {
 			topN: params.topN,
 		});
 
-		return response.results.map(r => params.candidates[r.index]);
+		return response.results.map(r => ({
+			...params.candidates[r.index],
+			score: r.relevanceScore,
+		}));
 	}
 }
