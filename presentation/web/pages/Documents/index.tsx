@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useUploadStore } from '@/client/stores/uploadStore';
+import { useControlsStore } from '@/client/stores/controlsStore';
 import { FileDropzone } from '@/presentation/web/components/FileDropzone';
 import { MobileMenuButton } from '@/presentation/web/components/MobileMenuButton';
 import { ToggleChip } from '@/presentation/web/components/ui/ToggleChip';
@@ -107,7 +108,8 @@ function ChunkPreviewPanel({ doc, onClose }: { doc: IngestResponseDto; onClose: 
 
 export function DocumentsPage() {
 	const { documents, status, loaded, upload, fetchDocuments, removeDocument } = useUploadStore();
-	const [strategy, setStrategy] = useState<ChunkingStrategy>('RECURSIVE');
+	const strategy = useControlsStore(s => s.chunkingStrategy);
+	const setStrategy = useControlsStore(s => s.setStrategy);
 	const [selected, setSelected] = useState<IngestResponseDto | null>(null);
 	const [batchInProgress, setBatchInProgress] = useState(false);
 
