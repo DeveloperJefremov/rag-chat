@@ -24,6 +24,7 @@ const makeDeps = (overrides: Partial<ConstructorParameters<typeof RetrievalServi
 	} as unknown as ILLMClient,
 	messageRepo: {
 		findBySessionId: vi.fn().mockResolvedValue([]),
+		findRecentBySessionId: vi.fn().mockResolvedValue([]),
 		saveMany: vi.fn().mockResolvedValue([]),
 	} as unknown as IMessageRepository,
 	chatSessionRepo: {
@@ -290,6 +291,7 @@ describe('RetrievalService', () => {
 			} as unknown as ILLMClient;
 			const messageRepo = {
 				findBySessionId: vi.fn().mockResolvedValue([]),
+				findRecentBySessionId: vi.fn().mockResolvedValue([]),
 				saveMany: vi.fn().mockResolvedValue([]),
 			} as unknown as IMessageRepository;
 			const sessionService = {
@@ -440,6 +442,26 @@ describe('RetrievalService', () => {
 			expect(chatSessionRepo.update).not.toHaveBeenCalled();
 		});
 
+		it('uses findRecentBySessionId(MAX_HISTORY_MESSAGES=10) instead of full history', async () => {
+			const llmClient = {
+				streamMessage: async function* () {
+					yield 'a';
+				},
+				generateText: vi.fn().mockResolvedValue(''),
+			} as unknown as ILLMClient;
+			const messageRepo = {
+				findBySessionId: vi.fn(),
+				findRecentBySessionId: vi.fn().mockResolvedValue([]),
+				saveMany: vi.fn().mockResolvedValue([]),
+			} as unknown as IMessageRepository;
+
+			const service = new RetrievalService(makeDeps({ llmClient, messageRepo }));
+			await drainAsArray(service.stream(baseParams));
+
+			expect(messageRepo.findRecentBySessionId).toHaveBeenCalledWith('s', 10);
+			expect(messageRepo.findBySessionId).not.toHaveBeenCalled();
+		});
+
 		it('does not generate a title when history is non-empty', async () => {
 			const llmClient = {
 				streamMessage: async function* () {
@@ -448,7 +470,8 @@ describe('RetrievalService', () => {
 				generateText: vi.fn().mockResolvedValue('Should not be used'),
 			} as unknown as ILLMClient;
 			const messageRepo = {
-				findBySessionId: vi.fn().mockResolvedValue([
+				findBySessionId: vi.fn().mockResolvedValue([]),
+				findRecentBySessionId: vi.fn().mockResolvedValue([
 					{ role: 'USER', content: 'prev q' },
 					{ role: 'ASSISTANT', content: 'prev a' },
 				]),

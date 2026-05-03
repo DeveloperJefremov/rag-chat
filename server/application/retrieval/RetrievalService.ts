@@ -264,10 +264,11 @@ Current question: ${userMessage}`;
 
 		yield { sources };
 
-		const allHistory = await this.messageRepo.findBySessionId(params.sessionId);
-		const historyForPrompt = allHistory
-			.slice(-MAX_HISTORY_MESSAGES)
-			.map(m => ({ role: m.role, content: m.content }));
+		const recentHistory = await this.messageRepo.findRecentBySessionId(
+			params.sessionId,
+			MAX_HISTORY_MESSAGES,
+		);
+		const historyForPrompt = recentHistory.map(m => ({ role: m.role, content: m.content }));
 
 		const prompt = this.buildAugmentedPrompt({
 			contextChunks: reranked.map(c => ({
@@ -283,7 +284,7 @@ Current question: ${userMessage}`;
 		let promptTokens = 0;
 		let completionTokens = 0;
 		const queryEmbedTokens = params.message.split(/\s+/).filter(Boolean).length;
-		const isFirstExchange = allHistory.length === 0;
+		const isFirstExchange = recentHistory.length === 0;
 
 		try {
 			// eslint-disable-next-line no-console
