@@ -1,13 +1,8 @@
 import { NextResponse } from 'next/server';
-import { authContext, accountService } from '@/server/infrastructure/http/container';
-import { httpErrorResponse } from '@/shared/errors/httpErrorResponse';
+import { accountService } from '@/server/infrastructure/http/container';
+import { withAuth } from '@/shared/http/withAuth';
 
-export async function DELETE() {
-	try {
-		const user = await authContext.requireUser();
-		await accountService.deleteUser(user.id);
-		return new NextResponse(null, { status: 204 });
-	} catch (err) {
-		return httpErrorResponse(err, 'account.delete');
-	}
-}
+export const DELETE = withAuth(async (_req, { user }) => {
+	await accountService.deleteUser(user.id);
+	return new NextResponse(null, { status: 204 });
+}, 'account.delete');

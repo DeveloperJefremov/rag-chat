@@ -1,14 +1,8 @@
 import { NextResponse } from 'next/server';
-import { authContext, sessionService } from '@/server/infrastructure/http/container';
-import { httpErrorResponse } from '@/shared/errors/httpErrorResponse';
+import { sessionService } from '@/server/infrastructure/http/container';
+import { withAuth } from '@/shared/http/withAuth';
 
-export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-	try {
-		const user = await authContext.requireUser();
-		const { id } = await params;
-		await sessionService.delete(user.id, id);
-		return new NextResponse(null, { status: 204 });
-	} catch (err) {
-		return httpErrorResponse(err, 'session.delete');
-	}
-}
+export const DELETE = withAuth<{ id: string }>(async (_req, { user, params }) => {
+	await sessionService.delete(user.id, params.id);
+	return new NextResponse(null, { status: 204 });
+}, 'session.delete');

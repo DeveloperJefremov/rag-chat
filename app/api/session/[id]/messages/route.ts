@@ -1,21 +1,13 @@
 import { NextResponse } from 'next/server';
-import { authContext, chatSessionRepo, messageRepo } from '@/server/infrastructure/http/container';
+import { chatSessionRepo, messageRepo } from '@/server/infrastructure/http/container';
 import { toMessageDto } from '@/shared/dtos/MessageDto';
-import { httpErrorResponse } from '@/shared/errors/httpErrorResponse';
+import { withAuth } from '@/shared/http/withAuth';
 
-export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-	try {
-		const user = await authContext.requireUser();
-		const { id } = await params;
-
-		const session = await chatSessionRepo.findById(id, user.id);
-		if (!session) {
-			return NextResponse.json({ error: 'session_not_found' }, { status: 404 });
-		}
-
-		const messages = await messageRepo.findBySessionId(id);
-		return NextResponse.json(messages.map(toMessageDto));
-	} catch (err) {
-		return httpErrorResponse(err, 'session.messages');
+export const GET = withAuth<{ id: string }>(async (_req, { user, params }) => {
+	const session = await chatSessionRepo.findById(params.id, user.id);
+	if (!session) {
+		return NextResponse.json({ error: 'session_not_found' }, { status: 404 });
 	}
-}
+	const messages = await messageRepo.findBySessionId(params.id);
+	return messages.map(toMessageDto);
+}, 'session.messages');

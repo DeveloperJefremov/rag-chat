@@ -1,13 +1,6 @@
-import { NextResponse } from 'next/server';
-import { authContext, llmOpsService } from '@/server/infrastructure/http/container';
-import { httpErrorResponse } from '@/shared/errors/httpErrorResponse';
+import { llmOpsService } from '@/server/infrastructure/http/container';
+import { withAdmin } from '@/shared/http/withAuth';
 
-export async function GET() {
-	try {
-		await authContext.requireAdmin();
-		const stats = await llmOpsService.getStats(100);
-		return NextResponse.json(stats);
-	} catch (err) {
-		return httpErrorResponse(err, 'llmops.stats');
-	}
-}
+export const GET = withAdmin(async () => {
+	return llmOpsService.getStats(100);
+}, 'llmops.stats');

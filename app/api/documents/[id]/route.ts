@@ -1,18 +1,11 @@
 import { NextResponse } from 'next/server';
-import { authContext, documentRepo } from '@/server/infrastructure/http/container';
-import { httpErrorResponse } from '@/shared/errors/httpErrorResponse';
+import { documentRepo } from '@/server/infrastructure/http/container';
+import { withAuth } from '@/shared/http/withAuth';
 
-export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-	try {
-		const user = await authContext.requireUser();
-		const { id } = await params;
+export const DELETE = withAuth<{ id: string }>(async (_req, { user, params }) => {
+	const doc = await documentRepo.findById(params.id, user.id);
+	if (!doc) return NextResponse.json({ error: 'not_found' }, { status: 404 });
 
-		const doc = await documentRepo.findById(id, user.id);
-		if (!doc) return NextResponse.json({ error: 'not_found' }, { status: 404 });
-
-		await documentRepo.deleteById(id, user.id);
-		return new NextResponse(null, { status: 204 });
-	} catch (err) {
-		return httpErrorResponse(err, 'documents.delete');
-	}
-}
+	await documentRepo.deleteById(params.id, user.id);
+	return new NextResponse(null, { status: 204 });
+}, 'documents.delete');
