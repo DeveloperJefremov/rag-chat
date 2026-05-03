@@ -6,7 +6,8 @@ export type AppErrorCode =
 	| 'document_not_found'
 	| 'documents_limit_reached'
 	| 'attached_limit_reached'
-	| 'limit_reached';
+	| 'limit_reached'
+	| 'empty_document';
 
 export class AppError extends Error {
 	readonly code: AppErrorCode;
@@ -30,3 +31,4 @@ export const DocumentNotFound = () => new AppError('document_not_found', 404);
 export const DocumentsLimitReached = () => new AppError('documents_limit_reached', 403);
 export const AttachedLimitReached = () => new AppError('attached_limit_reached', 403);
 export const LimitReached = () => new AppError('limit_reached', 403);
+export const EmptyDocument = () => new AppError('empty_document', 422);

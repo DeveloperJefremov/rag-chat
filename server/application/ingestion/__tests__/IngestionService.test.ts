@@ -88,6 +88,66 @@ describe('IngestionService', () => {
 		expect(mocks.documentRepo.deleteById).toHaveBeenCalledWith('doc-1', 'user-1');
 	});
 
+	it('rejects empty parsed text without creating a document', async () => {
+		const mocks = makeRepo();
+		mocks.txtParser.parse = vi.fn().mockResolvedValue('   \n\t  ');
+		const service = new IngestionService({
+			documentRepo: mocks.documentRepo as unknown as IDocumentRepository,
+			chunkRepo: mocks.chunkRepo as unknown as IChunkRepository,
+			parsers: {
+				TXT: mocks.txtParser as unknown as IFileParser,
+				PDF: {} as unknown as IFileParser,
+				DOCX: {} as unknown as IFileParser,
+			},
+			embeddingClient: mocks.embeddingClient as unknown as IEmbeddingClient,
+			chunkingService: mocks.chunkingService as unknown as ChunkingService,
+		});
+
+		await expect(
+			service.ingest({
+				buffer: Buffer.from('x'),
+				fileName: 'empty.txt',
+				fileType: 'TXT',
+				userId: 'user-1',
+			}),
+		).rejects.toThrow('empty_document');
+
+		expect(mocks.chunkingService.chunk).not.toHaveBeenCalled();
+		expect(mocks.embeddingClient.embedBatch).not.toHaveBeenCalled();
+		expect(mocks.documentRepo.create).not.toHaveBeenCalled();
+	});
+
+	it('rejects when chunker returns only blank chunks', async () => {
+		const mocks = makeRepo();
+		mocks.txtParser.parse = vi
+			.fn()
+			.mockResolvedValue('this text is long enough but produces blank chunks');
+		mocks.chunkingService.chunk = vi.fn().mockReturnValue(['   ', '\t']);
+		const service = new IngestionService({
+			documentRepo: mocks.documentRepo as unknown as IDocumentRepository,
+			chunkRepo: mocks.chunkRepo as unknown as IChunkRepository,
+			parsers: {
+				TXT: mocks.txtParser as unknown as IFileParser,
+				PDF: {} as unknown as IFileParser,
+				DOCX: {} as unknown as IFileParser,
+			},
+			embeddingClient: mocks.embeddingClient as unknown as IEmbeddingClient,
+			chunkingService: mocks.chunkingService as unknown as ChunkingService,
+		});
+
+		await expect(
+			service.ingest({
+				buffer: Buffer.from('x'),
+				fileName: 'blank.txt',
+				fileType: 'TXT',
+				userId: 'user-1',
+			}),
+		).rejects.toThrow('empty_document');
+
+		expect(mocks.embeddingClient.embedBatch).not.toHaveBeenCalled();
+		expect(mocks.documentRepo.create).not.toHaveBeenCalled();
+	});
+
 	it('attaches the new document to the given session when attachToSession is provided', async () => {
 		const mocks = makeRepo();
 		const service = new IngestionService({

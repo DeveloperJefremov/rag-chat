@@ -6,6 +6,9 @@ import { IChunkRepository } from '../repositories/IChunkRepository';
 import { IEmbeddingClient } from '../ports/IEmbeddingClient';
 import { IFileParser } from '../ports/IFileParser';
 import { IngestResponseDto } from '../../../shared/dtos/IngestResponseDto';
+import { EmptyDocument } from '../../../shared/errors/AppError';
+
+const MIN_PARSED_TEXT_CHARS = 10;
 
 interface IngestParams {
 	buffer: Buffer;
@@ -44,7 +47,14 @@ export class IngestionService {
 		const parser = this.parsers[params.fileType];
 		const text = await parser.parse(params.buffer);
 
+		if (text.trim().length < MIN_PARSED_TEXT_CHARS) {
+			throw EmptyDocument();
+		}
+
 		const chunkTexts = this.chunkingService.chunk(text, strategy);
+		if (chunkTexts.length === 0 || chunkTexts.every(c => c.trim().length === 0)) {
+			throw EmptyDocument();
+		}
 		const embeddings = await this.embeddingClient.embedBatch(chunkTexts);
 
 		const document = await this.documentRepo.create({
