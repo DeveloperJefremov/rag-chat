@@ -10,7 +10,14 @@ import { LLMOpsService } from '../llmops/LLMOpsService';
 import { MessageRole } from '../../../domain/entities/Message';
 import { ChunkingStrategy } from '../../../domain/value-objects/ChunkingStrategy';
 import { CitationDto } from '../../../shared/dtos/CitationDto';
-import { TOP_K_CHUNKS, MAX_HISTORY_MESSAGES } from '../../../shared/config/constants';
+import {
+	TOP_K_CHUNKS,
+	MAX_HISTORY_MESSAGES,
+	COST_USD_PER_M_EMBED_TOKENS,
+	COST_USD_PER_M_GEMINI_INPUT_TOKENS,
+	COST_USD_PER_M_GEMINI_OUTPUT_TOKENS,
+	COST_USD_PER_RERANK_CALL,
+} from '../../../shared/config/constants';
 import {
 	DOC_FILTER_STOPWORDS,
 	DOC_FILTER_MIN_TOKEN_LENGTH,
@@ -250,6 +257,7 @@ Current question: ${userMessage}`;
 		let fullResponse = '';
 		let promptTokens = 0;
 		let completionTokens = 0;
+		const queryEmbedTokens = params.message.split(/\s+/).filter(Boolean).length;
 		const isFirstExchange = allHistory.length === 0;
 
 		try {
@@ -278,7 +286,11 @@ Current question: ${userMessage}`;
 
 			promptTokens = prompt.split(/\s+/).length;
 			const latencyMs = Date.now() - startedAt;
-			const estimatedCostUsd = (promptTokens / 1e6) * 0.075 + (completionTokens / 1e6) * 0.3;
+			const estimatedCostUsd =
+				(queryEmbedTokens / 1e6) * COST_USD_PER_M_EMBED_TOKENS +
+				(promptTokens / 1e6) * COST_USD_PER_M_GEMINI_INPUT_TOKENS +
+				(completionTokens / 1e6) * COST_USD_PER_M_GEMINI_OUTPUT_TOKENS +
+				(rerankApplied ? COST_USD_PER_RERANK_CALL : 0);
 
 			this.llmOpsService
 				.log({
