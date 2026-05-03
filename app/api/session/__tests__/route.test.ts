@@ -59,7 +59,39 @@ describe('/api/session', () => {
 					expiresAt: '2026-01-02T00:00:00.000Z',
 				},
 			]);
-			expect(mockChatSessionRepo.findByUserId).toHaveBeenCalledWith('u');
+			expect(mockChatSessionRepo.findByUserId).toHaveBeenCalledWith('u', {
+				limit: 50,
+				before: undefined,
+			});
+		});
+
+		it('clamps limit and parses before cursor', async () => {
+			mockAuthContext.requireUser.mockResolvedValueOnce({ id: 'u', email: 'e', role: 'USER' });
+			mockChatSessionRepo.findByUserId.mockResolvedValueOnce([]);
+
+			await GET(
+				makeReq('http://localhost/api/session?limit=9999&before=2026-04-01T00:00:00.000Z'),
+				{
+					params: Promise.resolve({}),
+				},
+			);
+
+			expect(mockChatSessionRepo.findByUserId).toHaveBeenCalledWith('u', {
+				limit: 200,
+				before: new Date('2026-04-01T00:00:00.000Z'),
+			});
+		});
+
+		it('returns 400 on invalid before', async () => {
+			mockAuthContext.requireUser.mockResolvedValueOnce({ id: 'u', email: 'e', role: 'USER' });
+
+			const res = await GET(makeReq('http://localhost/api/session?before=garbage'), {
+				params: Promise.resolve({}),
+			});
+
+			expect(res.status).toBe(400);
+			expect(await res.json()).toEqual({ error: 'invalid_before' });
+			expect(mockChatSessionRepo.findByUserId).not.toHaveBeenCalled();
 		});
 	});
 

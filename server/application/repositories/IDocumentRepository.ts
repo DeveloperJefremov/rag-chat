@@ -9,11 +9,16 @@ export interface CreateDocumentData {
 	userId: string;
 }
 
+export interface FindDocumentsOptions {
+	limit?: number;
+	before?: Date;
+}
+
 export interface IDocumentRepository {
 	create(data: CreateDocumentData): Promise<Document>;
 	findById(id: string, userId: string): Promise<Document | null>;
 	findByIds(ids: string[], userId: string): Promise<Document[]>;
-	findAllByUser(userId: string): Promise<Document[]>;
+	findAllByUser(userId: string, options?: FindDocumentsOptions): Promise<Document[]>;
 	findAttachedToSession(sessionId: string, userId: string): Promise<Document[]>;
 	countByUser(userId: string): Promise<number>;
 	countAttached(sessionId: string): Promise<number>;

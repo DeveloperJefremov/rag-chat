@@ -4,6 +4,7 @@ import { FileType } from '../../../domain/value-objects/FileType';
 import { ChunkingStrategy } from '../../../domain/value-objects/ChunkingStrategy';
 import {
 	CreateDocumentData,
+	FindDocumentsOptions,
 	IDocumentRepository,
 } from '../../application/repositories/IDocumentRepository';
 
@@ -44,10 +45,14 @@ export class PrismaDocumentRepository implements IDocumentRepository {
 		return docs.map(toEntity);
 	}
 
-	async findAllByUser(userId: string): Promise<Document[]> {
+	async findAllByUser(userId: string, options?: FindDocumentsOptions): Promise<Document[]> {
 		const docs = await prisma.document.findMany({
-			where: { userId },
+			where: {
+				userId,
+				...(options?.before ? { createdAt: { lt: options.before } } : {}),
+			},
 			orderBy: { createdAt: 'desc' },
+			...(options?.limit ? { take: Math.max(1, Math.floor(options.limit)) } : {}),
 		});
 		return docs.map(toEntity);
 	}

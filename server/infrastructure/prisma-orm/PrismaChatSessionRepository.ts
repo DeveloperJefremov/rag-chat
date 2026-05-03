@@ -2,6 +2,7 @@ import { prisma } from './prismaClient';
 import { ChatSession } from '../../../domain/entities/ChatSession';
 import {
 	CreateChatSessionData,
+	FindChatSessionsOptions,
 	IChatSessionRepository,
 	UpdateChatSessionData,
 } from '../../application/repositories/IChatSessionRepository';
@@ -19,10 +20,14 @@ export class PrismaChatSessionRepository implements IChatSessionRepository {
 		};
 	}
 
-	async findByUserId(userId: string): Promise<ChatSession[]> {
+	async findByUserId(userId: string, options?: FindChatSessionsOptions): Promise<ChatSession[]> {
 		const sessions = await prisma.chatSession.findMany({
-			where: { userId },
+			where: {
+				userId,
+				...(options?.before ? { createdAt: { lt: options.before } } : {}),
+			},
 			orderBy: { createdAt: 'desc' },
+			...(options?.limit ? { take: Math.max(1, Math.floor(options.limit)) } : {}),
 		});
 		return sessions.map(s => ({
 			id: s.id,
