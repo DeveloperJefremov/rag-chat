@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { authContext, chatSessionRepo, documentRepo } from '@/server/infrastructure/http/container';
+import { httpErrorResponse } from '@/shared/errors/httpErrorResponse';
 
 export async function DELETE(
 	_req: Request,
@@ -14,12 +15,7 @@ export async function DELETE(
 
 		await documentRepo.detachFromSession(id, documentId);
 		return new NextResponse(null, { status: 204 });
-	} catch (err: unknown) {
-		if (err instanceof Error && err.message === 'unauthenticated') {
-			return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
-		}
-		// eslint-disable-next-line no-console
-		console.error('[session.docs.detach] failed:', err);
-		return NextResponse.json({ error: 'internal_error' }, { status: 500 });
+	} catch (err) {
+		return httpErrorResponse(err, 'session.docs.detach');
 	}
 }

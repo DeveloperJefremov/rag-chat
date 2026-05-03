@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { authContext, documentRepo } from '@/server/infrastructure/http/container';
+import { httpErrorResponse } from '@/shared/errors/httpErrorResponse';
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
 	try {
@@ -11,12 +12,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
 
 		await documentRepo.deleteById(id, user.id);
 		return new NextResponse(null, { status: 204 });
-	} catch (err: unknown) {
-		if (err instanceof Error && err.message === 'unauthenticated') {
-			return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
-		}
-		// eslint-disable-next-line no-console
-		console.error('[documents.delete] failed:', err);
-		return NextResponse.json({ error: 'internal_error' }, { status: 500 });
+	} catch (err) {
+		return httpErrorResponse(err, 'documents.delete');
 	}
 }

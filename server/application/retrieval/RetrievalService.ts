@@ -15,6 +15,7 @@ import {
 	DOC_FILTER_STOPWORDS,
 	DOC_FILTER_MIN_TOKEN_LENGTH,
 } from '../../../shared/config/docFilter';
+import { DocumentNotFound } from '../../../shared/errors/AppError';
 
 interface RetrievalServiceDeps {
 	chunkRepo: IChunkRepository;
@@ -154,7 +155,7 @@ Current question: ${userMessage}`;
 			const missing = params.documentIds.filter(id => !ownedIds.has(id));
 			// eslint-disable-next-line no-console
 			console.error('[chat] document ownership violation', { userId: params.userId, missing });
-			throw new Error('document_not_found');
+			throw DocumentNotFound();
 		}
 		const allowedDocIds = new Set(params.documentIds);
 
@@ -193,7 +194,7 @@ Current question: ${userMessage}`;
 					chunkId: c.id,
 					documentId: c.documentId,
 				});
-				throw new Error('document_not_found');
+				throw DocumentNotFound();
 			}
 		}
 		// eslint-disable-next-line no-console

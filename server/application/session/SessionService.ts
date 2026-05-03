@@ -3,6 +3,12 @@ import { IChatSessionRepository } from '../repositories/IChatSessionRepository';
 import { IUserUsageRepository } from '../repositories/IUserUsageRepository';
 import { LIMITS_BY_ROLE, UserRole } from '../../../shared/config/limits';
 import { SESSION_TTL_HOURS } from '../../../shared/config/constants';
+import {
+	LimitReached,
+	DocumentsLimitReached,
+	AttachedLimitReached,
+	SessionNotFound,
+} from '../../../shared/errors/AppError';
 
 export class SessionService {
 	constructor(
@@ -28,7 +34,7 @@ export class SessionService {
 
 		const todayCount = await this.userUsageRepo.getTodayCount(userId);
 		if (todayCount >= limit) {
-			throw new Error('limit_reached');
+			throw LimitReached();
 		}
 	}
 
@@ -39,13 +45,13 @@ export class SessionService {
 	): Promise<void> {
 		const limit = LIMITS_BY_ROLE[role].maxDocumentsPerUser;
 		if (limit === Infinity) return;
-		if (currentCount >= limit) throw new Error('documents_limit_reached');
+		if (currentCount >= limit) throw DocumentsLimitReached();
 	}
 
 	async validateAttachedLimit(role: UserRole, currentCount: number): Promise<void> {
 		const limit = LIMITS_BY_ROLE[role].maxAttachedPerSession;
 		if (limit === Infinity) return;
-		if (currentCount >= limit) throw new Error('attached_limit_reached');
+		if (currentCount >= limit) throw AttachedLimitReached();
 	}
 
 	async incrementUsage(userId: string): Promise<void> {
@@ -61,6 +67,6 @@ export class SessionService {
 
 	async delete(userId: string, sessionId: string): Promise<void> {
 		const ok = await this.chatSessionRepo.delete(sessionId, userId);
-		if (!ok) throw new Error('session_not_found');
+		if (!ok) throw SessionNotFound();
 	}
 }

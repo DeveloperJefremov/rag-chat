@@ -7,6 +7,8 @@ import {
 } from '@/server/infrastructure/http/container';
 import { ChatRequestDto } from '@/shared/dtos/ChatRequestDto';
 import { TOP_K_CHUNKS, MAX_CHAT_MESSAGE_CHARS } from '@/shared/config/constants';
+import { AppError } from '@/shared/errors/AppError';
+import { httpErrorResponse } from '@/shared/errors/httpErrorResponse';
 
 export async function POST(req: NextRequest) {
 	try {
@@ -86,14 +88,8 @@ export async function POST(req: NextRequest) {
 
 					controller.enqueue(encoder.encode('data: [DONE]\n\n'));
 				} catch (err: unknown) {
-					if (err instanceof Error && err.message === 'limit_reached') {
-						controller.enqueue(
-							encoder.encode(`data: ${JSON.stringify({ error: 'limit_reached' })}\n\n`),
-						);
-					} else if (err instanceof Error && err.message === 'document_not_found') {
-						controller.enqueue(
-							encoder.encode(`data: ${JSON.stringify({ error: 'document_not_found' })}\n\n`),
-						);
+					if (err instanceof AppError) {
+						controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: err.code })}\n\n`));
 					} else {
 						// eslint-disable-next-line no-console
 						console.error('[chat] stream failed:', err);
@@ -114,10 +110,7 @@ export async function POST(req: NextRequest) {
 				Connection: 'keep-alive',
 			},
 		});
-	} catch (err: unknown) {
-		if (err instanceof Error && err.message === 'unauthenticated') {
-			return new Response(JSON.stringify({ error: 'unauthenticated' }), { status: 401 });
-		}
-		return new Response(JSON.stringify({ error: 'internal_error' }), { status: 500 });
+	} catch (err) {
+		return httpErrorResponse(err, 'chat');
 	}
 }

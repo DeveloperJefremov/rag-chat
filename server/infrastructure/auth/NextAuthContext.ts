@@ -1,5 +1,6 @@
 import { auth } from '../../../auth';
 import { IAuthContext, AuthenticatedUser } from '../../application/ports/IAuthContext';
+import { Unauthenticated, Forbidden } from '../../../shared/errors/AppError';
 
 export class NextAuthContext implements IAuthContext {
 	async getUser(): Promise<AuthenticatedUser | null> {
@@ -14,13 +15,13 @@ export class NextAuthContext implements IAuthContext {
 
 	async requireUser(): Promise<AuthenticatedUser> {
 		const user = await this.getUser();
-		if (!user) throw new Error('unauthenticated');
+		if (!user) throw Unauthenticated();
 		return user;
 	}
 
 	async requireAdmin(): Promise<AuthenticatedUser> {
 		const user = await this.requireUser();
-		if (user.role !== 'ADMIN') throw new Error('forbidden');
+		if (user.role !== 'ADMIN') throw Forbidden();
 		return user;
 	}
 }

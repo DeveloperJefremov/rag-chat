@@ -6,6 +6,7 @@ import {
 	sessionService,
 } from '@/server/infrastructure/http/container';
 import { toIngestResponseDto } from '@/shared/dtos/IngestResponseDto';
+import { httpErrorResponse } from '@/shared/errors/httpErrorResponse';
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
@@ -17,13 +18,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
 		const docs = await documentRepo.findAttachedToSession(id, user.id);
 		return NextResponse.json(docs.map(d => toIngestResponseDto(d, 0)));
-	} catch (err: unknown) {
-		if (err instanceof Error && err.message === 'unauthenticated') {
-			return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
-		}
-		// eslint-disable-next-line no-console
-		console.error('[session.docs.list] failed:', err);
-		return NextResponse.json({ error: 'internal_error' }, { status: 500 });
+	} catch (err) {
+		return httpErrorResponse(err, 'session.docs.list');
 	}
 }
 
@@ -47,15 +43,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
 		await documentRepo.attachToSession(id, body.documentId);
 		return new NextResponse(null, { status: 204 });
-	} catch (err: unknown) {
-		if (err instanceof Error && err.message === 'unauthenticated') {
-			return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
-		}
-		if (err instanceof Error && err.message === 'attached_limit_reached') {
-			return NextResponse.json({ error: 'attached_limit_reached' }, { status: 403 });
-		}
-		// eslint-disable-next-line no-console
-		console.error('[session.docs.attach] failed:', err);
-		return NextResponse.json({ error: 'internal_error' }, { status: 500 });
+	} catch (err) {
+		return httpErrorResponse(err, 'session.docs.attach');
 	}
 }

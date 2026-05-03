@@ -10,6 +10,7 @@ import { FileType } from '@/domain/value-objects/FileType';
 import { ChunkingStrategy } from '@/domain/value-objects/ChunkingStrategy';
 import { MAX_FILE_SIZE_MB, SUPPORTED_FILE_TYPES } from '@/shared/config/constants';
 import { verifyFileSignature } from '@/shared/lib/fileSignature';
+import { httpErrorResponse } from '@/shared/errors/httpErrorResponse';
 
 const EXT_TO_FILE_TYPE: Record<string, FileType> = {
 	pdf: 'PDF',
@@ -79,18 +80,7 @@ export async function POST(req: NextRequest) {
 		});
 
 		return NextResponse.json(result, { status: 201 });
-	} catch (err: unknown) {
-		if (err instanceof Error && err.message === 'unauthenticated') {
-			return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
-		}
-		if (err instanceof Error && err.message === 'documents_limit_reached') {
-			return NextResponse.json({ error: 'documents_limit_reached' }, { status: 403 });
-		}
-		if (err instanceof Error && err.message === 'attached_limit_reached') {
-			return NextResponse.json({ error: 'attached_limit_reached' }, { status: 403 });
-		}
-		// eslint-disable-next-line no-console
-		console.error('[ingest] failed:', err);
-		return NextResponse.json({ error: 'internal_error' }, { status: 500 });
+	} catch (err) {
+		return httpErrorResponse(err, 'ingest');
 	}
 }

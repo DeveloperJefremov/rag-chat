@@ -3,6 +3,7 @@ import { IChatSessionRepository } from '../repositories/IChatSessionRepository';
 import { IDocumentRepository } from '../repositories/IDocumentRepository';
 import { ILLMLogRepository } from '../repositories/ILLMLogRepository';
 import { IDeletedUserAuditRepository } from '../repositories/IDeletedUserAuditRepository';
+import { UserNotFound } from '../../../shared/errors/AppError';
 
 export class AccountService {
 	constructor(
@@ -15,7 +16,7 @@ export class AccountService {
 
 	async deleteUser(userId: string): Promise<void> {
 		const user = await this.userRepo.findById(userId);
-		if (!user) throw new Error('user_not_found');
+		if (!user) throw UserNotFound();
 
 		const [llmStats, totalDocuments, totalChatSessions] = await Promise.all([
 			this.llmLogRepo.aggregateByUser(userId),
