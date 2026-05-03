@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { authContext, chatSessionRepo, messageRepo } from '@/server/infrastructure/http/container';
-import { MessageDto } from '@/shared/dtos/MessageDto';
+import { toMessageDto } from '@/shared/dtos/MessageDto';
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
 	try {
@@ -13,14 +13,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 		}
 
 		const messages = await messageRepo.findBySessionId(id);
-		const dtos: MessageDto[] = messages.map(m => ({
-			id: m.id,
-			role: m.role,
-			content: m.content,
-			citations: m.citations ?? undefined,
-			createdAt: m.createdAt.toISOString(),
-		}));
-		return NextResponse.json(dtos);
+		return NextResponse.json(messages.map(toMessageDto));
 	} catch (err: unknown) {
 		if (err instanceof Error && err.message === 'unauthenticated') {
 			return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });

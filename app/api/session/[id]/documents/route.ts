@@ -5,7 +5,7 @@ import {
 	documentRepo,
 	sessionService,
 } from '@/server/infrastructure/http/container';
-import { IngestResponseDto } from '@/shared/dtos/IngestResponseDto';
+import { toIngestResponseDto } from '@/shared/dtos/IngestResponseDto';
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
@@ -16,14 +16,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 		if (!session) return NextResponse.json({ error: 'session_not_found' }, { status: 404 });
 
 		const docs = await documentRepo.findAttachedToSession(id, user.id);
-		const dtos: IngestResponseDto[] = docs.map(d => ({
-			documentId: d.id,
-			name: d.name,
-			chunkCount: 0,
-			createdAt: d.createdAt.toISOString(),
-			chunkingStrategy: d.chunkingStrategy,
-		}));
-		return NextResponse.json(dtos);
+		return NextResponse.json(docs.map(d => toIngestResponseDto(d, 0)));
 	} catch (err: unknown) {
 		if (err instanceof Error && err.message === 'unauthenticated') {
 			return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });

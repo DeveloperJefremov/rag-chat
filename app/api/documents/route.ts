@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { authContext } from '@/server/infrastructure/http/container';
 import { prisma } from '@/server/infrastructure/prisma-orm/prismaClient';
-import { IngestResponseDto } from '@/shared/dtos/IngestResponseDto';
+import { toIngestResponseDto } from '@/shared/dtos/IngestResponseDto';
 
 export async function GET() {
 	try {
@@ -13,15 +13,7 @@ export async function GET() {
 			include: { _count: { select: { chunks: true } } },
 		});
 
-		const dtos: IngestResponseDto[] = docs.map(d => ({
-			documentId: d.id,
-			name: d.name,
-			chunkCount: d._count.chunks,
-			createdAt: d.createdAt.toISOString(),
-			chunkingStrategy: d.chunkingStrategy,
-		}));
-
-		return NextResponse.json(dtos);
+		return NextResponse.json(docs.map(d => toIngestResponseDto(d, d._count.chunks)));
 	} catch (err: unknown) {
 		if (err instanceof Error && err.message === 'unauthenticated') {
 			return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
