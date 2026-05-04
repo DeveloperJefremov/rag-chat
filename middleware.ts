@@ -1,7 +1,10 @@
+import NextAuth from 'next-auth';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { auth } from './auth';
+import authConfig from './auth.config';
 import { checkIpRateLimit } from './shared/lib/rateLimit';
+
+const { auth } = NextAuth(authConfig);
 
 export default auth(async (request: NextRequest) => {
 	const { pathname } = request.nextUrl;
