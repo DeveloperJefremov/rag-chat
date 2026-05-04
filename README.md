@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RAG Chat
 
-## Getting Started
+A Retrieval-Augmented Generation chatbot built with Next.js and TypeScript. Indexes a custom knowledge base into an embeddings store and uses an LLM to answer questions grounded in that content.
 
-First, run the development server:
+> Built as a deep-dive into LLM-powered application architecture, with an emphasis on clean separation of concerns rather than a quick prototype.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Stack
+
+- **Framework:** Next.js (App Router), TypeScript
+- **Database & ORM:** PostgreSQL, Prisma
+- **UI:** Tailwind CSS, shadcn/ui
+- **Testing:** Vitest
+- **Tooling:** ESLint, Prettier, Husky, lint-staged
+- **AI:** [укажите конкретно: OpenAI / Anthropic / другой LLM provider] for response generation, [укажите: pgvector / Pinecone / другая векторная БД] for embeddings storage and semantic search
+
+## Architecture
+
+The codebase is organised by domain rather than by framework convention. Each top-level folder has a clear responsibility:
+
+```
+domain/        # Pure business logic, no framework dependencies
+app/           # Application use cases / orchestration
+server/        # Server-side adapters (API routes, DB access)
+client/        # Client-side state and hooks
+presentation/  # UI components (shadcn/ui based)
+shared/        # Cross-cutting utilities
+test/          # Vitest tests
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This layout keeps business logic decoupled from Next.js, so the same domain code could be moved to a different framework with minimal rewriting.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How RAG works here
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Source documents are split into chunks and converted into vector embeddings.
+2. Embeddings are stored in [укажите векторную БД].
+3. When a user asks a question, the question is embedded and the nearest chunks are retrieved by semantic similarity.
+4. Those chunks are passed to the LLM as context, so answers are grounded in the indexed content rather than the model's general knowledge.
 
-## Learn More
+## Getting started
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# install
+npm install
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# set up environment
+cp .env.example .env
+# fill in: DATABASE_URL, LLM API key, etc.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# database
+npx prisma migrate dev
 
-## Deploy on Vercel
+# run
+npm run dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Open [http://localhost:3000](http://localhost:3000).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Scripts
+
+```bash
+npm run dev          # development server
+npm run build        # production build
+npm run test         # run Vitest tests
+npm run lint         # ESLint
+```
+
+## Status
+
+Active personal project. Built to learn LLM integration patterns, embeddings, and clean architecture in a real Next.js codebase.
