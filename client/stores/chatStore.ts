@@ -1,0 +1,147 @@
+'use client';
+import { create } from 'zustand';
+import { MessageDto } from '../../shared/dtos/MessageDto';
+import { CitationDto } from '../../shared/dtos/CitationDto';
+import { ChunkingStrategy } from '../../domain/value-objects/ChunkingStrategy';
+import { chatSessionService } from '../infrastructure/container';
+import { UnauthenticatedError } from '../infrastructure/http/apiFetch';
+import { toast } from './toastStore';
+import { useSessionStore } from './sessionStore';
+import { useUsageStore } from './usageStore';
+
+interface SendMessageParams {
+	message: string;
+	sessionId: string;
+	documentIds: string[];
+	chunkingStrategy?: ChunkingStrategy;
+	topK?: number;
+	rerankingEnabled?: boolean;
+}
+
+interface ChatState {
+	messages: MessageDto[];
+	citationsByMessageId: Record<string, CitationDto[]>;
+	isStreaming: boolean;
+	isLoadingHistory: boolean;
+	error: string | null;
+	abortController: AbortController | null;
+	sendMessage: (params: SendMessageParams) => Promise<void>;
+	stopStreaming: () => void;
+	loadHistory: (sessionId: string) => Promise<void>;
+	reset: () => void;
+}
+
+export const useChatStore = create<ChatState>((set, get) => ({
+	messages: [],
+	citationsByMessageId: {},
+	isStreaming: false,
+	isLoadingHistory: false,
+	error: null,
+	abortController: null,
+
+	reset: () => {
+		const c = get().abortController;
+		if (c) c.abort();
+		set({
+			messages: [],
+			citationsByMessageId: {},
+			error: null,
+			isStreaming: false,
+			isLoadingHistory: false,
+			abortController: null,
+		});
+	},
+
+	stopStreaming: () => {
+		const c = get().abortController;
+		if (c) c.abort();
+	},
+
+	loadHistory: async (sessionId: string) => {
+		set({ isLoadingHistory: true, error: null });
+		try {
+			const messages = await chatSessionService.loadHistory(sessionId);
+			const citationsByMessageId: Record<string, CitationDto[]> = {};
+			for (const m of messages) {
+				if (m.citations && m.citations.length > 0) {
+					citationsByMessageId[m.id] = m.citations;
+				}
+			}
+			const stripped: MessageDto[] = messages.map(m => ({
+				id: m.id,
+				role: m.role,
+				content: m.content,
+				createdAt: m.createdAt,
+			}));
+			set({ messages: stripped, citationsByMessageId, isLoadingHistory: false });
+		} catch (e: unknown) {
+			if (e instanceof UnauthenticatedError) {
+				set({ isLoadingHistory: false });
+				return;
+			}
+			const msg = e instanceof Error ? e.message : 'history_load_failed';
+			toast.error('Could not load history', msg);
+			set({ error: msg, isLoadingHistory: false });
+		}
+	},
+
+	sendMessage: async params => {
+		const controller = new AbortController();
+		set({ isStreaming: true, error: null, abortController: controller });
+
+		let currentAssistantId: string | null = null;
+
+		await chatSessionService.send(
+			params,
+			{
+				onUserMessage: msg => {
+					set(state => ({ messages: [...state.messages, msg] }));
+				},
+				onAssistantStart: msg => {
+					currentAssistantId = msg.id;
+					set(state => ({ messages: [...state.messages, msg] }));
+				},
+				onSources: sources => {
+					if (!currentAssistantId) return;
+					set(state => ({
+						citationsByMessageId: {
+							...state.citationsByMessageId,
+							[currentAssistantId!]: sources,
+						},
+					}));
+				},
+				onChunk: text => {
+					set(state => {
+						const msgs = [...state.messages];
+						const last = msgs[msgs.length - 1];
+						if (last && last.role === 'ASSISTANT') {
+							msgs[msgs.length - 1] = { ...last, content: last.content + text };
+						}
+						return { messages: msgs };
+					});
+				},
+				onTitle: (sessionId, title) => {
+					useSessionStore.getState().updateSessionTitle(sessionId, title);
+				},
+				onError: (error, message) => {
+					const display = message ? `⚠ ${error}: ${message}` : `⚠ ${error}`;
+					toast.error(error === 'limit_reached' ? 'Daily limit reached' : 'Chat error', message);
+					if (error === 'limit_reached') useUsageStore.getState().setExhausted();
+					set(state => {
+						const msgs = [...state.messages];
+						const last = msgs[msgs.length - 1];
+						if (last && last.role === 'ASSISTANT' && last.content === '') {
+							msgs[msgs.length - 1] = { ...last, content: display };
+						}
+						return { messages: msgs, error, isStreaming: false, abortController: null };
+					});
+				},
+				onDone: () => {
+					if (!controller.signal.aborted) useUsageStore.getState().decrement();
+					set({ isStreaming: false, abortController: null });
+				},
+			},
+			controller.signal,
+		);
+	},
+}));
