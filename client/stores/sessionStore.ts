@@ -6,6 +6,7 @@ import { UnauthenticatedError } from '../infrastructure/http/apiFetch';
 import { toast } from './toastStore';
 import { useChatStore } from './chatStore';
 import { useAttachmentStore } from './attachmentStore';
+import { LIMITS_BY_ROLE } from '../../shared/config/limits';
 
 function isAuthRedirect(e: unknown): boolean {
 	return e instanceof UnauthenticatedError;
@@ -17,6 +18,7 @@ interface SessionState {
 	isLoading: boolean;
 	error: string | null;
 	fetchSessions: () => Promise<void>;
+	startNewChat: () => void;
 	createSession: () => Promise<SessionDto>;
 	deleteSession: (id: string) => Promise<void>;
 	setActiveSession: (id: string) => void;
@@ -52,6 +54,11 @@ export const useSessionStore = create<SessionState>(set => ({
 		}
 	},
 
+	startNewChat: () => {
+		useChatStore.getState().reset();
+		set({ activeSessionId: null });
+	},
+
 	createSession: async () => {
 		try {
 			const session = await sessionApi.createSession();
@@ -60,7 +67,12 @@ export const useSessionStore = create<SessionState>(set => ({
 			return session;
 		} catch (e: unknown) {
 			if (!isAuthRedirect(e)) {
-				toast.error('Could not create chat', e instanceof Error ? e.message : undefined);
+				const code = e instanceof Error ? e.message : undefined;
+				const friendly =
+					code === 'chat_sessions_limit_reached'
+						? `Chat limit reached (${LIMITS_BY_ROLE.USER.maxChatSessions} chats). Delete an existing chat to start a new one.`
+						: code;
+				toast.error('Could not create chat', friendly);
 			}
 			throw e;
 		}
