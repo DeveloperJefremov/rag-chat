@@ -7,6 +7,7 @@ import {
 	LimitReached,
 	DocumentsLimitReached,
 	AttachedLimitReached,
+	ChatSessionsLimitReached,
 	SessionNotFound,
 } from '../../../shared/errors/AppError';
 
@@ -52,6 +53,13 @@ export class SessionService {
 		const limit = LIMITS_BY_ROLE[role].maxAttachedPerSession;
 		if (limit === Infinity) return;
 		if (currentCount >= limit) throw AttachedLimitReached();
+	}
+
+	async validateChatSessionsLimit(userId: string, role: UserRole): Promise<void> {
+		const limit = LIMITS_BY_ROLE[role].maxChatSessions;
+		if (limit === Infinity) return;
+		const count = await this.chatSessionRepo.countByUser(userId);
+		if (count >= limit) throw ChatSessionsLimitReached();
 	}
 
 	async incrementUsage(userId: string): Promise<void> {

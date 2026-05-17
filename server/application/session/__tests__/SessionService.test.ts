@@ -125,4 +125,35 @@ describe('SessionService', () => {
 			await expect(service.validateAttachedLimit('USER', 3)).resolves.toBeUndefined();
 		});
 	});
+
+	describe('validateChatSessionsLimit', () => {
+		it('throws ChatSessionsLimitReached when USER count >= maxChatSessions (10)', async () => {
+			const sessionRepo = makeSessionRepo({
+				countByUser: vi.fn().mockResolvedValue(10),
+			});
+			const service = new SessionService(sessionRepo, makeUsageRepo());
+
+			await expect(service.validateChatSessionsLimit('user-1', 'USER')).rejects.toThrow(
+				'chat_sessions_limit_reached',
+			);
+		});
+
+		it('does not throw when USER is below the limit', async () => {
+			const sessionRepo = makeSessionRepo({
+				countByUser: vi.fn().mockResolvedValue(9),
+			});
+			const service = new SessionService(sessionRepo, makeUsageRepo());
+
+			await expect(service.validateChatSessionsLimit('user-1', 'USER')).resolves.toBeUndefined();
+		});
+
+		it('never throws for ADMIN role and does not call countByUser', async () => {
+			const countByUser = vi.fn();
+			const sessionRepo = makeSessionRepo({ countByUser });
+			const service = new SessionService(sessionRepo, makeUsageRepo());
+
+			await expect(service.validateChatSessionsLimit('admin-1', 'ADMIN')).resolves.toBeUndefined();
+			expect(countByUser).not.toHaveBeenCalled();
+		});
+	});
 });
