@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSessionStore } from '@/client/stores/sessionStore';
 import { useChatStore } from '@/client/stores/chatStore';
 import { useControlsStore } from '@/client/stores/controlsStore';
@@ -41,10 +41,18 @@ export function ChatPage() {
 		if (sessionId) void loadAttached(sessionId);
 	}, [sessionId, loadAttached]);
 
+	const creatingSessionRef = useRef<Promise<string> | null>(null);
+
 	const ensureSession = async (): Promise<string> => {
 		if (sessionId) return sessionId;
-		const ns = await createSession();
-		return ns.id;
+		if (creatingSessionRef.current) return creatingSessionRef.current;
+		const inflight = createSession()
+			.then(ns => ns.id)
+			.finally(() => {
+				creatingSessionRef.current = null;
+			});
+		creatingSessionRef.current = inflight;
+		return inflight;
 	};
 
 	const handleSend = async (message: string) => {
