@@ -35,41 +35,80 @@ describe('SessionService', () => {
 	describe('getOrCreate', () => {
 		it('creates new session when sessionId is null', async () => {
 			const newSession = makeSession({ id: 'new-id' });
-			const sessionRepo = makeSessionRepo({ create: vi.fn().mockResolvedValue(newSession) });
+			const sessionRepo = makeSessionRepo({
+				create: vi.fn().mockResolvedValue(newSession),
+				countByUser: vi.fn().mockResolvedValue(0),
+			});
 			const service = new SessionService(sessionRepo, makeUsageRepo());
 
-			const result = await service.getOrCreate('user-1', null);
+			const result = await service.getOrCreate('user-1', null, 'USER');
 
 			expect(sessionRepo.create).toHaveBeenCalledOnce();
 			expect(result.id).toBe('new-id');
 		});
 
-		it('returns existing valid session', async () => {
+		it('returns existing valid session without limit check', async () => {
 			const existing = makeSession({
 				id: 'existing-id',
 				expiresAt: new Date(Date.now() + 3600000),
 			});
-			const sessionRepo = makeSessionRepo({ findById: vi.fn().mockResolvedValue(existing) });
-			const service = new SessionService(sessionRepo, makeUsageRepo());
-
-			const result = await service.getOrCreate('user-1', 'existing-id');
-
-			expect(result.id).toBe('existing-id');
-		});
-
-		it('creates new session when existing is expired', async () => {
-			const expired = makeSession({ id: 'old', expiresAt: new Date(Date.now() - 1000) });
-			const fresh = makeSession({ id: 'fresh' });
+			const countByUser = vi.fn();
 			const sessionRepo = makeSessionRepo({
-				findById: vi.fn().mockResolvedValue(expired),
-				create: vi.fn().mockResolvedValue(fresh),
+				findById: vi.fn().mockResolvedValue(existing),
+				countByUser,
 			});
 			const service = new SessionService(sessionRepo, makeUsageRepo());
 
-			const result = await service.getOrCreate('user-1', 'old');
+			const result = await service.getOrCreate('user-1', 'existing-id', 'USER');
 
+			expect(result.id).toBe('existing-id');
+			expect(countByUser).not.toHaveBeenCalled();
+		});
+
+		it('creates new session when existing is expired (and re-checks limit)', async () => {
+			const expired = makeSession({ id: 'old', expiresAt: new Date(Date.now() - 1000) });
+			const fresh = makeSession({ id: 'fresh' });
+			const countByUser = vi.fn().mockResolvedValue(0);
+			const sessionRepo = makeSessionRepo({
+				findById: vi.fn().mockResolvedValue(expired),
+				create: vi.fn().mockResolvedValue(fresh),
+				countByUser,
+			});
+			const service = new SessionService(sessionRepo, makeUsageRepo());
+
+			const result = await service.getOrCreate('user-1', 'old', 'USER');
+
+			expect(countByUser).toHaveBeenCalledOnce();
 			expect(sessionRepo.create).toHaveBeenCalledOnce();
 			expect(result.id).toBe('fresh');
+		});
+
+		it('throws ChatSessionsLimitReached for USER at the cap', async () => {
+			const sessionRepo = makeSessionRepo({
+				countByUser: vi.fn().mockResolvedValue(10),
+				create: vi.fn(),
+			});
+			const service = new SessionService(sessionRepo, makeUsageRepo());
+
+			await expect(service.getOrCreate('user-1', null, 'USER')).rejects.toThrow(
+				'chat_sessions_limit_reached',
+			);
+			expect(sessionRepo.create).not.toHaveBeenCalled();
+		});
+
+		it('does not enforce the cap for ADMIN', async () => {
+			const newSession = makeSession({ id: 'admin-new' });
+			const countByUser = vi.fn();
+			const sessionRepo = makeSessionRepo({
+				create: vi.fn().mockResolvedValue(newSession),
+				countByUser,
+			});
+			const service = new SessionService(sessionRepo, makeUsageRepo());
+
+			const result = await service.getOrCreate('admin-1', null, 'ADMIN');
+
+			expect(countByUser).not.toHaveBeenCalled();
+			expect(result.id).toBe('admin-new');
 		});
 	});
 

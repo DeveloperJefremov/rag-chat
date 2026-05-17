@@ -121,7 +121,22 @@ describe('/api/session', () => {
 				createdAt: '2026-02-01T00:00:00.000Z',
 				expiresAt: '2026-02-02T00:00:00.000Z',
 			});
-			expect(mockSessionService.getOrCreate).toHaveBeenCalledWith('u', null);
+			expect(mockSessionService.getOrCreate).toHaveBeenCalledWith('u', null, 'USER');
+		});
+
+		it('returns 403 when the chat sessions limit is reached', async () => {
+			mockAuthContext.requireUser.mockResolvedValueOnce({
+				id: 'u',
+				email: 'e',
+				role: 'USER',
+			});
+			const { ChatSessionsLimitReached } = await import('@/shared/errors/AppError');
+			mockSessionService.getOrCreate.mockRejectedValueOnce(ChatSessionsLimitReached());
+
+			const res = await POST(makeReq(), { params: Promise.resolve({}) });
+
+			expect(res.status).toBe(403);
+			expect(await res.json()).toEqual({ error: 'chat_sessions_limit_reached' });
 		});
 
 		it('maps internal failure to 500', async () => {

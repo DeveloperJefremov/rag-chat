@@ -17,13 +17,18 @@ export class SessionService {
 		private readonly userUsageRepo: IUserUsageRepository,
 	) {}
 
-	async getOrCreate(userId: string, sessionId: string | null): Promise<ChatSession> {
+	async getOrCreate(
+		userId: string,
+		sessionId: string | null,
+		role: UserRole,
+	): Promise<ChatSession> {
 		if (sessionId) {
 			const existing = await this.chatSessionRepo.findById(sessionId, userId);
 			if (existing && existing.expiresAt > new Date()) {
 				return existing;
 			}
 		}
+		await this.validateChatSessionsLimit(userId, role);
 		const expiresAt = new Date();
 		expiresAt.setHours(expiresAt.getHours() + SESSION_TTL_HOURS);
 		return this.chatSessionRepo.create({ userId, expiresAt });
