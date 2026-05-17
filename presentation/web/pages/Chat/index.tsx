@@ -16,7 +16,7 @@ import { AddFromLibraryDialog } from './AddFromLibraryDialog';
 import { OnboardingHero } from './OnboardingHero';
 
 export function ChatPage() {
-	const { sessions, activeSessionId, fetchSessions, createSession } = useSessionStore();
+	const { activeSessionId, fetchSessions, createSession } = useSessionStore();
 	const { messages, citationsByMessageId, isStreaming, sendMessage, stopStreaming } =
 		useChatStore();
 	const { chunkingStrategy, topK, rerankingEnabled } = useControlsStore();
@@ -26,7 +26,7 @@ export function ChatPage() {
 		useAttachmentStore();
 	const [libraryOpen, setLibraryOpen] = useState(false);
 
-	const sessionId = activeSessionId ?? sessions[0]?.id ?? null;
+	const sessionId = activeSessionId;
 	const attached = sessionId ? (attachedBySession[sessionId] ?? []) : [];
 	const active = sessionId ? (activeBySession[sessionId] ?? new Set<string>()) : new Set<string>();
 	const activeIds = Array.from(active);
@@ -41,12 +41,19 @@ export function ChatPage() {
 		if (sessionId) void loadAttached(sessionId);
 	}, [sessionId, loadAttached]);
 
+	const ensureSession = async (): Promise<string> => {
+		if (sessionId) return sessionId;
+		const ns = await createSession();
+		return ns.id;
+	};
+
 	const handleSend = async (message: string) => {
 		if (activeIds.length === 0) return;
-		let sid = sessionId;
-		if (!sid) {
-			const ns = await createSession();
-			sid = ns.id;
+		let sid: string;
+		try {
+			sid = await ensureSession();
+		} catch {
+			return; // toast already shown by sessionStore
 		}
 		await sendMessage({
 			message,
@@ -56,6 +63,15 @@ export function ChatPage() {
 			topK,
 			rerankingEnabled,
 		});
+	};
+
+	const handleOpenLibrary = async () => {
+		try {
+			await ensureSession();
+			setLibraryOpen(true);
+		} catch {
+			// toast already shown by sessionStore
+		}
 	};
 
 	const sourcesCount = Object.values(citationsByMessageId).reduce((s, c) => s + c.length, 0);
@@ -80,9 +96,8 @@ export function ChatPage() {
 					<Button
 						type='button'
 						variant='ghost'
-						onClick={() => setLibraryOpen(true)}
-						disabled={!sessionId}
-						className='text-cobalt-700 hover:text-cobalt-700 h-auto cursor-pointer rounded-none border-none bg-transparent p-0 text-xs font-normal underline hover:bg-transparent disabled:cursor-not-allowed disabled:opacity-50'
+						onClick={handleOpenLibrary}
+						className='text-cobalt-700 hover:text-cobalt-700 h-auto cursor-pointer rounded-none border-none bg-transparent p-0 text-xs font-normal underline hover:bg-transparent'
 					>
 						+ Add from library
 					</Button>
@@ -106,7 +121,7 @@ export function ChatPage() {
 					<Button
 						type='button'
 						variant='ghost'
-						onClick={() => setLibraryOpen(true)}
+						onClick={handleOpenLibrary}
 						className='h-auto cursor-pointer rounded-none border-none bg-transparent p-0 text-xs font-normal underline hover:bg-transparent'
 					>
 						+ Add from library
