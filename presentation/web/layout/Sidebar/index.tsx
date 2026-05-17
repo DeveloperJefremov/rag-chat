@@ -103,7 +103,7 @@ function ChatSection() {
 		sessions,
 		activeSessionId,
 		setActiveSession,
-		createSession,
+		startNewChat,
 		fetchSessions,
 		deleteSession,
 		isLoading,
@@ -125,8 +125,8 @@ function ChatSection() {
 		if (!onChatPage) router.push('/');
 	};
 
-	const handleNewChat = async () => {
-		await createSession();
+	const handleNewChat = () => {
+		startNewChat();
 		if (!onChatPage) router.push('/');
 	};
 

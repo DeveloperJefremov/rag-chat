@@ -6,6 +6,7 @@ import { UnauthenticatedError } from '../infrastructure/http/apiFetch';
 import { toast } from './toastStore';
 import { useChatStore } from './chatStore';
 import { useAttachmentStore } from './attachmentStore';
+import { LIMITS_BY_ROLE } from '../../shared/config/limits';
 
 function isAuthRedirect(e: unknown): boolean {
 	return e instanceof UnauthenticatedError;
@@ -16,7 +17,9 @@ interface SessionState {
 	activeSessionId: string | null;
 	isLoading: boolean;
 	error: string | null;
+	hasFetched: boolean;
 	fetchSessions: () => Promise<void>;
+	startNewChat: () => void;
 	createSession: () => Promise<SessionDto>;
 	deleteSession: (id: string) => Promise<void>;
 	setActiveSession: (id: string) => void;
@@ -28,18 +31,21 @@ export const useSessionStore = create<SessionState>(set => ({
 	activeSessionId: null,
 	isLoading: false,
 	error: null,
+	hasFetched: false,
 
 	fetchSessions: async () => {
 		set({ isLoading: true, error: null });
 		try {
 			const sessions = await sessionApi.getSessions();
 			set(state => {
-				const activeSessionId = state.activeSessionId ?? sessions[0]?.id ?? null;
+				const activeSessionId = state.hasFetched
+					? state.activeSessionId
+					: (state.activeSessionId ?? sessions[0]?.id ?? null);
 				if (activeSessionId) {
 					void useAttachmentStore.getState().loadAttached(activeSessionId);
 					void useChatStore.getState().loadHistory(activeSessionId);
 				}
-				return { sessions, isLoading: false, activeSessionId };
+				return { sessions, isLoading: false, activeSessionId, hasFetched: true };
 			});
 		} catch (e: unknown) {
 			if (isAuthRedirect(e)) {
@@ -52,6 +58,11 @@ export const useSessionStore = create<SessionState>(set => ({
 		}
 	},
 
+	startNewChat: () => {
+		useChatStore.getState().reset();
+		set({ activeSessionId: null });
+	},
+
 	createSession: async () => {
 		try {
 			const session = await sessionApi.createSession();
@@ -60,7 +71,12 @@ export const useSessionStore = create<SessionState>(set => ({
 			return session;
 		} catch (e: unknown) {
 			if (!isAuthRedirect(e)) {
-				toast.error('Could not create chat', e instanceof Error ? e.message : undefined);
+				const code = e instanceof Error ? e.message : undefined;
+				const friendly =
+					code === 'chat_sessions_limit_reached'
+						? `Chat limit reached (${LIMITS_BY_ROLE.USER.maxChatSessions} chats). Delete an existing chat to start a new one.`
+						: code;
+				toast.error('Could not create chat', friendly);
 			}
 			throw e;
 		}

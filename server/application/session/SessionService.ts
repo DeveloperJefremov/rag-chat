@@ -7,6 +7,7 @@ import {
 	LimitReached,
 	DocumentsLimitReached,
 	AttachedLimitReached,
+	ChatSessionsLimitReached,
 	SessionNotFound,
 } from '../../../shared/errors/AppError';
 
@@ -16,13 +17,18 @@ export class SessionService {
 		private readonly userUsageRepo: IUserUsageRepository,
 	) {}
 
-	async getOrCreate(userId: string, sessionId: string | null): Promise<ChatSession> {
+	async getOrCreate(
+		userId: string,
+		sessionId: string | null,
+		role: UserRole,
+	): Promise<ChatSession> {
 		if (sessionId) {
 			const existing = await this.chatSessionRepo.findById(sessionId, userId);
 			if (existing && existing.expiresAt > new Date()) {
 				return existing;
 			}
 		}
+		await this.validateChatSessionsLimit(userId, role);
 		const expiresAt = new Date();
 		expiresAt.setHours(expiresAt.getHours() + SESSION_TTL_HOURS);
 		return this.chatSessionRepo.create({ userId, expiresAt });
@@ -52,6 +58,13 @@ export class SessionService {
 		const limit = LIMITS_BY_ROLE[role].maxAttachedPerSession;
 		if (limit === Infinity) return;
 		if (currentCount >= limit) throw AttachedLimitReached();
+	}
+
+	async validateChatSessionsLimit(userId: string, role: UserRole): Promise<void> {
+		const limit = LIMITS_BY_ROLE[role].maxChatSessions;
+		if (limit === Infinity) return;
+		const count = await this.chatSessionRepo.countByUser(userId);
+		if (count >= limit) throw ChatSessionsLimitReached();
 	}
 
 	async incrementUsage(userId: string): Promise<void> {

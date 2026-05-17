@@ -1,5 +1,14 @@
 {
 	"permissions": {
-		"allow": ["Bash(npx shadcn *)", "Bash(npx tsc *)", "WebFetch(domain:api.anthropic.com)"]
+		"allow": [
+			"Bash(npx shadcn *)",
+			"Bash(npx tsc *)",
+			"WebFetch(domain:api.anthropic.com)",
+			"Bash(git *)",
+			"Bash(npx vitest *)",
+			"Bash(npm run *)",
+			"Read(//c/Users/ARTEMJ~1/AppData/Local/Temp/claude/C--Users-Artem-Jefremov-Desktop-rag-chat/8485338f-0777-4bf4-a822-774443653ffb/tasks/**)",
+			"Skill(superpowers:brainstorming)"
+		]
 	}
 }

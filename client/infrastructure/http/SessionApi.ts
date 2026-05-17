@@ -11,7 +11,10 @@ export class SessionApi implements ISessionApi {
 
 	async createSession(): Promise<SessionDto> {
 		const res = await apiFetch('/api/session', { method: 'POST' });
-		if (!res.ok) throw new Error('session_create_failed');
+		if (!res.ok) {
+			const body = (await res.json().catch(() => null)) as { error?: string } | null;
+			throw new Error(body?.error ?? 'session_create_failed');
+		}
 		return res.json();
 	}
 

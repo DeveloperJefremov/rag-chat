@@ -23,6 +23,6 @@ export const GET = withAuth(async (req, { user }) => {
 }, 'session.list');
 
 export const POST = withAuth(async (_req, { user }) => {
-	const session = await sessionService.getOrCreate(user.id, null);
+	const session = await sessionService.getOrCreate(user.id, null, user.role);
 	return NextResponse.json(toSessionDto(session), { status: 201 });
 }, 'session.create');
