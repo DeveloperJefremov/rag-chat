@@ -27,6 +27,7 @@ beforeEach(() => {
 		activeSessionId: null,
 		isLoading: false,
 		error: null,
+		hasFetched: false,
 	});
 });
 
@@ -84,5 +85,60 @@ describe('sessionStore.createSession', () => {
 
 		const [, body] = mockToast.error.mock.calls[0];
 		expect(body).toBe('weird_error');
+	});
+});
+
+describe('sessionStore.fetchSessions', () => {
+	it('auto-selects the latest session on first load', async () => {
+		mockSessionApi.getSessions.mockResolvedValueOnce([
+			{
+				id: 's-newest',
+				title: null,
+				createdAt: '2026-05-17T00:00:00.000Z',
+				expiresAt: '2026-05-18T00:00:00.000Z',
+			},
+			{
+				id: 's-older',
+				title: null,
+				createdAt: '2026-05-16T00:00:00.000Z',
+				expiresAt: '2026-05-17T00:00:00.000Z',
+			},
+		]);
+
+		await useSessionStore.getState().fetchSessions();
+
+		expect(useSessionStore.getState().activeSessionId).toBe('s-newest');
+		expect(useSessionStore.getState().hasFetched).toBe(true);
+	});
+
+	it('preserves an explicit draft (activeSessionId=null) on subsequent fetch', async () => {
+		// First fetch: populates and auto-selects.
+		mockSessionApi.getSessions.mockResolvedValueOnce([
+			{
+				id: 's-1',
+				title: null,
+				createdAt: '2026-05-17T00:00:00.000Z',
+				expiresAt: '2026-05-18T00:00:00.000Z',
+			},
+		]);
+		await useSessionStore.getState().fetchSessions();
+		expect(useSessionStore.getState().activeSessionId).toBe('s-1');
+
+		// User enters draft mode.
+		useSessionStore.getState().startNewChat();
+		expect(useSessionStore.getState().activeSessionId).toBeNull();
+
+		// Cross-route remount triggers fetchSessions again.
+		mockSessionApi.getSessions.mockResolvedValueOnce([
+			{
+				id: 's-1',
+				title: null,
+				createdAt: '2026-05-17T00:00:00.000Z',
+				expiresAt: '2026-05-18T00:00:00.000Z',
+			},
+		]);
+		await useSessionStore.getState().fetchSessions();
+
+		expect(useSessionStore.getState().activeSessionId).toBeNull();
 	});
 });

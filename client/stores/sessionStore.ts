@@ -17,6 +17,7 @@ interface SessionState {
 	activeSessionId: string | null;
 	isLoading: boolean;
 	error: string | null;
+	hasFetched: boolean;
 	fetchSessions: () => Promise<void>;
 	startNewChat: () => void;
 	createSession: () => Promise<SessionDto>;
@@ -30,18 +31,21 @@ export const useSessionStore = create<SessionState>(set => ({
 	activeSessionId: null,
 	isLoading: false,
 	error: null,
+	hasFetched: false,
 
 	fetchSessions: async () => {
 		set({ isLoading: true, error: null });
 		try {
 			const sessions = await sessionApi.getSessions();
 			set(state => {
-				const activeSessionId = state.activeSessionId ?? sessions[0]?.id ?? null;
+				const activeSessionId = state.hasFetched
+					? state.activeSessionId
+					: (state.activeSessionId ?? sessions[0]?.id ?? null);
 				if (activeSessionId) {
 					void useAttachmentStore.getState().loadAttached(activeSessionId);
 					void useChatStore.getState().loadHistory(activeSessionId);
 				}
-				return { sessions, isLoading: false, activeSessionId };
+				return { sessions, isLoading: false, activeSessionId, hasFetched: true };
 			});
 		} catch (e: unknown) {
 			if (isAuthRedirect(e)) {
